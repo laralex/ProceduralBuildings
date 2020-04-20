@@ -14,26 +14,17 @@ namespace WpfVisualizer
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private ModelVisual3D m_model;
-        public ModelVisual3D ShownModel {
-            get => m_model;
+        private ModelVisual3D m_shownModel;
+        public ModelVisual3D ShownVisual3d {
+            get => m_shownModel;
             set
             {
-                m_model = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ShownModel"));
+                m_shownModel = value;
+                PropertyChanged?.Invoke(this, 
+                    new PropertyChangedEventArgs("ShownVisual3d"));
             }
         }
 
-        private Model3DGroup m_light;
-        public Model3DGroup Light
-        {
-            get => m_light;
-            set
-            {
-                m_light = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Light"));
-            }
-        }
 
         private string m_status;
         public string ApplicationStatus
@@ -42,29 +33,20 @@ namespace WpfVisualizer
             set
             {
                 m_status = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ApplicationStatus"));
+                PropertyChanged?.Invoke(this, 
+                    new PropertyChangedEventArgs("ApplicationStatus"));
             }
         }
 
-        private Brush m_brush;
-        public Brush Brush
+        private ModelVisual3D m_contour;
+        public ModelVisual3D ContourVisual3D
         {
-            get => m_brush;
+            get => m_contour;
             set
             {
-                m_brush = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Brush"));
-            }
-        }
-
-        private ModelVisual3D m_hiddenModel;
-        public ModelVisual3D HiddenModel
-        {
-            get => m_hiddenModel;
-            set
-            {
-                m_hiddenModel = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("HiddenModel"));
+                m_contour = value;
+                PropertyChanged?.Invoke(this, 
+                    new PropertyChangedEventArgs("ContourVisual3D"));
             }
         }
     }

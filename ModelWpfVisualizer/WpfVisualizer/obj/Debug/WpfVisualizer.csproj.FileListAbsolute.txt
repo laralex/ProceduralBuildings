@@ -13,7 +13,6 @@ W:\_alex\polytech\thesis-project\ModelWpfVisualizer\WpfVisualizer\bin\Debug\WpfV
 W:\_alex\polytech\thesis-project\ModelWpfVisualizer\WpfVisualizer\bin\Debug\WpfVisualizer.exe
 W:\_alex\polytech\thesis-project\ModelWpfVisualizer\WpfVisualizer\bin\Debug\WpfVisualizer.pdb
 W:\_alex\polytech\thesis-project\ModelWpfVisualizer\WpfVisualizer\obj\Debug\WpfVisualizer_MarkupCompile.cache
-W:\_alex\polytech\thesis-project\ModelWpfVisualizer\WpfVisualizer\obj\Debug\WpfVisualizer_MarkupCompile.lref
 W:\_alex\polytech\thesis-project\ModelWpfVisualizer\WpfVisualizer\obj\Debug\WpfVisualizer.g.resources
 W:\_alex\polytech\thesis-project\ModelWpfVisualizer\WpfVisualizer\obj\Debug\WpfVisualizer.Properties.Resources.resources
 W:\_alex\polytech\thesis-project\ModelWpfVisualizer\WpfVisualizer\obj\Debug\WpfVisualizer.exe

@@ -1,57 +1,43 @@
-﻿using System;
-using System.Activities.Statements;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
+﻿using System.Windows;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 using HelixToolkit.Wpf;
 using Microsoft.Win32;
 
 namespace WpfVisualizer
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
 
         public MainWindow()
         {
             InitializeComponent();
+            m_modelMaterial = MaterialHelper.CreateMaterial(Brushes.LightBlue, 0.0, 40);
+
+            m_viewModel = new MainViewModel
+            {
+                ShownVisual3d = new ModelVisual3D()
+            };
+            this.DataContext = m_viewModel;
+
             OnResetCameraClick(this, null);
-            ViewModel = new MainViewModel();
-            ViewModel.Brush = GradientBrushes.RainbowStripes;
-            ViewModel.ShownModel = new ModelVisual3D();
-            this.DataContext = ViewModel;
         }
 
         private Model3DGroup LoadModelsFile(string modelPath, Dispatcher dispatcher = null)
         {
             var content = new ModelImporter().Load(modelPath, dispatcher);
-            var greenMaterial = MaterialHelper.CreateMaterial(Brushes.LightBlue, 0.0, 40);
+            
             foreach(var model in content.Children)
             {
-                (model as GeometryModel3D).Material = greenMaterial;
+                (model as GeometryModel3D).Material = m_modelMaterial;
             }
             return content;
         }
 
         private void OnCloseClick(object sender, RoutedEventArgs e)
         {
-            ViewModel.ApplicationStatus = "Closing...";
+            m_viewModel.ApplicationStatus = "Closing...";
             this.Close();
         }
 
@@ -63,41 +49,37 @@ namespace WpfVisualizer
 
         private void OnOpenModelClick(object sender, RoutedEventArgs e)
         {
-            var dialog = new OpenFileDialog { Filter="3D Model File|*.obj;*.stl" };
+            var dialog = new OpenFileDialog { Filter="3D Model File|*.obj;*.stl;*.3ds;*.collada" };
             if (dialog.ShowDialog() == true && dialog.FileName != null)
             {
-                ViewModel.ApplicationStatus = "Loading model file";
-                ViewModel.ShownModel.Content = LoadModelsFile(dialog.FileName);
+                m_viewModel.ApplicationStatus = "Loading model file";
+                m_viewModel.ShownVisual3d.Content = LoadModelsFile(dialog.FileName);
                 c_contourToggle.IsChecked = false;
-                ViewModel.HiddenModel = null;
-                ViewModel.ApplicationStatus = "Model file loaded: " + System.IO.Path.GetFileName(dialog.FileName);
+                m_viewModel.ContourVisual3D = null;
+                m_viewModel.ApplicationStatus = "Model file loaded: " + 
+                    System.IO.Path.GetFileName(dialog.FileName);
                 OnResetCameraClick(this, null);
             }
         }
 
         private void OnContourEnabled(object sender, RoutedEventArgs e)
         {
-            if (ViewModel.HiddenModel == null) {
-                ViewModel.HiddenModel = ContourUtility.AddContours(s_shownModelVisual3D, 10, 10, 10);
+            if (m_viewModel.ContourVisual3D == null) {
+                m_viewModel.ContourVisual3D = 
+                    ContourUtility.AddContours(s_shownModelVisual3D, 10, 10, 10, 0.5);
             }
-            c_helixViewport.Children.Add(ViewModel.HiddenModel);
+            c_helixViewport.Children.Add(m_viewModel.ContourVisual3D);
             c_helixViewport.Children.Remove(s_shownModelVisual3D);
         }
 
         private void OnContourDisabled(object sender, RoutedEventArgs e)
         {
-            c_helixViewport.Children.Remove(ViewModel.HiddenModel);
+            c_helixViewport.Children.Remove(m_viewModel.ContourVisual3D);
             c_helixViewport.Children.Add(s_shownModelVisual3D);
         }
 
-        private void SwapModels()
-        {
-            var tmp = ViewModel.ShownModel;
-            ViewModel.ShownModel = ViewModel.HiddenModel;
-            ViewModel.HiddenModel = tmp;
-        }
-
-        MainViewModel ViewModel { get; set; }
+        private MainViewModel m_viewModel;
+        private Material m_modelMaterial;
     }
 }
 
