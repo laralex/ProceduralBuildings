@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:helix="http://helix-toolkit.org/wpf"
-        xmlns:local="clr-namespace:ModelWpfVisualizer"
+        xmlns:local="clr-namespace:WpfVisualizer"
         Height="650" Width="650" MinWidth="650" MinHeight="200"
         Title="Preview Generated Model">
     <Window.Resources>
@@ -13,9 +13,6 @@
             <Setter Property="Background" Value="#FFF7F7F7"/>
         </Style>
     </Window.Resources>
-    <Window.DataContext>
-        <local:/>
-    </Window.DataContext>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition />
@@ -23,37 +20,46 @@
         </Grid.RowDefinitions>
 
         <helix:HelixViewport3D  Name="c_helixViewport" Grid.Row="0"
-               ZoomExtentsWhenLoaded="true" ZoomCursor="Cross"
-               BorderBrush="Black" BorderThickness="0" Background="DimGray"
+               ZoomExtentsWhenLoaded="true" ZoomCursor="Cross" 
+               BorderBrush="Black" BorderThickness="0" 
                ShowFieldOfView="True" ShowFrameRate="True"  ShowTriangleCountInfo="True"
                ShowCoordinateSystem="True" ShowViewCube="True"
-               InfiniteSpin="False" IsHeadLightEnabled="False"
-               InfoBackground="Transparent" InfoForeground="Black"
+               InfiniteSpin="False" IsHeadLightEnabled="True" IsViewCubeEdgeClicksEnabled="True"
+               Foreground="White" Background="Black" InfoBackground="Transparent" InfoForeground="White"
                CameraRotationMode="Turnball"
                CoordinateSystemLabelForeground="Black"
                CoordinateSystemLabelX="x" CoordinateSystemLabelY="y" CoordinateSystemLabelZ="z"
-               TextBrush="Black">
-            <helix:SunLight Brightness="2.0" Ambient="2.0"/>
-            <helix:DirectionalHeadLight x:Name="s_directionalLight"/>
-            <ModelVisual3D Content="{Binding ShownModel}" />
-            <helix:GridLinesVisual3D
-                Width="300"
-                Length="300"
-                MajorDistance="15"
-                MinorDistance="15"
-                Thickness="0.1" />
+               Title="{Binding ApplicationStatus}">
+
+            <ModelVisual3D>
+                <ModelVisual3D.Content>
+                    <AmbientLight Color="Yellow" />
+                </ModelVisual3D.Content>
+            </ModelVisual3D>
+            
+            <helix:SunLight Ambient="0.2" Brightness="0.3"/>
+            <!--
+            <helix:SpotHeadLight Brightness="1.0"/>
+            <ModelVisual3D Content="{Binding Light}"/>
+            <helix:DefaultLights/>
+            <helix:DirectionalHeadLight Brightness="1.0"/>
+            <helix:DefaultLights/>
+            <helix:DirectionalHeadLight Brightness="1.0"/>
+            <helix:DefaultLights/> <helix:SunLight Ambient="1.0"/>
+            <helix:DirectionalHeadLight/>-->
+            <helix:GridLinesVisual3D Width="900" Length="900" Visible="{Binding ElementName=c_gridToggle, Path=IsChecked}"
+                MajorDistance="15" MinorDistance="15" Thickness="0.1" />
+            <helix:HelixVisual3D x:Name="s_shownModelVisual3D" Fill="Gray" Content="{Binding Path=ShownModel.Content}"/>
         </helix:HelixViewport3D>
 
         <DockPanel Grid.Row="1">
             <Button Content="Close" Style="{StaticResource CommonButtonStyle}"
                     Click="OnCloseClick" Background="#FFFFDADA"/>
             <DockPanel HorizontalAlignment="Right">
-                <!--
-                <ToggleButton Content="Wireframe Mode" Style="{StaticResource CommonButtonStyle}" 
-                              Checked="OnWireframeChecked" Unchecked="OnWireframeUnchecked"/>
-                <ToggleButton Content="Hollow Mode" Style="{StaticResource CommonButtonStyle}" Margin="5,10,50,10" 
-                              Checked="OnHollowChecked" Unchecked="OnHollowUnchecked"/>
-                -->
+
+                <ToggleButton x:Name="c_gridToggle" Content="Toggle Grid" Style="{StaticResource CommonButtonStyle}"/>
+                <ToggleButton x:Name="c_contourToggle" Content="Toggle Contour" Style="{StaticResource CommonButtonStyle}" Margin="5,10,50,10"
+                              Checked="OnContourEnabled" Unchecked="OnContourDisabled"/>
                 <Button Content="Open Model" Style="{StaticResource CommonButtonStyle}" 
                         Click="OnOpenModelClick"/>
                 <Button Content="Reset Camera" Style="{StaticResource CommonButtonStyle}" 

@@ -18,4 +18,3 @@ W:\_alex\polytech\thesis-project\ModelWpfVisualizer\WpfVisualizer\obj\Debug\WpfV
 W:\_alex\polytech\thesis-project\ModelWpfVisualizer\WpfVisualizer\obj\Debug\WpfVisualizer.Properties.Resources.resources
 W:\_alex\polytech\thesis-project\ModelWpfVisualizer\WpfVisualizer\obj\Debug\WpfVisualizer.exe
 W:\_alex\polytech\thesis-project\ModelWpfVisualizer\WpfVisualizer\obj\Debug\WpfVisualizer.pdb
-W:\_alex\polytech\thesis-project\ModelWpfVisualizer\WpfVisualizer\obj\Debug\GeneratedInternalTypeHelper.g.cs

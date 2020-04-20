@@ -28,30 +28,20 @@ namespace WpfVisualizer
     public partial class MainWindow : Window
     {
 
-        //public event EventHandler WireframeEnabled;
-        //public event EventHandler WireframeDisabled;
-        //public event EventHandler HollowEnabled;
-        //public event EventHandler HollowDisabled;
-        //public event EventHandler ModelChanged;
         public MainWindow()
         {
             InitializeComponent();
             OnResetCameraClick(this, null);
+            ViewModel = new MainViewModel();
+            ViewModel.Brush = GradientBrushes.RainbowStripes;
+            ViewModel.ShownModel = new ModelVisual3D();
+            this.DataContext = ViewModel;
         }
 
-        private string StatusMessage
-        {
-            get => c_helixViewport.Title;
-            set => c_helixViewport.Title = value;
-        }
-        private void ListenerLoop()
-        {
-
-        }
         private Model3DGroup LoadModelsFile(string modelPath, Dispatcher dispatcher = null)
         {
             var content = new ModelImporter().Load(modelPath, dispatcher);
-            var greenMaterial = MaterialHelper.CreateMaterial(Colors.Green);
+            var greenMaterial = MaterialHelper.CreateMaterial(Brushes.LightBlue, 0.0, 40);
             foreach(var model in content.Children)
             {
                 (model as GeometryModel3D).Material = greenMaterial;
@@ -61,7 +51,7 @@ namespace WpfVisualizer
 
         private void OnCloseClick(object sender, RoutedEventArgs e)
         {
-            StatusMessage = "Closing...";
+            ViewModel.ApplicationStatus = "Closing...";
             this.Close();
         }
 
@@ -76,42 +66,64 @@ namespace WpfVisualizer
             var dialog = new OpenFileDialog { Filter="3D Model File|*.obj;*.stl" };
             if (dialog.ShowDialog() == true && dialog.FileName != null)
             {
-                StatusMessage = "Loading model file";
-                m_model.ShownModel = LoadModelsFile(dialog.FileName);
+                ViewModel.ApplicationStatus = "Loading model file";
+                ViewModel.ShownModel.Content = LoadModelsFile(dialog.FileName);
+                c_contourToggle.IsChecked = false;
+                ViewModel.HiddenModel = null;
+                ViewModel.ApplicationStatus = "Model file loaded: " + System.IO.Path.GetFileName(dialog.FileName);
                 OnResetCameraClick(this, null);
-                StatusMessage = "Model file loaded";
             }
         }
 
-       
-
-        private void OnHollowChecked(object sender, RoutedEventArgs e)
+        private void OnContourEnabled(object sender, RoutedEventArgs e)
         {
-
-        }
-        private void OnHollowUnchecked(object sender, RoutedEventArgs e) //=> HollowDisabled(sender, e);
-        {
-
+            if (ViewModel.HiddenModel == null) {
+                ViewModel.HiddenModel = ContourUtility.AddContours(s_shownModelVisual3D, 10, 10, 10);
+            }
+            c_helixViewport.Children.Add(ViewModel.HiddenModel);
+            c_helixViewport.Children.Remove(s_shownModelVisual3D);
         }
 
-        private void OnWireframeChecked(object sender, RoutedEventArgs e) //=> WireframeEnabled(sender, e);
+        private void OnContourDisabled(object sender, RoutedEventArgs e)
         {
-            
-        }
-        private void OnWireframeUnchecked(object sender, RoutedEventArgs e) // => WireframeDisabled(sender, e);
-        {
-            //IsWireframeEnabled = false;
+            c_helixViewport.Children.Remove(ViewModel.HiddenModel);
+            c_helixViewport.Children.Add(s_shownModelVisual3D);
         }
 
-        MainWindowModel m_model;
-    }
+        private void SwapModels()
+        {
+            var tmp = ViewModel.ShownModel;
+            ViewModel.ShownModel = ViewModel.HiddenModel;
+            ViewModel.HiddenModel = tmp;
+        }
 
-    public class MainWindowModel
-    {
-        public Model3D ShownModel { get; set; }
+        MainViewModel ViewModel { get; set; }
     }
 }
 
+//public event EventHandler WireframeEnabled;
+//public event EventHandler WireframeDisabled;
+//public event EventHandler HollowEnabled;
+//public event EventHandler HollowDisabled;
+//public event EventHandler ModelChanged;
+
+//private void OnHollowChecked(object sender, RoutedEventArgs e)
+//{
+
+//}
+//private void OnHollowUnchecked(object sender, RoutedEventArgs e) //=> HollowDisabled(sender, e);
+//{
+
+//}
+
+//private void OnWireframeChecked(object sender, RoutedEventArgs e) //=> WireframeEnabled(sender, e);
+//{
+
+//}
+//private void OnWireframeUnchecked(object sender, RoutedEventArgs e) // => WireframeDisabled(sender, e);
+//{
+//    //IsWireframeEnabled = false;
+//}
 //var wireframes = new Model3DGroup();
 //var mb = new MeshBuilder();
 //foreach(var model3d in content.Children)
