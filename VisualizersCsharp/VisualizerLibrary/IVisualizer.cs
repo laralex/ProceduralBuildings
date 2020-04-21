@@ -6,11 +6,11 @@ namespace VisualizerLibrary
     
     public interface IVisualizer
     {
-        string Description { get; }
-        void VisualizeModel(Stream binaryModel, ModelBinaryType type = ModelBinaryType.OBJ);
+        string GetDescription();
+        void VisualizeModel(Stream binaryModel, ModelDataType type = ModelDataType.OBJ);
         void Shutdown();
     }
-    public enum ModelBinaryType
+    public enum ModelDataType
     {
         OBJ, STL, ThreeDS
     }

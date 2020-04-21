@@ -5,13 +5,11 @@ VisualStudioVersion = 15.0.28307.705
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfVisualizer", "WpfVisualizer\WpfVisualizer.csproj", "{C5E3CE3D-6BCD-44C4-809D-55FFFF711274}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "howto_WPF_3D_wireframe", "C:\Users\Alex\Downloads\howto_WPF_3D_wireframe\howto_WPF_3D_wireframe.csproj", "{D4BEC91B-26F6-462E-A6FC-91339D2D38EE}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpDummySender", "HttpDummySender\HttpDummySender.csproj", "{E122AD77-3A77-43A9-8303-C51B7DDEFEE8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WcfVisualizationControllerService", "WcfDummyController\WcfVisualizationControllerService.csproj", "{E7996220-89F9-4537-BA5E-883FE9281202}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualizerLibrary", "VisualizerLibrary\VisualizerLibrary.csproj", "{D76A54EA-6E87-4495-B7A1-BC706A0D790F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VisualizerLibrary", "VisualizerLibrary\VisualizerLibrary.csproj", "{D76A54EA-6E87-4495-B7A1-BC706A0D790F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +21,6 @@ Global
 		{C5E3CE3D-6BCD-44C4-809D-55FFFF711274}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C5E3CE3D-6BCD-44C4-809D-55FFFF711274}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C5E3CE3D-6BCD-44C4-809D-55FFFF711274}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D4BEC91B-26F6-462E-A6FC-91339D2D38EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D4BEC91B-26F6-462E-A6FC-91339D2D38EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D4BEC91B-26F6-462E-A6FC-91339D2D38EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D4BEC91B-26F6-462E-A6FC-91339D2D38EE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E122AD77-3A77-43A9-8303-C51B7DDEFEE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E122AD77-3A77-43A9-8303-C51B7DDEFEE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E122AD77-3A77-43A9-8303-C51B7DDEFEE8}.Release|Any CPU.ActiveCfg = Release|Any CPU

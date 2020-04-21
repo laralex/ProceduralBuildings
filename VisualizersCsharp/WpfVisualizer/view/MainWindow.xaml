@@ -1,0 +1,79 @@
+﻿<Window x:Class="WpfVisualizer.MainWindow" 
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:helix="http://helix-toolkit.org/wpf"
+        Height="650" Width="650" MinWidth="650" MinHeight="200"
+        Title="Preview Generated Model" Closing="OnWindowClosing">
+    <Window.Resources>
+        <Style x:Key="CommonButtonStyle" TargetType="Control">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Width" Value="100"/>
+            <Setter Property="Margin" Value="5,10"/>
+            <Setter Property="Background" Value="#FFF7F7F7"/>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+
+        <helix:HelixViewport3D  Name="c_helixViewport" Grid.Row="0"
+               BorderThickness="0" CoordinateSystemLabelForeground="White" 
+               ShowFieldOfView="True" ShowFrameRate="True" ShowViewCube="True" 
+               ShowCoordinateSystem="True" ShowTriangleCountInfo="True" 
+               IsViewCubeEdgeClicksEnabled="True" IsHeadLightEnabled="True"
+               Foreground="White" Background="Black" TextBrush="White" 
+               InfoBackground="Transparent" InfoForeground="White"
+               CameraRotationMode="Turnball" InfiniteSpin="False"
+               Title="{Binding ApplicationStatus}">
+            <ModelVisual3D >
+                <ModelVisual3D.Content>
+                    <AmbientLight Color="White" />
+                </ModelVisual3D.Content>
+            </ModelVisual3D>
+            <helix:SunLight Ambient="0.2" Brightness="0.3"/>
+            <helix:GridLinesVisual3D Width="900" Length="900" 
+                MajorDistance="15" MinorDistance="15" Thickness="0.1" 
+                Visible="{Binding ElementName=c_gridToggle, Path=IsChecked}"/>
+            <helix:HelixVisual3D x:Name="s_shownModelVisual3D" 
+                Content="{Binding Path=ShownVisual3d.Content}"/>
+        </helix:HelixViewport3D>
+
+        <DockPanel Grid.Row="1">
+            <Button Content="Close" Style="{StaticResource CommonButtonStyle}"
+                    Click="OnCloseClick" Background="#FFFFDADA"/>
+            <DockPanel HorizontalAlignment="Right">
+                <ToggleButton x:Name="c_gridToggle" Content="Toggle Grid" 
+                              Style="{StaticResource CommonButtonStyle}"/>
+                <ToggleButton x:Name="c_contourToggle" Content="Toggle Contour" Margin="5,10,50,10"
+                        Checked="OnContourEnabled" Unchecked="OnContourDisabled"
+                        Style="{StaticResource CommonButtonStyle}"/>
+                <Button Content="Open Model" Click="OnOpenModelClick"
+                        Style="{StaticResource CommonButtonStyle}"/>
+                <Button Content="Reset Camera" Click="OnResetCameraClick" 
+                        Style="{StaticResource CommonButtonStyle}"/>
+            </DockPanel>
+        </DockPanel>
+    </Grid>
+</Window>
+    
+<!--
+                <StatusBar Grid.Row="2">
+    <StatusBarItem HorizontalAlignment="Left">
+        <TextBlock Name="c_statusText" Text="$STATUS_MESSAGE$" VerticalAlignment="Center"/>
+    </StatusBarItem>
+    <StatusBarItem Width="40" HorizontalAlignment="Right">
+        <TextBlock Text="{Binding ElementName=c_statusBar, Path=Value, StringFormat={}{0:0}%}" 
+                           HorizontalAlignment="Right" VerticalAlignment="Center"/>
+    </StatusBarItem>
+    <StatusBarItem HorizontalAlignment="Right">
+        <ProgressBar Width="220" Height="15" Name="c_statusBar" Minimum="0" Maximum="100" VerticalAlignment="Center"/>
+    </StatusBarItem>
+    </StatusBar>
+
+    <helix:SunLight Brightness="2.0" Ambient="2.0" Azimuth="90" Altitude="180"/>
+            <helix:SunLight Brightness="2.0" Ambient="2.0" Azimuth="180" Altitude="90"/>
+            <helix:SunLight Brightness="2.0" Ambient="2.0" Azimuth="270" Altitude="90"/>
+            <helix:SunLight Brightness="2.0" Ambient="2.0" Azimuth="90" Altitude="270"/>
+-->

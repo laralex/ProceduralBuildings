@@ -11,8 +11,8 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
-	<RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-	<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -37,6 +37,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http" />
@@ -52,13 +53,23 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\VisualizerLibrary\VisualizerLibrary.csproj">
+      <Project>{d76a54ea-6e87-4495-b7a1-bc706a0d790f}</Project>
+      <Name>VisualizerLibrary</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WcfDummyController\WcfVisualizationControllerService.csproj">
       <Project>{e7996220-89f9-4537-ba5e-883fe9281202}</Project>
       <Name>WcfVisualizationControllerService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WpfVisualizer\WpfVisualizer.csproj">
+      <Project>{c5e3ce3d-6bcd-44c4-809d-55ffff711274}</Project>
+      <Name>WpfVisualizer</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
