@@ -1,0 +1,110 @@
+{
+  "version": 3,
+  "targets": {
+    ".NETFramework,Version=v4.5": {
+      "WcfVisualizationControllerService/1.0.0": {
+        "type": "project",
+        "compile": {
+          "bin/placeholder/WcfVisualizationControllerService.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/WcfVisualizationControllerService.dll": {}
+        }
+      }
+    },
+    ".NETFramework,Version=v4.5/win": {
+      "WcfVisualizationControllerService/1.0.0": {
+        "type": "project",
+        "compile": {
+          "bin/placeholder/WcfVisualizationControllerService.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/WcfVisualizationControllerService.dll": {}
+        }
+      }
+    },
+    ".NETFramework,Version=v4.5/win-x64": {
+      "WcfVisualizationControllerService/1.0.0": {
+        "type": "project",
+        "compile": {
+          "bin/placeholder/WcfVisualizationControllerService.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/WcfVisualizationControllerService.dll": {}
+        }
+      }
+    },
+    ".NETFramework,Version=v4.5/win-x86": {
+      "WcfVisualizationControllerService/1.0.0": {
+        "type": "project",
+        "compile": {
+          "bin/placeholder/WcfVisualizationControllerService.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/WcfVisualizationControllerService.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "WcfVisualizationControllerService/1.0.0": {
+      "type": "project",
+      "path": "../WcfDummyController/WcfVisualizationControllerService.csproj",
+      "msbuildProject": "../WcfDummyController/WcfVisualizationControllerService.csproj"
+    }
+  },
+  "projectFileDependencyGroups": {
+    ".NETFramework,Version=v4.5": [
+      "WcfVisualizationControllerService >= 1.0.0"
+    ]
+  },
+  "packageFolders": {
+    "C:\\Users\\Alex\\.nuget\\packages\\": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "W:\\_alex\\polytech\\thesis-project\\VisualizersCsharp\\HttpDummySender\\HttpDummySender.csproj",
+      "projectName": "HttpDummySender",
+      "projectPath": "W:\\_alex\\polytech\\thesis-project\\VisualizersCsharp\\HttpDummySender\\HttpDummySender.csproj",
+      "packagesPath": "C:\\Users\\Alex\\.nuget\\packages\\",
+      "outputPath": "W:\\_alex\\polytech\\thesis-project\\VisualizersCsharp\\HttpDummySender\\obj\\",
+      "projectStyle": "PackageReference",
+      "skipContentFileWrite": true,
+      "configFilePaths": [
+        "C:\\Users\\Alex\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+      ],
+      "originalTargetFrameworks": [
+        "net45"
+      ],
+      "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net45": {
+          "projectReferences": {
+            "W:\\_alex\\polytech\\thesis-project\\VisualizersCsharp\\WcfDummyController\\WcfVisualizationControllerService.csproj": {
+              "projectPath": "W:\\_alex\\polytech\\thesis-project\\VisualizersCsharp\\WcfDummyController\\WcfVisualizationControllerService.csproj"
+            }
+          }
+        }
+      }
+    },
+    "frameworks": {
+      "net45": {}
+    },
+    "runtimes": {
+      "win": {
+        "#import": []
+      },
+      "win-x64": {
+        "#import": []
+      },
+      "win-x86": {
+        "#import": []
+      }
+    }
+  }
+}

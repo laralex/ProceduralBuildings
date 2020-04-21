@@ -1,0 +1,11 @@
+W:\_alex\polytech\thesis-project\ModelWpfVisualizer\HttpDummySender\bin\Debug\HttpDummySender.exe.config
+W:\_alex\polytech\thesis-project\ModelWpfVisualizer\HttpDummySender\bin\Debug\HttpDummySender.exe
+W:\_alex\polytech\thesis-project\ModelWpfVisualizer\HttpDummySender\bin\Debug\HttpDummySender.pdb
+W:\_alex\polytech\thesis-project\ModelWpfVisualizer\HttpDummySender\bin\Debug\WcfDummyController.dll
+W:\_alex\polytech\thesis-project\ModelWpfVisualizer\HttpDummySender\bin\Debug\WcfDummyController.pdb
+W:\_alex\polytech\thesis-project\ModelWpfVisualizer\HttpDummySender\bin\Debug\WcfDummyController.dll.config
+W:\_alex\polytech\thesis-project\ModelWpfVisualizer\HttpDummySender\obj\Debug\HttpDummySender.csprojAssemblyReference.cache
+W:\_alex\polytech\thesis-project\ModelWpfVisualizer\HttpDummySender\obj\Debug\HttpDummySender.csproj.CoreCompileInputs.cache
+W:\_alex\polytech\thesis-project\ModelWpfVisualizer\HttpDummySender\obj\Debug\HttpDummySender.csproj.CopyComplete
+W:\_alex\polytech\thesis-project\ModelWpfVisualizer\HttpDummySender\obj\Debug\HttpDummySender.exe
+W:\_alex\polytech\thesis-project\ModelWpfVisualizer\HttpDummySender\obj\Debug\HttpDummySender.pdb
