@@ -395,26 +395,16 @@
           "bin/placeholder/VisualizerLibrary.dll": {}
         }
       },
-      "WcfVisualizationControllerService/1.0.0": {
+      "WcfVisualizerLibrary/1.0.0": {
         "type": "project",
-        "compile": {
-          "bin/placeholder/WcfVisualizationControllerService.dll": {}
-        },
-        "runtime": {
-          "bin/placeholder/WcfVisualizationControllerService.dll": {}
-        }
-      },
-      "WpfVisualizer/1.0.0": {
-        "type": "project",
-        "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
           "VisualizerLibrary": "1.0.0"
         },
         "compile": {
-          "bin/placeholder/WpfVisualizer.dll": {}
+          "bin/placeholder/WcfVisualizerLibrary.dll": {}
         },
         "runtime": {
-          "bin/placeholder/WpfVisualizer.dll": {}
+          "bin/placeholder/WcfVisualizerLibrary.dll": {}
         }
       }
     },
@@ -802,26 +792,16 @@
           "bin/placeholder/VisualizerLibrary.dll": {}
         }
       },
-      "WcfVisualizationControllerService/1.0.0": {
+      "WcfVisualizerLibrary/1.0.0": {
         "type": "project",
-        "compile": {
-          "bin/placeholder/WcfVisualizationControllerService.dll": {}
-        },
-        "runtime": {
-          "bin/placeholder/WcfVisualizationControllerService.dll": {}
-        }
-      },
-      "WpfVisualizer/1.0.0": {
-        "type": "project",
-        "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
           "VisualizerLibrary": "1.0.0"
         },
         "compile": {
-          "bin/placeholder/WpfVisualizer.dll": {}
+          "bin/placeholder/WcfVisualizerLibrary.dll": {}
         },
         "runtime": {
-          "bin/placeholder/WpfVisualizer.dll": {}
+          "bin/placeholder/WcfVisualizerLibrary.dll": {}
         }
       }
     },
@@ -1209,26 +1189,16 @@
           "bin/placeholder/VisualizerLibrary.dll": {}
         }
       },
-      "WcfVisualizationControllerService/1.0.0": {
+      "WcfVisualizerLibrary/1.0.0": {
         "type": "project",
-        "compile": {
-          "bin/placeholder/WcfVisualizationControllerService.dll": {}
-        },
-        "runtime": {
-          "bin/placeholder/WcfVisualizationControllerService.dll": {}
-        }
-      },
-      "WpfVisualizer/1.0.0": {
-        "type": "project",
-        "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
           "VisualizerLibrary": "1.0.0"
         },
         "compile": {
-          "bin/placeholder/WpfVisualizer.dll": {}
+          "bin/placeholder/WcfVisualizerLibrary.dll": {}
         },
         "runtime": {
-          "bin/placeholder/WpfVisualizer.dll": {}
+          "bin/placeholder/WcfVisualizerLibrary.dll": {}
         }
       }
     },
@@ -1616,26 +1586,16 @@
           "bin/placeholder/VisualizerLibrary.dll": {}
         }
       },
-      "WcfVisualizationControllerService/1.0.0": {
+      "WcfVisualizerLibrary/1.0.0": {
         "type": "project",
-        "compile": {
-          "bin/placeholder/WcfVisualizationControllerService.dll": {}
-        },
-        "runtime": {
-          "bin/placeholder/WcfVisualizationControllerService.dll": {}
-        }
-      },
-      "WpfVisualizer/1.0.0": {
-        "type": "project",
-        "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
           "VisualizerLibrary": "1.0.0"
         },
         "compile": {
-          "bin/placeholder/WpfVisualizer.dll": {}
+          "bin/placeholder/WcfVisualizerLibrary.dll": {}
         },
         "runtime": {
-          "bin/placeholder/WpfVisualizer.dll": {}
+          "bin/placeholder/WcfVisualizerLibrary.dll": {}
         }
       }
     }
@@ -3743,22 +3703,16 @@
       "path": "../VisualizerLibrary/VisualizerLibrary.csproj",
       "msbuildProject": "../VisualizerLibrary/VisualizerLibrary.csproj"
     },
-    "WcfVisualizationControllerService/1.0.0": {
+    "WcfVisualizerLibrary/1.0.0": {
       "type": "project",
-      "path": "../WcfDummyController/WcfVisualizationControllerService.csproj",
-      "msbuildProject": "../WcfDummyController/WcfVisualizationControllerService.csproj"
-    },
-    "WpfVisualizer/1.0.0": {
-      "type": "project",
-      "path": "../WpfVisualizer/WpfVisualizer.csproj",
-      "msbuildProject": "../WpfVisualizer/WpfVisualizer.csproj"
+      "path": "../WcfVisualizerLibrary/WcfVisualizerLibrary.csproj",
+      "msbuildProject": "../WcfVisualizerLibrary/WcfVisualizerLibrary.csproj"
     }
   },
   "projectFileDependencyGroups": {
     ".NETFramework,Version=v4.5": [
       "VisualizerLibrary >= 1.0.0",
-      "WcfVisualizationControllerService >= 1.0.0",
-      "WpfVisualizer >= 1.0.0"
+      "WcfVisualizerLibrary >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -3791,11 +3745,8 @@
             "W:\\_alex\\polytech\\thesis-project\\VisualizersCsharp\\VisualizerLibrary\\VisualizerLibrary.csproj": {
               "projectPath": "W:\\_alex\\polytech\\thesis-project\\VisualizersCsharp\\VisualizerLibrary\\VisualizerLibrary.csproj"
             },
-            "W:\\_alex\\polytech\\thesis-project\\VisualizersCsharp\\WcfDummyController\\WcfVisualizationControllerService.csproj": {
-              "projectPath": "W:\\_alex\\polytech\\thesis-project\\VisualizersCsharp\\WcfDummyController\\WcfVisualizationControllerService.csproj"
-            },
-            "W:\\_alex\\polytech\\thesis-project\\VisualizersCsharp\\WpfVisualizer\\WpfVisualizer.csproj": {
-              "projectPath": "W:\\_alex\\polytech\\thesis-project\\VisualizersCsharp\\WpfVisualizer\\WpfVisualizer.csproj"
+            "W:\\_alex\\polytech\\thesis-project\\VisualizersCsharp\\WcfVisualizerLibrary\\WcfVisualizerLibrary.csproj": {
+              "projectPath": "W:\\_alex\\polytech\\thesis-project\\VisualizersCsharp\\WcfVisualizerLibrary\\WcfVisualizerLibrary.csproj"
             }
           }
         }

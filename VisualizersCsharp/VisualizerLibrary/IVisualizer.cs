@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
 namespace VisualizerLibrary
 {
@@ -7,11 +6,8 @@ namespace VisualizerLibrary
     public interface IVisualizer
     {
         string GetDescription();
-        void VisualizeModel(Stream binaryModel, ModelDataType type = ModelDataType.OBJ);
+        void VisualizeModel(Stream model, ModelMetaBase modelMeta, Stream materialLibrary, Stream[] materialFiles);
         void Shutdown();
     }
-    public enum ModelDataType
-    {
-        OBJ, STL, ThreeDS
-    }
+
 }

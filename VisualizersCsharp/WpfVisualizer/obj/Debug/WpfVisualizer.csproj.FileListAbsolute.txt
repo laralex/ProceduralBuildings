@@ -42,3 +42,5 @@ W:\_alex\polytech\thesis-project\VisualizersCsharp\WpfVisualizer\bin\Debug\Syste
 W:\_alex\polytech\thesis-project\VisualizersCsharp\WpfVisualizer\obj\Debug\view\MainWindow.baml
 W:\_alex\polytech\thesis-project\VisualizersCsharp\WpfVisualizer\obj\Debug\view\MainWindow.g.cs
 W:\_alex\polytech\thesis-project\VisualizersCsharp\WpfVisualizer\obj\Debug\view\App.g.cs
+W:\_alex\polytech\thesis-project\VisualizersCsharp\WpfVisualizer\bin\Debug\WcfVisualizerLibrary.dll
+W:\_alex\polytech\thesis-project\VisualizersCsharp\WpfVisualizer\bin\Debug\WcfVisualizerLibrary.pdb

@@ -394,6 +394,18 @@
         "runtime": {
           "bin/placeholder/VisualizerLibrary.dll": {}
         }
+      },
+      "WcfVisualizerLibrary/1.0.0": {
+        "type": "project",
+        "dependencies": {
+          "VisualizerLibrary": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/WcfVisualizerLibrary.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/WcfVisualizerLibrary.dll": {}
+        }
       }
     },
     ".NETFramework,Version=v4.5/win": {
@@ -778,6 +790,18 @@
         },
         "runtime": {
           "bin/placeholder/VisualizerLibrary.dll": {}
+        }
+      },
+      "WcfVisualizerLibrary/1.0.0": {
+        "type": "project",
+        "dependencies": {
+          "VisualizerLibrary": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/WcfVisualizerLibrary.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/WcfVisualizerLibrary.dll": {}
         }
       }
     },
@@ -1164,6 +1188,18 @@
         "runtime": {
           "bin/placeholder/VisualizerLibrary.dll": {}
         }
+      },
+      "WcfVisualizerLibrary/1.0.0": {
+        "type": "project",
+        "dependencies": {
+          "VisualizerLibrary": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/WcfVisualizerLibrary.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/WcfVisualizerLibrary.dll": {}
+        }
       }
     },
     ".NETFramework,Version=v4.5/win-x86": {
@@ -1548,6 +1584,18 @@
         },
         "runtime": {
           "bin/placeholder/VisualizerLibrary.dll": {}
+        }
+      },
+      "WcfVisualizerLibrary/1.0.0": {
+        "type": "project",
+        "dependencies": {
+          "VisualizerLibrary": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/WcfVisualizerLibrary.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/WcfVisualizerLibrary.dll": {}
         }
       }
     }
@@ -3654,11 +3702,17 @@
       "type": "project",
       "path": "../VisualizerLibrary/VisualizerLibrary.csproj",
       "msbuildProject": "../VisualizerLibrary/VisualizerLibrary.csproj"
+    },
+    "WcfVisualizerLibrary/1.0.0": {
+      "type": "project",
+      "path": "../WcfVisualizerLibrary/WcfVisualizerLibrary.csproj",
+      "msbuildProject": "../WcfVisualizerLibrary/WcfVisualizerLibrary.csproj"
     }
   },
   "projectFileDependencyGroups": {
     ".NETFramework,Version=v4.5": [
-      "VisualizerLibrary >= 1.0.0"
+      "VisualizerLibrary >= 1.0.0",
+      "WcfVisualizerLibrary >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -3690,6 +3744,9 @@
           "projectReferences": {
             "W:\\_alex\\polytech\\thesis-project\\VisualizersCsharp\\VisualizerLibrary\\VisualizerLibrary.csproj": {
               "projectPath": "W:\\_alex\\polytech\\thesis-project\\VisualizersCsharp\\VisualizerLibrary\\VisualizerLibrary.csproj"
+            },
+            "W:\\_alex\\polytech\\thesis-project\\VisualizersCsharp\\WcfVisualizerLibrary\\WcfVisualizerLibrary.csproj": {
+              "projectPath": "W:\\_alex\\polytech\\thesis-project\\VisualizersCsharp\\WcfVisualizerLibrary\\WcfVisualizerLibrary.csproj"
             }
           }
         }

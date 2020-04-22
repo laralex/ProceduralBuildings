@@ -65,6 +65,7 @@
     <Reference Include="System" />
     <Reference Include="System.Activities" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -87,8 +88,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="remote-control\IVisualizerService.cs" />
-    <Compile Include="remote-control\VisualizerService.cs" />
     <Compile Include="view\App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -135,6 +134,10 @@
       <Project>{d76a54ea-6e87-4495-b7a1-bc706a0d790f}</Project>
       <Name>VisualizerLibrary</Name>
     </ProjectReference>
+    <ProjectReference Include="..\WcfVisualizerLibrary\WcfVisualizerLibrary.csproj">
+      <Project>{fcb685b3-8756-479e-b67a-fbaab9e3d14e}</Project>
+      <Name>WcfVisualizerLibrary</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
@@ -142,6 +145,9 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="http\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

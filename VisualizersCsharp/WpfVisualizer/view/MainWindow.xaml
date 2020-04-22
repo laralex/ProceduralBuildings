@@ -41,8 +41,8 @@
         </helix:HelixViewport3D>
 
         <DockPanel Grid.Row="1">
-            <Button Content="Close" Style="{StaticResource CommonButtonStyle}"
-                    Click="OnCloseClick" Background="#FFFFDADA"/>
+            <Button Content="HTTP reconnect" Style="{StaticResource CommonButtonStyle}"
+                    Click="OnReconnectClick"/>
             <DockPanel HorizontalAlignment="Right">
                 <ToggleButton x:Name="c_gridToggle" Content="Toggle Grid" 
                               Style="{StaticResource CommonButtonStyle}"/>

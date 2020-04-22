@@ -1,7 +1,0 @@
-W:\_alex\polytech\thesis-project\VisualizersCsharp\WcfDummyController\obj\Debug\WcfDummyController.dll
-W:\_alex\polytech\thesis-project\VisualizersCsharp\WcfDummyController\obj\Debug\WcfDummyController.pdb
-W:\_alex\polytech\thesis-project\VisualizersCsharp\WcfDummyController\bin\WcfDummyController.dll.config
-W:\_alex\polytech\thesis-project\VisualizersCsharp\WcfDummyController\bin\WcfDummyController.dll
-W:\_alex\polytech\thesis-project\VisualizersCsharp\WcfDummyController\bin\WcfDummyController.pdb
-W:\_alex\polytech\thesis-project\VisualizersCsharp\WcfDummyController\obj\Debug\WcfVisualizationControllerService.csprojAssemblyReference.cache
-W:\_alex\polytech\thesis-project\VisualizersCsharp\WcfDummyController\obj\Debug\WcfVisualizationControllerService.csproj.CoreCompileInputs.cache

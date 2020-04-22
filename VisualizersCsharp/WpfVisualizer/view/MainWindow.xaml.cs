@@ -6,78 +6,119 @@ using System.Windows.Media.Media3D;
 using System.Windows.Threading;
 using HelixToolkit.Wpf;
 using Microsoft.Win32;
-using VisualizerLibrary;
 using System.IO;
 using System.ServiceModel;
-using WpfVisualizer.Remote;
-using System.Diagnostics;
+using VisualizerLibrary;
+using WcfVisualizerLibrary;
 
 namespace WpfVisualizer
 {
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
-    public partial class MainWindow : Window, IVisualizerService
+    public partial class MainWindow : Window, IVisualizerService, IVisualizer
     {
-
         public MainWindow()
         {
             InitializeComponent();
-            m_modelMaterial = MaterialHelper.CreateMaterial(Brushes.LightBlue, 0.0, 40);
+            m_replacementMaterial = MaterialHelper.CreateMaterial(Brushes.LightBlue, 0.0, 40);
 
             m_viewModel = new MainViewModel
             {
                 ShownVisual3d = new ModelVisual3D()
             };
             this.DataContext = m_viewModel;
-
             OnResetCameraClick(this, null);
 
+            OpenVisualizatorService();
+            OnReconnectClick(this, null);
+        }
+
+        private void OpenVisualizatorService()
+        {
             try
             {
                 m_visualizerService = new ServiceHost(this);
-                m_visualizerService.AddServiceEndpoint(typeof(IVisualizerService), new BasicHttpBinding(), "http://localhost:64046/wpfVisualizer");
+                const int MAX_DATA_BYTES_NUMBER = 104857600; // 100 Mb
+                var httpBinding = new BasicHttpBinding
+                {
+                    TransferMode = TransferMode.Streamed,
+                    MaxReceivedMessageSize = MAX_DATA_BYTES_NUMBER,
+                };
+
+                m_visualizerService.AddServiceEndpoint(typeof(IVisualizerService), httpBinding, VISUALIZATOR_SERVICE_URI);
                 m_visualizerService.Open();
                 m_viewModel.ApplicationStatus = "HTTP service started";
             }
             catch (Exception e)
             {
                 m_viewModel.ApplicationStatus = $"HTTP service FAILED to start";
-                MessageBox.Show(e.Message);
+                //MessageBox.Show(e.Message);
             }
+        }
+        #region Service implementation
+        public void VisualizeModel(Stream model, ModelMetaBase modelMeta, Stream materialLibrary, Stream[] materialFiles)
+        {
+            PrepareForModel(modelMeta);
+            AcceptMaterialLib(materialLibrary);
+            for (int i = 0; i < materialFiles.Length; ++i)
+            {
+                PrepareForMaterialFile(modelMeta.MaterialFileIds[i]);
+                AcceptMaterialFile(materialFiles[i]);
+            }
+            AcceptModel(model);
         }
 
-        #region Service implementation
-        public void PrepareForModel(ModelDataType type)
-        {
-            m_viewModel.ApplicationStatus = $"Ready to take {type.ToString()} model";
-            m_nextModelType = type;
-        }
-        public void VisualizeModel(Stream model)
-        {
-            try
-            {
-                LoadAndVisualizeModel(model, m_nextModelType);
-                m_viewModel.ApplicationStatus = "Model from generator loaded";
-            }
-            catch (Exception e)
-            {
-                m_viewModel.ApplicationStatus = $"Model from generator FAILED to load";
-                MessageBox.Show(e.Message);
-            }
-        }
-        public void VisualizeModel(Stream model, ModelDataType type = ModelDataType.OBJ)
-        {
-            PrepareForModel(type);
-            VisualizeModel(model);
-        }
         public void Shutdown()
         {
-            OnCloseClick(this, null);
+            OnWindowClosing(this, null);
+            this.Close();
         }
 
         public string GetDescription()
         {
             return "C# WPF based simple model visualizer via Helix Toolkit Library capabilities";
         }
+
+        public void PrepareForModel(ModelMetaBase modelMetadata)
+        {
+            m_currentModelMeta = modelMetadata;
+        }
+
+        public void AcceptMaterialLib(Stream model)
+        {
+            // no material
+        }
+
+        public void PrepareForMaterialFile(string materialFileId)
+        {
+            //m_nextMaterialFile = materialFileId;
+        }
+
+        public void AcceptMaterialFile(Stream materialFile)
+        {
+            // no material
+        }
+
+        public void AcceptModel(Stream model)
+        {
+            try
+            {
+                PrepareModel(model, m_currentModelMeta.ModelType);
+                m_viewModel.ApplicationStatus = "Model from generator loaded";
+            }
+            catch (Exception e)
+            {
+                m_viewModel.ApplicationStatus = $"Model from generator FAILED to load";
+                //MessageBox.Show(e.Message);
+            }
+        }
+
+        public void Visualize()
+        {
+            m_viewModel.ShownVisual3d.Content = m_currentModel;
+            m_viewModel.ContourVisual3D = null;
+            OnResetCameraClick(this, null);
+        }
+
         #endregion
 
         #region Model loading from stream
@@ -94,7 +135,6 @@ namespace WpfVisualizer
             if (reader == null) throw new NotSupportedException("Given model type is not supported");
             reader.TexturePath = textureFilePath != null ? textureFilePath : "";
             reader.Freeze = freeze;
-
             //using (model)
             return reader.Read(model);
         }
@@ -118,14 +158,19 @@ namespace WpfVisualizer
         #endregion
 
         #region UI events
-        private void OnCloseClick(object sender, RoutedEventArgs e)
+        private void OnReconnectClick(object sender, RoutedEventArgs e)
         {
-            m_viewModel.ApplicationStatus = "Closing...";
-            if (m_visualizerService.State == CommunicationState.Opened)
+            try
             {
-                m_visualizerService.Close();
+                m_visualizationContorllerClient = ServiceUtility.SpawnClient<IVisualizationControllerService>(VISUALIZATION_CONTROLLER_SERVICE_URI);
+                ((IClientChannel)m_visualizationContorllerClient).Open();
+                m_visualizationContorllerClient.RegisterVisualizer(VISUALIZATOR_SERVICE_URI);
             }
-            this.Close();
+            catch (Exception ex)
+            {
+                m_viewModel.ApplicationStatus = "Couldn't HTTP connect to generator, try later";
+                //MessageBox.Show(ex.Message);
+            }
         }
 
         private void OnResetCameraClick(object sender, RoutedEventArgs e)
@@ -153,7 +198,7 @@ namespace WpfVisualizer
 
                 try
                 {
-                    LoadAndVisualizeModel(File.OpenRead(dialog.FileName), (ModelDataType)fileType, null, false);
+                    PrepareModel(File.OpenRead(dialog.FileName), (ModelDataType)fileType, null, false);
                     m_viewModel.ApplicationStatus = "Model file loaded: " +
                         System.IO.Path.GetFileName(dialog.FileName);
                 }
@@ -161,6 +206,8 @@ namespace WpfVisualizer
                 {
                     m_viewModel.ApplicationStatus = "Model file FAILED to load";
                 }
+
+                Visualize();
             }
         }
 
@@ -182,20 +229,23 @@ namespace WpfVisualizer
 
         private void OnWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (m_visualizerService.State == CommunicationState.Opened)
+            m_viewModel.ApplicationStatus = "Closing...";
+            var client = (IClientChannel)m_visualizationContorllerClient;
+            if (client.State == CommunicationState.Opened)
             {
-                m_visualizerService.Close();
+                client.Close();
             }
-            //OnCloseClick(sender, null);
         }
         #endregion
 
-        private async void LoadAndVisualizeModel(Stream model, ModelDataType type,
+        private async void PrepareModel(Stream model, ModelDataType type,
             string texturePath = null, bool async = false, bool freezeModel = false)
         {
+            // ui
             m_viewModel.ApplicationStatus = "Loading model file";
             c_contourToggle.IsChecked = false;
 
+            // loading 
             Dispatcher modelDispatcher;
             Model3DGroup modelContent;
             if (async)
@@ -210,88 +260,29 @@ namespace WpfVisualizer
                 modelDispatcher = this.Dispatcher;
             }
 
-
+            // setting materials
             if (!freezeModel)
             {
                 modelDispatcher.Invoke(() =>
                 {
                     foreach (var m in modelContent.Children)
                     {
-                        (m as GeometryModel3D).Material = m_modelMaterial;
+                        (m as GeometryModel3D).Material = m_replacementMaterial;
                     }
                 });
             }
-            m_viewModel.ShownVisual3d.Content = modelContent;
-            m_viewModel.ContourVisual3D = null;
-
-            OnResetCameraClick(this, null);
+            m_currentModel = modelContent;
         }
 
         private MainViewModel m_viewModel;
-        private Material m_modelMaterial;
+        private Model3DGroup m_currentModel;
+        private ModelMetaBase m_currentModelMeta;
+        private Material m_replacementMaterial;
+        //private string m_nextMaterialFile;
         private ServiceHost m_visualizerService;
-        private ModelDataType m_nextModelType;
+        private IVisualizationControllerService m_visualizationContorllerClient;
 
-       
+        private const string VISUALIZATOR_SERVICE_URI = "http://localhost:64046/wpfVisualizerService";
+        private const string VISUALIZATION_CONTROLLER_SERVICE_URI = "http://localhost:64046/visualizationControllerService";
     }
 }
-
-//public event EventHandler WireframeEnabled;
-//public event EventHandler WireframeDisabled;
-//public event EventHandler HollowEnabled;
-//public event EventHandler HollowDisabled;
-//public event EventHandler ModelChanged;
-
-//private void OnHollowChecked(object sender, RoutedEventArgs e)
-//{
-
-//}
-//private void OnHollowUnchecked(object sender, RoutedEventArgs e) //=> HollowDisabled(sender, e);
-//{
-
-//}
-
-//private void OnWireframeChecked(object sender, RoutedEventArgs e) //=> WireframeEnabled(sender, e);
-//{
-
-//}
-//private void OnWireframeUnchecked(object sender, RoutedEventArgs e) // => WireframeDisabled(sender, e);
-//{
-//    //IsWireframeEnabled = false;
-//}
-//var wireframes = new Model3DGroup();
-//var mb = new MeshBuilder();
-//foreach(var model3d in content.Children)
-//{
-//    if (model3d is GeometryModel3D)
-//    {
-//        var w = ((model3d as GeometryModel3D).Geometry as MeshGeometry3D).ToWireframe(0.4);
-//        var g = new GeometryModel3D { Geometry = w, Material = (model3d as GeometryModel3D).Material };
-//        wireframes.Children.Add(g);
-//    }
-//} 
-
-/*private bool IsWireframeEnabled
-{
-get => m_isWireframeEnabled;
-set
-{
-    m_isWireframeEnabled = value;
-    if (m_isWireframeEnabled)
-    {
-        if (m_cachedWireframe == null)
-        {
-            m_cachedWireframe = GenerateWireframe(ShownModel);
-        }
-        c_helixViewport.Children.Add(m_cachedWireframe);
-    }
-    else
-    {
-        c_helixViewport.Children.Remove(m_cachedWireframe);
-    }
-}
-} */
-//var allWireframes = new ModelVisual3D
-//{
-//    Content = wireframes,
-//};

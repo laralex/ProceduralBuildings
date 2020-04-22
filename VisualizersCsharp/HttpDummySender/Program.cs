@@ -4,45 +4,54 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.ServiceModel;
 using System.Text;
 
 using System.Threading;
 using System.Windows;
 using VisualizerLibrary;
-using WpfVisualizer;
-using WpfVisualizer.Remote;
+using WcfVisualizerLibrary;
 
 namespace HttpDummySender
 {
-
-    //[System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "3.0.0.0")]
-    public class VisualizerServiceClient : ClientBase<IVisualizerService>, IVisualizerService
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
+    class VisualizersRegistrationService : IVisualizationControllerService, IDisposable
     {
-        public string GetDescription()
+        public HashSet<string> VisualizersIds = new HashSet<string>();
+        public int ClientsCount => clients.Count;
+        public IEnumerable<IVisualizerService> Visualizers { get => clients.AsEnumerable(); }
+        public void RegisterVisualizer(string visualizerUri)
         {
-            return base.Channel.GetDescription();
+            if (VisualizersIds.Add(visualizerUri.ToString())) {
+                var client = ServiceUtility.SpawnClient<IVisualizerService>(visualizerUri.ToString());
+                //((IClientChannel)client).Open();
+                clients.Add(client);
+            }
+        }
+        public void OpenClients()
+        {
+            foreach (var c in clients)
+            {
+                var clientChannel = (IClientChannel)c;
+                if (clientChannel.State == CommunicationState.Created)
+                {
+                    ((IClientChannel)c).Open();
+                }
+            }
+        }
+        public void Dispose()
+        {
+            foreach(var c in clients)
+            {
+                c.Shutdown();
+                ((IClientChannel)c).Close();
+            }
+            clients = new List<IVisualizerService>();
+            VisualizersIds = new HashSet<string>();
         }
 
-        public void PrepareForModel(ModelDataType modelType)
-        {
-            base.Channel.PrepareForModel(modelType);
-        }
-
-        public void Shutdown()
-        {
-            base.Channel.Shutdown();
-        }
-
-        public void VisualizeModel(Stream model)
-        {
-            base.Channel.VisualizeModel(model);
-        }
-
-        public void VisualizeModel(Stream model, ModelDataType type = ModelDataType.OBJ)
-        {
-            base.Channel.VisualizeModel(model, type);
-        }
+        private List<IVisualizerService> clients = new List<IVisualizerService>();
     }
 
     class Program
@@ -52,27 +61,41 @@ namespace HttpDummySender
             Console.WriteLine("> launch");
             var modelFiles = Directory.GetFiles(Path.Combine(Environment.CurrentDirectory, "data"));
             var rng = new Random();
-            var client = new VisualizerServiceClient();
-            Console.WriteLine("> client started");
-
-            for (int i = 0; i < 20; ++i)
+            var registrationService = new VisualizersRegistrationService();
+            var visualizerControllerHost = new ServiceHost(registrationService);
+            var httpBinding = new BasicHttpBinding();
+            var visualizationControllerServiceUri = "http://localhost:64046/visualizationControllerService";
+            visualizerControllerHost.AddServiceEndpoint(typeof(IVisualizationControllerService), httpBinding, visualizationControllerServiceUri);
+            visualizerControllerHost.Open();
+            Console.WriteLine("> opened service");
+            for (int i = 0; i < 10; ++i)
             {
                 var randomModel = modelFiles[rng.Next(modelFiles.Length)];
                 var model = File.OpenRead(randomModel);
                 Console.WriteLine($"{i}> sending file {randomModel}");
-                try
+                while(registrationService.ClientsCount == 0)
                 {
-                    client.PrepareForModel(ModelDataType.OBJ);
-                    client.VisualizeModel(File.OpenRead(randomModel));
-                    Console.WriteLine($"{i}> sent file {randomModel}");
+
                 }
-                catch(Exception e)
+                registrationService.OpenClients();
+                foreach(var client in registrationService.Visualizers)
                 {
-                    MessageBox.Show($"{i}> e: {e.Message}");
+                    try
+                    {
+                        client.PrepareForModel(new ModelMetaBase { ModelType = ModelDataType.OBJ });
+                        client.AcceptModel(File.OpenRead(randomModel));
+                        Console.WriteLine($"{i}> sent file {randomModel}");
+                        client.Visualize();
+                    }
+                    catch (Exception e)
+                    {
+                        MessageBox.Show($"{i}> e: {e.Message}");
+                    }
                 }
-                Thread.Sleep(10000);
             }
             Console.WriteLine("> shutdown");
+            registrationService.Dispose();
+            visualizerControllerHost.Close();
         }
     }
 }
