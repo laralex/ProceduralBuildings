@@ -1,9 +1,0 @@
-W:\_alex\polytech\thesis-project\ModelWpfVisualizer\VisualizerLibrary\bin\Debug\netstandard2.0\VisualizerLibrary.deps.json
-W:\_alex\polytech\thesis-project\ModelWpfVisualizer\VisualizerLibrary\bin\Debug\netstandard2.0\VisualizerLibrary.dll
-W:\_alex\polytech\thesis-project\ModelWpfVisualizer\VisualizerLibrary\bin\Debug\netstandard2.0\VisualizerLibrary.pdb
-W:\_alex\polytech\thesis-project\ModelWpfVisualizer\VisualizerLibrary\obj\Debug\netstandard2.0\VisualizerLibrary.csprojAssemblyReference.cache
-W:\_alex\polytech\thesis-project\ModelWpfVisualizer\VisualizerLibrary\obj\Debug\netstandard2.0\VisualizerLibrary.csproj.CoreCompileInputs.cache
-W:\_alex\polytech\thesis-project\ModelWpfVisualizer\VisualizerLibrary\obj\Debug\netstandard2.0\VisualizerLibrary.AssemblyInfoInputs.cache
-W:\_alex\polytech\thesis-project\ModelWpfVisualizer\VisualizerLibrary\obj\Debug\netstandard2.0\VisualizerLibrary.AssemblyInfo.cs
-W:\_alex\polytech\thesis-project\ModelWpfVisualizer\VisualizerLibrary\obj\Debug\netstandard2.0\VisualizerLibrary.dll
-W:\_alex\polytech\thesis-project\ModelWpfVisualizer\VisualizerLibrary\obj\Debug\netstandard2.0\VisualizerLibrary.pdb
