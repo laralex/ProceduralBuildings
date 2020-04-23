@@ -4,22 +4,22 @@ using System.IO;
 using System.Linq;
 using System.ServiceModel;
 
-using System.Windows;
 using VisualizerLibrary;
 using WcfVisualizerLibrary;
 
-namespace HttpDummySender
+namespace GeneratorController
 {
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
     class VisualizersRegistrationService : IVisualizationControllerService, IDisposable
     {
         public int ClientsCount => openClients.Count;
         public IEnumerable<IVisualizerService> Visualizers { get => openClients.Values.AsEnumerable(); }
-        
+
         // Called by HTTP request
         public void RegisterVisualizer(string visualizerUri)
         {
-            if (!openClients.ContainsKey(visualizerUri) && !registeredClients.ContainsKey(visualizerUri)) {
+            if (!openClients.ContainsKey(visualizerUri) && !registeredClients.ContainsKey(visualizerUri))
+            {
                 var client = ServiceUtility.SpawnClient<IVisualizerService>(visualizerUri.ToString());
                 registeredClients[visualizerUri] = client;
             }
@@ -46,7 +46,7 @@ namespace HttpDummySender
 
         public void Dispose()
         {
-            foreach(var c in openClients.Values.Concat(registeredClients.Values))
+            foreach (var c in openClients.Values.Concat(registeredClients.Values))
             {
                 var clientChannel = (IClientChannel)c;
                 if (clientChannel.State == CommunicationState.Opened)
@@ -63,48 +63,21 @@ namespace HttpDummySender
         private Dictionary<string, IVisualizerService> registeredClients = new Dictionary<string, IVisualizerService>();
     }
 
-    class Program
+    class VisualizationController
     {
-        static void Main(string[] args)
+        public void Work()
         {
-            Console.WriteLine("> launch");
-            var modelFiles = Directory.GetFiles(Path.Combine(Environment.CurrentDirectory, "data"));
-            var rng = new Random();
             var registrationService = new VisualizersRegistrationService();
-            var visualizerControllerHost = new ServiceHost(registrationService);
             var httpBinding = new BasicHttpBinding();
+            var visualizationControllerHost = new ServiceHost(registrationService);
             var visualizationControllerServiceUri = "http://localhost:64046/visualizationControllerService";
-            visualizerControllerHost.AddServiceEndpoint(typeof(IVisualizationControllerService), httpBinding, visualizationControllerServiceUri);
-            visualizerControllerHost.Open();
+            visualizationControllerHost.AddServiceEndpoint(typeof(IVisualizationControllerService), httpBinding, visualizationControllerServiceUri);
+            visualizationControllerHost.Open();
             Console.WriteLine("> opened service");
-            for (int i = 0; i < 10; ++i)
-            {
-                var randomModel = modelFiles[rng.Next(modelFiles.Length)];
-                var model = File.OpenRead(randomModel);
-                Console.WriteLine($"{i}> sending file {randomModel}");
-                while(registrationService.ClientsCount == 0)
-                {
 
-                }
-                registrationService.OpenClients();
-                foreach(var client in registrationService.Visualizers)
-                {
-                    try
-                    {
-                        client.PrepareForModel(new ModelMetaBase { ModelType = ModelDataType.OBJ });
-                        client.AcceptModel(File.OpenRead(randomModel));
-                        Console.WriteLine($"{i}> sent file {randomModel}");
-                        client.Visualize();
-                    }
-                    catch (Exception e)
-                    {
-                        MessageBox.Show($"{i}> e: {e.Message}");
-                    }
-                }
-            }
             Console.WriteLine("> shutdown");
             registrationService.Dispose();
-            visualizerControllerHost.Close();
+            visualizationControllerHost.Close();
         }
     }
 }

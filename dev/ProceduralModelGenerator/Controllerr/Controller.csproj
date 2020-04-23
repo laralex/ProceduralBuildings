@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <ApplicationIcon />
+    <StartupObject />
+    <RootNamespace>GeneratorController</RootNamespace>
+    <AssemblyName>GeneratorController</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.ServiceModel.Http" Version="4.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="VisualizerLibrary">
+      <HintPath>..\..\Visualizers\WcfVisualizerLibrary\bin\Release\VisualizerLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="WcfVisualizerLibrary">
+      <HintPath>..\..\Visualizers\WcfVisualizerLibrary\bin\Release\WcfVisualizerLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
