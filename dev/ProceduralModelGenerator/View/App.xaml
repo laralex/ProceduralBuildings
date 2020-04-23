@@ -1,0 +1,11 @@
+<avalonia:Application
+    xmlns:avalonia="clr-namespace:Avalonia;assembly=Avalonia.Controls"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:styling="clr-namespace:Avalonia.Markup.Xaml.Styling;assembly=Avalonia.Markup.Xaml"
+    x:Class="GeneratorView.App">
+    <Application.Styles>
+        <styling:StyleInclude Source="avares://Avalonia.Themes.Default/DefaultTheme.xaml"/>
+        <styling:StyleInclude Source="avares://Avalonia.Themes.Default/Accents/BaseLight.xaml"/>
+    </Application.Styles>
+</avalonia:Application>
