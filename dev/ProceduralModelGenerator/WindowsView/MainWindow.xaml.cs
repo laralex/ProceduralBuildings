@@ -23,12 +23,16 @@ namespace WindowsView
     {
         public MainWindow()
         {
-            var generationController = new GenerationController();
-            var generationData = new BuildingsViewModel { Seed = 42 };
+            var generationData = new BuildingsViewModel();
+            var generationController = new BuildingsGenerationController();
+            this.DataContext = generationData;
             generationController.Generate(generationData);
             InitializeComponent();
         }
 
         public string Description => "WPF Windows generation parameters GUI";
+
+        private IGenerationController m_generationControler;
+        private VisualizationController m_visualizationController;
     }
 }

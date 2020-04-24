@@ -6,11 +6,9 @@ using ProceduralBuildingsGeneration;
 
 namespace GeneratorController
 {
-    public class GenerationController
+    public interface IGenerationController
     {
-        public void Generate(BuildingsGenerationParameters geneartionData)
-        {
-            
-        }
+        IProceduralModelsGenerator Generator { get; }
+        void Generate(IViewModel generationData);
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using g3;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -10,7 +11,12 @@ namespace ProceduralBuildingsGeneration
         {
             var buildingParams = parameters as BuildingsGenerationParameters;
             var h = buildingParams.HeightMeters;
-            return new Model3D();
+            var result = new Model3D();
+            var cylgen = new CappedCylinderGenerator();
+            cylgen.Generate();
+            cylgen.MakeMesh(result.Mesh);
+            result.Mesh.CheckValidity();
+            return result;
         }
     }
 }
