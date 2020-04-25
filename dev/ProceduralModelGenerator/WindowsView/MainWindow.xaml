@@ -3,10 +3,64 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WindowsView"
+        xmlns:view="clr-namespace:WindowsView"
+        xmlns:viewmodel="clr-namespace:GeneratorController;assembly=GeneratorController"
+        xmlns:local="clr-namespace:WindowsGeneratorView"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
+        Height="800" Width="1000" MinWidth="300" MinHeight="200"
+        Title="Procedural Buildings 3D Models Generator">
+    <Window.Resources>
+        <Style x:Key="CommonButtonStyle" TargetType="Control">
+            <Setter Property="Height" Value="25"/>
+            <Setter Property="Width" Value="80"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Background" Value="#FFF7F7F7"/>
+        </Style>
+    </Window.Resources>
+    <DockPanel >
+    <Menu DockPanel.Dock="Top">
+        <MenuItem Header="_Generate" Click="OnGenerateClick">
+            <MenuItem.Icon>
+                <Image Source="{Binding Path=GenerateIconPath}" />
+            </MenuItem.Icon>
+        </MenuItem>
+        <Separator />
+        <MenuItem Header="_Export">
+            <MenuItem.Icon>
+                <Image Source="{Binding Path=ExportIconPath}" />
+            </MenuItem.Icon>
+        </MenuItem>
+        <Separator />
+        <MenuItem Header="_About">
+            <MenuItem.Icon>
+                <Image Source="{Binding Path=HelpIconPath}" />
+            </MenuItem.Icon>
+        </MenuItem>
+    </Menu>
+        <ScrollViewer HorizontalScrollBarVisibility="Visible"
+                      VerticalScrollBarVisibility="Visible">
+            <Grid ScrollViewer.CanContentScroll="True">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*" MinWidth="150"/>
+                    <ColumnDefinition Width="4"/>
+                    <ColumnDefinition Width="3*"/>
+                </Grid.ColumnDefinitions>
+                <TreeView x:Name="c_hierarchy" FontSize="16">
+                    <TreeView.ItemContainerStyle>
+                        <Style TargetType="TreeViewItem">
+                            <Setter Property="IsExpanded" Value="True" />
+                        </Style>
+                    </TreeView.ItemContainerStyle>
+                    <TreeView.ItemTemplate>
+                        <HierarchicalDataTemplate DataType="{x:Type viewmodel:GrammarNode}" ItemsSource="{Binding Children}">
+                            <TextBlock Text="{Binding Name}" />
+                        </HierarchicalDataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
+                <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Stretch" />
+                <local:BasementProperties Grid.Column="2"/>
+            </Grid>
+        </ScrollViewer>
+
+    </DockPanel>
 </Window>

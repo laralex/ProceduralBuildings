@@ -59,9 +59,11 @@
     <Compile Include="export\ExportController.cs" />
     <Compile Include="generation\IGenerationController.cs" />
     <Compile Include="generation\IParametersView.cs" />
+    <Compile Include="viewmodel\GrammarNode.cs" />
     <Compile Include="viewmodel\IViewModel.cs" />
     <Compile Include="viewmodel\BuildingsViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="viewmodel\ViewModelGrammar.cs" />
     <Compile Include="visualization\VisualizationController.cs" />
     <Compile Include="visualization\VisualizersRegistry.cs" />
   </ItemGroup>
