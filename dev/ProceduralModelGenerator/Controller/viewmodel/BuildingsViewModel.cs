@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 
 namespace GeneratorController
 {
@@ -22,6 +23,17 @@ namespace GeneratorController
             {
                 m_grammar = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Grammar"));
+            }
+        }
+
+        private UserControl m_propertyPanel;
+        public UserControl PropertiesPanel
+        {
+            get => m_propertyPanel;
+            set
+            {
+                m_propertyPanel = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("PropertiesPanel"));
             }
         }
 

@@ -6,8 +6,8 @@
         xmlns:view="clr-namespace:WindowsView"
         xmlns:viewmodel="clr-namespace:GeneratorController;assembly=GeneratorController"
         xmlns:local="clr-namespace:WindowsGeneratorView"
-        mc:Ignorable="d"
-        Height="800" Width="1000" MinWidth="300" MinHeight="200"
+        mc:Ignorable="d" Loaded="OnLoaded"
+        Height="800" Width="700" MinWidth="300" MinHeight="200"
         Title="Procedural Buildings 3D Models Generator">
     <Window.Resources>
         <Style x:Key="CommonButtonStyle" TargetType="Control">
@@ -17,50 +17,68 @@
             <Setter Property="Background" Value="#FFF7F7F7"/>
         </Style>
     </Window.Resources>
-    <DockPanel >
-    <Menu DockPanel.Dock="Top">
-        <MenuItem Header="_Generate" Click="OnGenerateClick">
-            <MenuItem.Icon>
+    <DockPanel>
+        <Menu DockPanel.Dock="Top" FontSize="15">
+            <MenuItem Header="_Generate" Click="OnGenerateClick">
+                <MenuItem.Icon>
                 <Image Source="{Binding Path=GenerateIconPath}" />
-            </MenuItem.Icon>
-        </MenuItem>
-        <Separator />
-        <MenuItem Header="_Export">
-            <MenuItem.Icon>
-                <Image Source="{Binding Path=ExportIconPath}" />
-            </MenuItem.Icon>
-        </MenuItem>
-        <Separator />
-        <MenuItem Header="_About">
-            <MenuItem.Icon>
-                <Image Source="{Binding Path=HelpIconPath}" />
-            </MenuItem.Icon>
-        </MenuItem>
-    </Menu>
-        <ScrollViewer HorizontalScrollBarVisibility="Visible"
-                      VerticalScrollBarVisibility="Visible">
+                </MenuItem.Icon>
+            </MenuItem>
+            <Separator/>
+            <MenuItem Header="_Export">
+                <MenuItem.Icon>
+                    <Image Source="{Binding Path=ExportIconPath}" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <Separator/>
+            <MenuItem Header="_About">
+                <MenuItem.Icon>
+                    <Image Source="{Binding Path=HelpIconPath}" />
+                </MenuItem.Icon>
+            </MenuItem>
+        </Menu>
+    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                    VerticalScrollBarVisibility="Auto">
             <Grid ScrollViewer.CanContentScroll="True">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*" MinWidth="150"/>
+                    <ColumnDefinition Width="2*" MinWidth="150" MaxWidth="300"/>
                     <ColumnDefinition Width="4"/>
-                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="3*" MinWidth="200"/>
                 </Grid.ColumnDefinitions>
-                <TreeView x:Name="c_hierarchy" FontSize="16">
-                    <TreeView.ItemContainerStyle>
-                        <Style TargetType="TreeViewItem">
-                            <Setter Property="IsExpanded" Value="True" />
-                        </Style>
-                    </TreeView.ItemContainerStyle>
-                    <TreeView.ItemTemplate>
-                        <HierarchicalDataTemplate DataType="{x:Type viewmodel:GrammarNode}" ItemsSource="{Binding Children}">
-                            <TextBlock Text="{Binding Name}" />
-                        </HierarchicalDataTemplate>
-                    </TreeView.ItemTemplate>
-                </TreeView>
-                <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Stretch" />
-                <local:BasementProperties Grid.Column="2"/>
+                <DockPanel Grid.Column="0">
+                    <StackPanel Orientation="Horizontal" Height="30" DockPanel.Dock="Top">
+                        <TextBox Margin="3" VerticalContentAlignment="Center" Width="100" Text="ABC" PreviewTextInput="OnPreviewSeedInput"/>
+                        <Label Margin="3" VerticalContentAlignment="Center" Content="Seed"/>
+                    </StackPanel>
+                    <TreeView x:Name="c_hierarchy" FontSize="16" DockPanel.Dock="Bottom">
+                        <TreeView.ItemContainerStyle>
+                            <Style TargetType="TreeViewItem">
+                                <Setter Property="IsExpanded" Value="True" />
+                            </Style>
+                        </TreeView.ItemContainerStyle>
+                        <TreeView.ItemTemplate>
+                            <HierarchicalDataTemplate DataType="{x:Type viewmodel:GrammarNode}" ItemsSource="{Binding Children}">
+                                <TextBlock Text="{Binding Name}" />
+                            </HierarchicalDataTemplate>
+                        </TreeView.ItemTemplate>
+                    </TreeView>
+                </DockPanel>
+                <GridSplitter Grid.Column="1" Width="4" VerticalAlignment="Stretch" />
+                <ContentControl x:Name="c_propertiesPanel" Grid.Column="2" Content="{Binding PropertiesPanel}"/>
             </Grid>
-        </ScrollViewer>
+    </ScrollViewer>
 
     </DockPanel>
 </Window>
+
+<!--<MenuItem.Icon>
+                <Image Source="{Binding Path=GenerateIconPath}" />
+            </MenuItem.Icon>
+    <MenuItem.Icon>
+                <Image Source="{Binding Path=HelpIconPath}" />
+            </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem.Icon>
+            <Image Source="{Binding Path=ExportIconPath}" />
+        </MenuItem.Icon>
+-->

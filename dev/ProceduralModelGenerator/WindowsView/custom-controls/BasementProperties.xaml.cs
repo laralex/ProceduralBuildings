@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -23,77 +25,25 @@ namespace WindowsGeneratorView
         public BasementProperties()
         {
             InitializeComponent();
-            c_canvas.Background = Brushes.White;
         }
 
-        #region Distance Methods
-        // See if the mouse is over an end point.
-        private bool MouseIsOverEndpoint(Point mouse_pt, out Line hit_line, out bool start_endpoint)
+        private void OnPanelLoaded(object sender, RoutedEventArgs e)
         {
-            foreach (object obj in c_canvas.Children)
-            {
-                // Only process Lines.
-                if (obj is Line)
-                {
-                    Line line = obj as Line;
-
-                    // Check the starting point.
-                    Point point = new Point(line.X1, line.Y1);
-                    if (FindDistanceToPointSquared(mouse_pt, point) < THRESHOLD_DISTANCE_SQR)
-                    {
-                        // We're over this point.
-                        hit_line = line;
-                        start_endpoint = true;
-                        return true;
-                    }
-
-                    // Check the end point.
-                    point = new Point(line.X2, line.Y2);
-                    if (FindDistanceToPointSquared(mouse_pt, point) < THRESHOLD_DISTANCE_SQR)
-                    {
-                        // We're over this point.
-                        hit_line = line;
-                        start_endpoint = false;
-                        return true;
-                    }
-                }
-            }
-
-            hit_line = null;
-            start_endpoint = false;
-            return false;
+            BasementPolygon = new CustomPolygon(c_canvas);
+            var widthThird = c_canvas.ActualWidth / 3;
+            var heightThird = c_canvas.ActualHeight / 3;
+            BasementPolygon.AddPoint(c_canvas, new Point(widthThird, heightThird));
+            BasementPolygon.AddPoint(c_canvas, new Point(widthThird * 2, heightThird));
+            BasementPolygon.AddPoint(c_canvas, new Point(widthThird * 2, heightThird * 2));
+            BasementPolygon.AddPoint(c_canvas, new Point(widthThird, heightThird * 2));
+            BasementPolygon.Polygon.Stroke = Brushes.Black;
+            BasementPolygon.Polygon.StrokeThickness = 3;
+            BasementPolygon.Polygon.Fill = Brushes.LightGray;
+            
+            c_canvas.Children.Add(BasementPolygon);
+            c_canvas.MouseMove += OnCanvasMouseMove_DraggingPoint;
         }
 
-        // See if the mouse is over a line segment.
-        private bool MouseIsOverLine(Point mouse_pt, out Line hit_line)
-        {
-            foreach (object obj in c_canvas.Children)
-            {
-                // Only process Lines.
-                if (obj is Line)
-                {
-                    Line line = obj as Line;
-
-                    // See if we're over this line.
-                    Point closest;
-                    Point pt1 = new Point(line.X1, line.Y1);
-                    Point pt2 = new Point(line.X2, line.Y2);
-                    if (FindDistanceToSegmentSquared(
-                        mouse_pt, pt1, pt2, out closest)
-                            < THRESHOLD_DISTANCE_SQR)
-                    {
-                        // We're over this segment.
-                        hit_line = line;
-                        return true;
-                    }
-                }
-            }
-
-            hit_line = null;
-            return false;
-        }
-
-        // Calculate the distance squared between two points.
         private double FindDistanceToPointSquared(Point pt1, Point pt2)
         {
             double dx = pt1.X - pt2.X;
@@ -101,26 +51,20 @@ namespace WindowsGeneratorView
             return dx * dx + dy * dy;
         }
 
-        // Calculate the distance squared between
-        // point pt and the segment p1 --> p2.
         private double FindDistanceToSegmentSquared(Point pt, Point p1, Point p2, out Point closest)
         {
             double dx = p2.X - p1.X;
             double dy = p2.Y - p1.Y;
             if ((dx == 0) && (dy == 0))
             {
-                // It's a point not a line segment.
                 closest = p1;
                 dx = pt.X - p1.X;
                 dy = pt.Y - p1.Y;
-                return dx * dx + dy * dy;
+                return Math.Sqrt(dx * dx + dy * dy);
             }
 
-            // Calculate the t that minimizes the distance.
             double t = ((pt.X - p1.X) * dx + (pt.Y - p1.Y) * dy) / (dx * dx + dy * dy);
 
-            // See if this represents one of the segment's
-            // end points or a point in the middle.
             if (t < 0)
             {
                 closest = new Point(p1.X, p1.Y);
@@ -139,196 +83,224 @@ namespace WindowsGeneratorView
                 dx = pt.X - closest.X;
                 dy = pt.Y - closest.Y;
             }
-
             return dx * dx + dy * dy;
         }
 
-        #endregion Distance Methods
+        private bool MouseIsOverCornerPoint(Point mouse, out int hitPointIdx)
+        {
+            for (int i = 0; i < BasementPolygon.Polygon.Points.Count; i++)
+            {
+                if (FindDistanceToPointSquared(BasementPolygon.Polygon.Points[i], mouse) < CustomPolygon.ThresholdPointSqrDistance)
+                {
+                    hitPointIdx = i;
+                    return true;
+                }
+            }
+            hitPointIdx = -1;
+            return false;
+        }
 
-        #region Moving End Point
-
-        // We're moving an end point.
         private void OnCanvasMouseMove_DraggingPoint(object sender, MouseEventArgs e)
         {
-            // Move the point to its new location.
-            Point location = e.MouseDevice.GetPosition(c_canvas);
-            if (MovingStartEndPoint)
+            if (IsMovingPoint && MovingPointIdx >= 0)
             {
-                SelectedLine.X1 = location.X + OffsetX;
-                SelectedLine.Y1 = location.Y + OffsetY;
+                var mouse = e.MouseDevice.GetPosition(c_canvas);
+
+                if (FindPointToSnap(MovingPointIdx, mouse, out var newSnapPoint) && !Keyboard.IsKeyDown(Key.LeftCtrl))
+                    BasementPolygon.MovePoint(c_canvas, MovingPointIdx, newSnapPoint);
+                else
+                    BasementPolygon.MovePoint(c_canvas, MovingPointIdx, mouse);
             }
-            else
-            {
-                SelectedLine.X2 = location.X + OffsetX;
-                SelectedLine.Y2 = location.Y + OffsetY;
-            }
-        }
-
-        // Stop moving the end point.
-        private void OnCanvasMouseUp_DraggingPoint(object sender, MouseEventArgs e)
-        {
-            // Reset the event handlers.
-            c_canvas.MouseMove += OnCanvasMouseMove_NoDragging;
-            c_canvas.MouseMove -= OnCanvasMouseMove_DraggingPoint;
-            c_canvas.MouseUp -= OnCanvasMouseUp_DraggingPoint;
-        }
-
-        #endregion Moving End Point
-
-        #region Drawing
-
-        // We're drawing a new segment.
-        private void OnCanvasMouseMove_Drawing(object sender, MouseEventArgs e)
-        {
-            // Update the new line's end point.
-            Point location = e.MouseDevice.GetPosition(c_canvas);
-            SelectedLine.X2 = location.X;
-            SelectedLine.Y2 = location.Y;
-        }
-
-        // Stop drawing.
-        private void OnCanvasMouseUp_Drawing(object sender, MouseEventArgs e)
-        {
-            SelectedLine.Stroke = Brushes.Black;
-
-            // Reset the event handlers.
-            c_canvas.MouseMove -= OnCanvasMouseMove_Drawing;
-            c_canvas.MouseMove += OnCanvasMouseMove_NoDragging;
-            c_canvas.MouseUp -= OnCanvasMouseUp_Drawing;
-
-            // If the new segment has no length, delete it.
-            if ((SelectedLine.X1 == SelectedLine.X2) && (SelectedLine.Y1 == SelectedLine.Y2))
-                c_canvas.Children.Remove(SelectedLine);
-        }
-
-        #endregion Drawing
-
-        #region "Moving Segment"
-
-        // We're moving a segment.
-        private void OnCanvasMouseMove_DraggingSegment(object sender, MouseEventArgs e)
-        {
-            // Find the new location for the first end point.
-            Point location = e.MouseDevice.GetPosition(c_canvas);
-            double new_x1 = location.X + OffsetX;
-            double new_y1 = location.Y + OffsetY;
-
-            // See how far we are moving that point.
-            double dx = new_x1 - SelectedLine.X1;
-            double dy = new_y1 - SelectedLine.Y1;
-
-            // Move the line.
-            SelectedLine.X1 = new_x1;
-            SelectedLine.Y1 = new_y1;
-            SelectedLine.X2 += dx;
-            SelectedLine.Y2 += dy;
-        }
-
-        // Stop moving the segment.
-        private void OnCanvasMouseUp_DraggingSegment(object sender, MouseEventArgs e)
-        {
-            // Reset the event handlers.
-            c_canvas.MouseMove += OnCanvasMouseMove_NoDragging;
-            c_canvas.MouseMove -= OnCanvasMouseMove_DraggingSegment;
-            c_canvas.MouseUp -= OnCanvasMouseUp_DraggingSegment;
-
-            // See if the mouse is over the trash can.
-            /*Point location = e.MouseDevice.GetPosition(c_canvas);
-            if ((location.X >= 0) && (location.X < TrashWidth) &&
-                (location.Y >= 0) && (location.Y < TrashHeight))
-            {
-                if (MessageBox.Show("Delete this segment?",
-                    "Delete Segment?", MessageBoxButton.YesNo)
-                        == MessageBoxResult.Yes)
-                {
-                    // Delete the segment.
-                    c_canvas.Children.Remove(SelectedLine);
-                }
-            } */
-        }
-
-        #endregion // Moving End Point
-
-        private void OnCanvasMouseMove_NoDragging(object sender, MouseEventArgs e)
-        {
-            Cursor new_cursor = Cursors.Cross;
-
-            // See what we're over.
-            Point location = e.MouseDevice.GetPosition(c_canvas);
-            if (MouseIsOverEndpoint(location, out SelectedLine, out MovingStartEndPoint))
-                new_cursor = Cursors.Arrow;
-            else if (MouseIsOverLine(location, out SelectedLine))
-                new_cursor = Cursors.Hand;
-
-            // Set the new cursor.
-            if (c_canvas.Cursor != new_cursor)
-                c_canvas.Cursor = new_cursor;
         }
 
         private void OnCanvasMouseDown(object sender, MouseButtonEventArgs e)
         {
-            // See what we're over.
-            Point location = e.MouseDevice.GetPosition(c_canvas);
-            if (MouseIsOverEndpoint(location, out SelectedLine, out MovingStartEndPoint))
+            if (!IsMovingPoint)
             {
-                // Start moving this end point.
-                c_canvas.MouseMove -= OnCanvasMouseMove_NoDragging;
-                c_canvas.MouseMove += OnCanvasMouseMove_DraggingPoint;
-                c_canvas.MouseUp += OnCanvasMouseUp_DraggingPoint;
-
-                // Remember the offset from the mouse to the point.
-                Point hit_point;
-                if (MovingStartEndPoint)
-                    hit_point = new Point(SelectedLine.X1, SelectedLine.Y1);
+                var mouse = e.MouseDevice.GetPosition(c_canvas);
+                if (MouseIsOverCornerPoint(mouse, out var hitPoint))
+                {
+                    if (e.MiddleButton == MouseButtonState.Pressed)
+                    {
+                        BasementPolygon.RemovePoint(c_canvas, hitPoint);
+                    }
+                    else
+                    {
+                        IsMovingPoint = true;
+                        MovingPointIdx = hitPoint;
+                    }
+                }
                 else
-                    hit_point = new Point(SelectedLine.X2, SelectedLine.Y2);
-                OffsetX = hit_point.X - location.X;
-                OffsetY = hit_point.Y - location.Y;
+                {
+                    if (IsMouseOverEdge(mouse, out var hitPointIdx1, out var hitPointIdx2, out var closestPoint))
+                    {
+                        if (e.MiddleButton == MouseButtonState.Pressed)
+                            BasementPolygon.AddPoint(c_canvas, mouse, hitPointIdx2);
+                        else if (e.LeftButton == MouseButtonState.Pressed)
+                            BasementPolygon.SelectEdge(hitPointIdx1, hitPointIdx2);
+                    }
+                }
             }
-            else if (MouseIsOverLine(location, out SelectedLine))
+        }
+        private void OnCanvasMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (IsMovingPoint)
             {
-                // Start moving this segment.
-                c_canvas.MouseMove -= OnCanvasMouseMove_NoDragging;
-                c_canvas.MouseMove += OnCanvasMouseMove_DraggingSegment;
-                c_canvas.MouseUp += OnCanvasMouseUp_DraggingSegment;
-
-                // Remember the offset from the mouse
-                // to the segment's first end point.
-                OffsetX = SelectedLine.X1 - location.X;
-                OffsetY = SelectedLine.Y1 - location.Y;
-            }
-            else
-            {
-                // Start drawing a new segment.
-                c_canvas.MouseMove -= OnCanvasMouseMove_NoDragging;
-                c_canvas.MouseMove += OnCanvasMouseMove_Drawing;
-                c_canvas.MouseUp += OnCanvasMouseUp_Drawing;
-
-                SelectedLine = new Line();
-                SelectedLine.Stroke = Brushes.Red;
-                SelectedLine.X1 = location.X;
-                SelectedLine.Y1 = location.Y;
-                SelectedLine.X2 = location.X;
-                SelectedLine.Y2 = location.Y;
-                c_canvas.Children.Add(SelectedLine);
+                IsMovingPoint = false;
             }
         }
 
-        // The "size" of an object for mouse over purposes.
-        private const int OBJECT_RADIUS = 3;
+        private bool FindPointToSnap(int currentPointIdx, Point mouse, out Point newPointPosition)
+        {
+            const int SNAP_THRESHOLD = 10;
+            var points = BasementPolygon.Polygon.Points;
 
-        // We're over an object if the distance squared
-        // between the mouse and the object is less than this.
-        private const int THRESHOLD_DISTANCE_SQR = OBJECT_RADIUS * OBJECT_RADIUS;
+            var p1 = mouse;
+            newPointPosition = p1;
+            bool foundX = false, foundY = false;
+            for (int p = 0; p < points.Count; p++)
+            {
+                if (p == currentPointIdx) continue;
+                var p2 = BasementPolygon.Polygon.Points[p];
+                if (!foundX && Math.Abs(p1.X - p2.X) < SNAP_THRESHOLD)
+                {
+                    newPointPosition.X = p2.X;
+                    foundX = true;
+                }
+                if (!foundY && Math.Abs(p1.Y - p2.Y) < SNAP_THRESHOLD)
+                {
+                    newPointPosition.Y = p2.Y;
+                    foundY = true;
+                }
+                if (foundX && foundY) return foundX;
+            }
+            return foundX || foundY;
+        }
 
-        // The line we're drawing or moving.
-        private Line SelectedLine;
+        private bool IsMouseOverEdge(Point mouse, out int hitPoint1, out int hitPoint2, out Point closestPoint)
+        {
+            var points = BasementPolygon.Polygon.Points;
+            for (int p1 = 0; p1 < points.Count; p1++)
+            {
+                int p2 = (p1 + 1) % points.Count;
 
-        // True if we're moving the line's first starting end point.
-        private bool MovingStartEndPoint = false;
+                if (FindDistanceToSegmentSquared(mouse,
+                    points[p1], points[p2], out var closest) < CustomPolygon.ThresholdPointSqrDistance)
+                {
+                    hitPoint1 = p1;
+                    hitPoint2 = p2;
+                    closestPoint = closest;
+                    return true;
+                }
+            }
 
-        // The offset from the mouse to the object being moved.
-        private double OffsetX, OffsetY;
+            hitPoint1 = -1;
+            hitPoint2 = -1;
+            closestPoint = new Point(0, 0);
+            return false;
+        }
 
+        private void OnPreviewTextBoxDecimal(object sender, TextCompositionEventArgs e)
+        {
+            TextValidators.OnPreviewTextBoxDecimal(sender, e);
+        }
+
+        private CustomPolygon BasementPolygon;
+        private bool IsMovingPoint = false;
+        private int MovingPointIdx;
+
+       
+    }
+
+    class CustomPolygon : UIElement
+    {
+        public static readonly int DotSize = 15;
+        public static readonly int ThresholdPointSqrDistance = DotSize * DotSize;
+        public Polygon Polygon { get; private set; }
+        public List<Ellipse> Corners { get; private set; }
+        public Line BaseSideHighlight { get; private set; }
+        public float BaseSideLength { get; set; }
+        public int BaseSideEnd1 { get; private set; }
+        public int BaseSideEnd2 { get; private set; }
+
+        public CustomPolygon(Canvas canvas)
+        {
+            Polygon = new Polygon();
+            Corners = new List<Ellipse>();
+            BaseSideHighlight = new Line();
+            BaseSideHighlight.Stroke = Brushes.Red;
+            BaseSideHighlight.StrokeThickness = 4;
+            canvas.Children.Add(Polygon);
+            canvas.Children.Add(BaseSideHighlight);
+        }
+        public void MovePoint(Canvas canvas, int pointIdx, Point destination)
+        {
+            Polygon.Points[pointIdx] = destination;
+            Corners[pointIdx].Margin = new Thickness(destination.X - DotSize / 2, destination.Y - DotSize / 2, 0, 0);
+            if (pointIdx == BaseSideEnd1)
+            {
+                BaseSideHighlight.X1 = destination.X;
+                BaseSideHighlight.Y1 = destination.Y;
+            }
+            else if (pointIdx == BaseSideEnd2)
+            {
+                BaseSideHighlight.X2 = destination.X;
+                BaseSideHighlight.Y2 = destination.Y;
+            }
+        } 
+        
+        public void AddPoint(Canvas canvas, Point location, int pointIdx = -1)
+        {
+            Ellipse dot = new Ellipse();
+            dot.Stroke = new SolidColorBrush(Colors.Black);
+            dot.StrokeThickness = 1;
+            dot.Height = DotSize;
+            dot.Width = DotSize;
+            dot.Fill = new SolidColorBrush(Colors.Yellow);
+            dot.Margin = new Thickness(location.X - DotSize / 2, location.Y - DotSize / 2, 0, 0);
+            if (pointIdx == -1)
+            {
+                Corners.Add(dot);
+                Polygon.Points.Add(location);
+            }
+            else
+            {
+                Corners.Insert(pointIdx, dot);
+                Polygon.Points.Insert(pointIdx, location);
+            }
+            canvas.Children.Add(dot);
+            DeselectEdge();
+        }
+
+        public void RemovePoint(Canvas canvas, int pointIdx)
+        {
+            if (pointIdx >= 0 && pointIdx < Corners.Count)
+            {
+                canvas.Children.Remove(Corners[pointIdx]);
+                Corners.RemoveAt(pointIdx);
+                Polygon.Points.RemoveAt(pointIdx);
+                DeselectEdge();
+            }
+        }
+
+        public void SelectEdge(int endPointIdx1, int endPointIdx2)
+        {
+            BaseSideEnd1 = endPointIdx1;
+            BaseSideEnd2 = endPointIdx2;
+            var p1 = Polygon.Points[endPointIdx1];
+            var p2 = Polygon.Points[endPointIdx2];
+            BaseSideHighlight.StrokeThickness = 4;
+            BaseSideHighlight.X1 = p1.X;
+            BaseSideHighlight.Y1 = p1.Y;
+            BaseSideHighlight.X2 = p2.X;
+            BaseSideHighlight.Y2 = p2.Y;
+        }
+
+        public void DeselectEdge()
+        {
+            BaseSideHighlight.StrokeThickness = 0;
+            BaseSideEnd1 = -1;
+            BaseSideEnd2 = -1;
+        }
     }
 }

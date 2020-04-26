@@ -42,7 +42,9 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Design" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -75,7 +77,8 @@
     <Compile Include="custom-controls\BasementProperties.xaml.cs">
       <DependentUpon>BasementProperties.xaml</DependentUpon>
     </Compile>
-    <Compile Include="custom-controls\PropertiesPanel.cs" />
+    <Compile Include="custom-controls\PropertiesViewModel.cs" />
+    <Compile Include="custom-controls\TextValidators.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -113,9 +116,7 @@
       <Name>Controller</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="custom-controls\points-editor\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Resource Include="icon.ico" />
   </ItemGroup>

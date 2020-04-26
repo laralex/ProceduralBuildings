@@ -4,12 +4,36 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:WindowsGeneratorView"
-             mc:Ignorable="d" 
+             mc:Ignorable="d" Loaded="OnPanelLoaded"
              d:DesignHeight="450" d:DesignWidth="400">
-    <Grid>
-        <Canvas Name="c_canvas"
-            MouseMove="OnCanvasMouseMove_NoDragging"
-            MouseDown="OnCanvasMouseDown">
-        </Canvas>        
-    </Grid>
+    <ScrollViewer>
+        <DockPanel>
+            <Canvas Name="c_canvas" Height="400" Grid.Row="0" Background="GhostWhite"
+                MouseDown="OnCanvasMouseDown" MouseUp="OnCanvasMouseUp" DockPanel.Dock="Top"
+                Margin="15" ClipToBounds="True" VerticalAlignment="Stretch"/>
+            <GridSplitter DockPanel.Dock="Top"  Grid.Row="1" Height="4" HorizontalAlignment="Stretch" ResizeDirection="Rows"/>
+            <StackPanel DockPanel.Dock="Top" Grid.Row="2">
+                <StackPanel Orientation="Horizontal">
+                    <TextBox Margin="3" VerticalContentAlignment="Center" Width="100" Text="1.0" PreviewTextInput="OnPreviewTextBoxDecimal"/>
+                    <Label Margin="3" VerticalContentAlignment="Center" Content="Selected wall length (meters)" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBox Margin="3" VerticalContentAlignment="Center" Width="100" Text="5.0" PreviewTextInput="OnPreviewTextBoxDecimal"/>
+                    <Label Margin="3" VerticalContentAlignment="Center" Content="Height (meters)"/>
+                </StackPanel>
+                <CheckBox Margin="3" Height="30" VerticalContentAlignment="Center" Content="Include a plug node above"/>
+                <CheckBox Margin="3" Height="30" VerticalContentAlignment="Center" Content="Include a plug node below"/>
+                <Button Margin="3" Content="Apply changes" Height="25" Width="100" HorizontalAlignment="Left"/>
+            </StackPanel>
+        </DockPanel>
+    </ScrollViewer>
+    
 </UserControl>
+
+<!--MouseMove="OnCanvasMouseMove_NoDragging"
+            MouseDown="OnCanvasMouseDown"
+                <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="4"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>-->

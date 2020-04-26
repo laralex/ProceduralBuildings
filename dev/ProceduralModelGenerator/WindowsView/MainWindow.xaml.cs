@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -13,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 using GeneratorController;
+using WindowsGeneratorView;
 
 namespace WindowsView
 {
@@ -21,6 +23,7 @@ namespace WindowsView
     /// </summary>
     public partial class MainWindow : Window, IParametersView
     {
+        public event PropertyChangedEventHandler PropertyChanged;
         public MainWindow()
         {
             m_generationControler = new BuildingsGenerationController();
@@ -43,9 +46,21 @@ namespace WindowsView
         private BuildingsViewModel m_viewModel;
         private VisualizationController m_visualizationController;
 
+        
+
         private void OnGenerateClick(object sender, RoutedEventArgs e)
         {
             m_generationControler.Generate(this.DataContext as BuildingsViewModel);
+        }
+
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            m_viewModel.PropertiesPanel = new BasementProperties();
+        }
+
+        private void OnPreviewSeedInput(object sender, TextCompositionEventArgs e)
+        {
+            TextValidators.OnPreviewTextBoxCode(sender, e);
         }
     }
 }

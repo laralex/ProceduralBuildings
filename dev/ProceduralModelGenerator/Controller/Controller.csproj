@@ -38,6 +38,7 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.ServiceModel" />
@@ -67,10 +68,9 @@
     <Compile Include="visualization\VisualizationController.cs" />
     <Compile Include="visualization\VisualizersRegistry.cs" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\Model\Model.csproj">
-      <Project>{5cc7c7d5-6256-403d-9077-7cc232dc14da}</Project>
+      <Project>{8c166f04-b831-442c-b93f-5f6cce32c0c0}</Project>
       <Name>Model</Name>
     </ProjectReference>
   </ItemGroup>
