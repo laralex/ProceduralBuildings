@@ -6,7 +6,7 @@
         xmlns:view="clr-namespace:WindowsView"
         xmlns:viewmodel="clr-namespace:GeneratorController;assembly=GeneratorController"
         xmlns:local="clr-namespace:WindowsGeneratorView"
-        mc:Ignorable="d" Loaded="OnLoaded"
+        mc:Ignorable="d" Loaded="OnLoaded" Closing="OnClosing"
         Height="800" Width="700" MinWidth="300" MinHeight="200"
         Title="Procedural Buildings 3D Models Generator">
     <Window.Resources>
@@ -28,6 +28,12 @@
             <MenuItem Header="_Export">
                 <MenuItem.Icon>
                     <Image Source="{Binding Path=ExportIconPath}" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <Separator/>
+            <MenuItem Header="_Visualize">
+                <MenuItem.Icon>
+                    <Image Source="{Binding Path=VisualizeIconPath}" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator/>

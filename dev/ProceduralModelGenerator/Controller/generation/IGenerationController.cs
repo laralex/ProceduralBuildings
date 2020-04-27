@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 using ProceduralBuildingsGeneration;
@@ -9,6 +10,7 @@ namespace GeneratorController
     public interface IGenerationController
     {
         IProceduralModelsGenerator Generator { get; }
-        void Generate(IViewModel generationData);
+        //Model3D LatestModel { get; }
+        Model3D Generate(IViewModel generationData);
     }
 }

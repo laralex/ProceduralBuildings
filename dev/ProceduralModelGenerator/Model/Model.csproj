@@ -45,7 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BasicExporter.cs" />
+    <Compile Include="MemoryExporter.cs" />
     <Compile Include="BuildingsGenerationParameters.cs" />
     <Compile Include="BuildingsModelsGenerator.cs" />
     <Compile Include="ExportParameters.cs" />

@@ -16,7 +16,7 @@ namespace WpfVisualizer
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
     public partial class MainWindow : Window, IVisualizerService, IVisualizer
     {
-        public MainWindow()
+        public MainWindow(string[] args)
         {
             InitializeComponent();
             m_replacementMaterial = MaterialHelper.CreateMaterial(Brushes.LightBlue, 0.0, 40);
@@ -26,13 +26,18 @@ namespace WpfVisualizer
                 ShownVisual3d = new ModelVisual3D()
             };
             this.DataContext = m_viewModel;
-            OnResetCameraClick(this, null);
 
-            OpenVisualizatorService();
+
+            if (!OpenVisualizerService())
+            {
+                if (args[1] == "--external") System.Windows.Application.Current.Shutdown();
+            }
             OnReconnectClick(this, null);
+
+            OnResetCameraClick(this, null);
         }
 
-        private void OpenVisualizatorService()
+        private bool OpenVisualizerService()
         {
             try
             {
@@ -51,8 +56,10 @@ namespace WpfVisualizer
             catch (Exception e)
             {
                 m_viewModel.ApplicationStatus = $"HTTP service FAILED to start";
+                return false;
                 //MessageBox.Show(e.Message);
             }
+            return true;
         }
         #region Service implementation
         public void VisualizeModel(Stream model, ModelMetaBase modelMeta, Stream materialLibrary, Stream[] materialFiles)
@@ -163,13 +170,31 @@ namespace WpfVisualizer
             try
             {
                 m_visualizationContorllerClient = ServiceUtility.SpawnClient<IVisualizationControllerService>(VISUALIZATION_CONTROLLER_SERVICE_URI);
-                ((IClientChannel)m_visualizationContorllerClient).Open();
-                m_visualizationContorllerClient.RegisterVisualizer(VISUALIZATOR_SERVICE_URI);
             }
             catch (Exception ex)
             {
-                m_viewModel.ApplicationStatus = "Couldn't HTTP connect to generator, try later";
+                m_viewModel.ApplicationStatus = "Couldn't make HTTP client, try later";
+                return;
                 //MessageBox.Show(ex.Message);
+            }
+            try
+            {
+                ((IClientChannel)m_visualizationContorllerClient).Open();
+            }
+            catch
+            {
+                m_viewModel.ApplicationStatus = "Couldn't open HTTP client, try later";
+                return;
+            }
+
+            try
+            {
+                m_visualizationContorllerClient.RegisterVisualizer(VISUALIZATOR_SERVICE_URI);
+            }
+            catch
+            {
+                m_viewModel.ApplicationStatus = "Couldn't register HTTP client, try later";
+                return;
             }
         }
 
@@ -235,6 +260,11 @@ namespace WpfVisualizer
             {
                 client.Close();
             }
+            if (m_visualizerService.State == CommunicationState.Opened)
+            {
+                m_visualizerService.Close();
+            }
+            client.Dispose();
         }
         #endregion
 
@@ -268,6 +298,7 @@ namespace WpfVisualizer
                     foreach (var m in modelContent.Children)
                     {
                         (m as GeometryModel3D).Material = m_replacementMaterial;
+                        (m as GeometryModel3D).BackMaterial = m_replacementMaterial;
                     }
                 });
             }

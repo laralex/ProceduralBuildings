@@ -14,6 +14,7 @@ namespace GeneratorController
         public string GenerateIconPath => Path.Combine(rootDir, @"data/generate-icon.png");
         public string ExportIconPath => Path.Combine(rootDir, @"data/export-icon.png");
         public string HelpIconPath => Path.Combine(rootDir, @"data/info-icon.png");
+        public string VisualizeIconPath => Path.Combine(rootDir, @"data/visualize-icon.png");
 
         private ViewModelGrammar m_grammar;
         public ViewModelGrammar Grammar

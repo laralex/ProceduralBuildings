@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -26,41 +27,43 @@ namespace WindowsView
         public event PropertyChangedEventHandler PropertyChanged;
         public MainWindow()
         {
-            m_generationControler = new BuildingsGenerationController();
-            this.DataContext = m_viewModel = new BuildingsViewModel();
-            m_viewModel.Grammar = new ViewModelGrammar();
-            var m1 = new GrammarNode("MY1");
-            m_viewModel.Grammar.Children.Add(m1);
-            m1.Children.Add(new GrammarNode("SUB1"));
-            m1.Children.Add(new GrammarNode("SUB2"));
-            var m2 = new GrammarNode("MY2");
-            m2.Children.Add(new GrammarNode("LOL2"));
-            m2.Children.Add(new GrammarNode("LOL1"));
+            m_inputController = new InputController();
+            this.DataContext = m_inputController.ViewModel;
+            //var m1 = new GrammarNode("MY1");
+            //m_viewModel.Grammar.Children.Add(m1);
+            //m1.Children.Add(new GrammarNode("SUB1"));
+            //m1.Children.Add(new GrammarNode("SUB2"));
+            //var m2 = new GrammarNode("MY2");
+            //m2.Children.Add(new GrammarNode("LOL2"));
+            //m2.Children.Add(new GrammarNode("LOL1"));
             //generationController.Generate(generationData);
             InitializeComponent();
         }
 
         public string Description => "WPF Windows generation parameters GUI";
 
-        private IGenerationController m_generationControler;
-        private BuildingsViewModel m_viewModel;
-        private VisualizationController m_visualizationController;
-
-        
-
         private void OnGenerateClick(object sender, RoutedEventArgs e)
         {
-            m_generationControler.Generate(this.DataContext as BuildingsViewModel);
+            m_inputController.RequestGenerate();
+           
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            m_viewModel.PropertiesPanel = new BasementProperties();
+            m_inputController.ViewModel.PropertiesPanel = new BasementProperties();
+            m_inputController.StartService();
         }
 
         private void OnPreviewSeedInput(object sender, TextCompositionEventArgs e)
         {
             TextValidators.OnPreviewTextBoxCode(sender, e);
         }
+
+        private void OnClosing(object sender, CancelEventArgs e)
+        {
+            m_inputController.Dispose();
+        }
+
+        private InputController m_inputController;
     }
 }

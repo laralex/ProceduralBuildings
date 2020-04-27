@@ -11,6 +11,7 @@ namespace GeneratorController
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
     class VisualizersRegistry : IVisualizationControllerService, IDisposable
     {
+        public event EventHandler<VisualizerRegisteredEventArgs> VisualizerRegistered;
         public int ClientsCount => openClients.Count;
         public IEnumerable<IVisualizerService> Visualizers { get => openClients.Values.AsEnumerable(); }
 
@@ -21,6 +22,10 @@ namespace GeneratorController
             {
                 var client = ServiceUtility.SpawnClient<IVisualizerService>(visualizerUri.ToString());
                 registeredClients[visualizerUri] = client;
+                VisualizerRegistered?.Invoke(this, new VisualizerRegisteredEventArgs
+                {
+                    VisualizerUri = visualizerUri,
+                });
             }
         }
         public void OpenClients()
@@ -52,6 +57,7 @@ namespace GeneratorController
                 {
                     c.Shutdown();
                     clientChannel.Close();
+                    clientChannel.Dispose();
                 }
             }
             registeredClients = null;
@@ -61,4 +67,10 @@ namespace GeneratorController
         private Dictionary<string, IVisualizerService> openClients = new Dictionary<string, IVisualizerService>();
         private Dictionary<string, IVisualizerService> registeredClients = new Dictionary<string, IVisualizerService>();
     }
+
+    public class VisualizerRegisteredEventArgs : EventArgs
+    {
+        public string VisualizerUri { get; set; }
+    }
+
 }

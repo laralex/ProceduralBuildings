@@ -7,7 +7,13 @@ namespace ProceduralBuildingsGeneration
 {
     public class Model3D
     {
-        public DMesh3 Mesh { get; private set; }
+        public DMesh3 Mesh { get; set; }
         public string Name { get; set; }
+
+        public Model3D()
+        {
+            Mesh = new DMesh3();
+            Name = "No name model";
+        }
     }
 }
