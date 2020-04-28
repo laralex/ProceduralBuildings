@@ -14,10 +14,8 @@ namespace GeneratorController
         public ExportController ExportController { get; private set; }
         public VisualizationController VisualizationController { get; private set; }
         public BuildingsViewModel ViewModel { get; private set; }
-        protected Model3D LatestModel { get; private set; }
-        protected Stream LatestExportedModel { get; private set; }
 
-        protected ModelFormat LatestExportedModelFormat { get; private set; }
+        protected ModelFormat LatestModelTemporaryFileFormat { get; private set; }
         public InputController()
         {
             GenerationControler = new BuildingsGenerationController();
@@ -27,44 +25,51 @@ namespace GeneratorController
             ExportController = new ExportController();
         }
 
-        public void StartService()
+        public bool StartService()
         {
-            VisualizationController.InitializeService();
-            VisualizationController.StartVisualizers(new[] { "WpfVisualizer.exe" });
+            return VisualizationController.InitializeService();
+            //VisualizationController.StartVisualizers(new[] { "WpfVisualizer.exe" });
         }
         public void RequestGenerate()
         {
             VisualizationController.OpenVisualizers();
-            LatestModel = GenerationControler.Generate(ViewModel);
-            LatestExportedModelFormat = ModelFormat.OBJ;
-            LatestExportedModel?.Dispose();
-            LatestExportedModel = ExportController.ExportInStream(LatestModel, new ExportParameters { ModelFormat = LatestExportedModelFormat });
+            m_latestModel = GenerationControler.Generate(ViewModel);
+            LatestModelTemporaryFileFormat = ModelFormat.OBJ;
+            m_latestModelTemporaryfile?.Dispose();
+            ExportController.ExportInStream(m_latestModel, 
+                new ExportParameters { ModelFormat = LatestModelTemporaryFileFormat }, 
+                out m_latestModelTemporaryfile);
             RequestVisualize();
         }
 
-        public void RequestExport(string filePath, ModelFormat exportFormat)
+        public bool RequestExport(string filepath)
         {
-            if (LatestModel != null)
+            if (m_latestModel != null)
             {
-                LatestExportedModelFormat = exportFormat;
-                LatestExportedModel?.Dispose();
-                LatestExportedModel = ExportController.ExportInStream(LatestModel, new ExportParameters { ModelFormat = LatestExportedModelFormat });
+                var exportResult = ExportController.ExportInFile(m_latestModel, new FileExportParameters
+                {
+                    FilePath = filepath,
+                    ModelFormat = ExportParameters.FormatFromFilePath(filepath)
+                });
+                return exportResult;
             }
+            return false;
         }
 
-        public void RequestVisualize()
+        public bool RequestVisualize()
         {
-            if (LatestExportedModel != null)
+            if (m_latestModelTemporaryfile == null) return false;
             {
                 try
                 {
-                    VisualizationController.Visualize(LatestExportedModel, LatestExportedModelFormat);
+                    VisualizationController.Visualize(m_latestModelTemporaryfile, LatestModelTemporaryFileFormat);
                 }
                 catch
                 {
-                    // todo
+                    return false;
                 }
             }
+            return true;
         }
 
         public void Dispose()
@@ -75,6 +80,7 @@ namespace GeneratorController
             //ViewModel.Dispose();
         }
 
-        private Stream m_latestExportedModel;
+        private Model3D m_latestModel;
+        private Stream m_latestModelTemporaryfile;
     }
 }

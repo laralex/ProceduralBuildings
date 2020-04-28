@@ -7,7 +7,7 @@
         xmlns:viewmodel="clr-namespace:GeneratorController;assembly=GeneratorController"
         xmlns:local="clr-namespace:WindowsGeneratorView"
         mc:Ignorable="d" Loaded="OnLoaded" Closing="OnClosing"
-        Height="800" Width="700" MinWidth="300" MinHeight="200"
+        Height="800" Width="700" MinWidth="400" MinHeight="200"
         Title="Procedural Buildings 3D Models Generator">
     <Window.Resources>
         <Style x:Key="CommonButtonStyle" TargetType="Control">
@@ -25,21 +25,15 @@
                 </MenuItem.Icon>
             </MenuItem>
             <Separator/>
-            <MenuItem Header="_Export">
+            <MenuItem Header="_Export" Click="OnExportClick">
                 <MenuItem.Icon>
                     <Image Source="{Binding Path=ExportIconPath}" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator/>
-            <MenuItem Header="_Visualize">
+            <MenuItem Header="_Visualize" Click="OnVisualizeClick">
                 <MenuItem.Icon>
                     <Image Source="{Binding Path=VisualizeIconPath}" />
-                </MenuItem.Icon>
-            </MenuItem>
-            <Separator/>
-            <MenuItem Header="_About">
-                <MenuItem.Icon>
-                    <Image Source="{Binding Path=HelpIconPath}" />
                 </MenuItem.Icon>
             </MenuItem>
         </Menu>
@@ -87,4 +81,10 @@
             <MenuItem.Icon>
             <Image Source="{Binding Path=ExportIconPath}" />
         </MenuItem.Icon>
+                <Separator/>
+            <MenuItem Header="_About">
+                <MenuItem.Icon>
+                    <Image Source="{Binding Path=HelpIconPath}" />
+                </MenuItem.Icon>
+            </MenuItem>
 -->

@@ -8,32 +8,34 @@ namespace GeneratorController
 {
     public class ExportController
     {
-        public void ExportInFile(Model3D model, ExportParameters parameters)
+        public bool ExportInFile(Model3D model, ExportParameters parameters)
         {
             var exporter = new FileExporter();
             switch (parameters.ModelFormat)
             {
                 case ModelFormat.OBJ:
-                    exporter.ObjExport(model, parameters);
-                    break;
+                    return exporter.ObjExport(model, parameters);
                 case ModelFormat.STL:
-                    exporter.StlExport(model, parameters);
-                    break;
+                    return exporter.StlExport(model, parameters);
             }
+            return false;
         }
-        public Stream ExportInStream(Model3D model, ExportParameters parameters)
+        public bool ExportInStream(Model3D model, ExportParameters parameters, out Stream exportedModel)
         {
             var exporter = new MemoryExporter();
+            exportedModel = null;
             switch (parameters.ModelFormat)
             {
                 case ModelFormat.OBJ:
-                    if (!exporter.ObjExport(model, parameters)) return null;
-                    return exporter.LatestExportedModel;
+                    if (!exporter.ObjExport(model, parameters)) return false;
+                    exportedModel = exporter.LatestExportedModel;
+                    break;
                 case ModelFormat.STL:
-                    if (!exporter.StlExport(model, parameters)) return null;
-                    return exporter.LatestExportedModel;
+                    if (!exporter.StlExport(model, parameters)) return false;
+                    exportedModel = exporter.LatestExportedModel;
+                    break;
             }
-            return null;    
+            return false;    
         }
         private void Export(Model3D model, IExporter exporter, ExportParameters parameters)
         {

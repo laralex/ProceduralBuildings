@@ -10,13 +10,15 @@ using System.IO;
 using System.ServiceModel;
 using VisualizerLibrary;
 using WcfVisualizerLibrary;
+using System.Threading;
 
 namespace WpfVisualizer
 {
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
     public partial class MainWindow : Window, IVisualizerService, IVisualizer
     {
-        public MainWindow(string[] args)
+        public event EventHandler ShutdownRequested;
+        public MainWindow()
         {
             InitializeComponent();
             m_replacementMaterial = MaterialHelper.CreateMaterial(Brushes.LightBlue, 0.0, 40);
@@ -27,17 +29,27 @@ namespace WpfVisualizer
             };
             this.DataContext = m_viewModel;
 
-
-            if (!OpenVisualizerService())
+            m_visualizerPreparationStage = ServicePreparationStage.NotOpened;
+            if (TryOpenVisualizerService())
             {
-                if (args[1] == "--external") System.Windows.Application.Current.Shutdown();
+                TryReconnect();
             }
-            OnReconnectClick(this, null);
 
+            //{
+            //if (args[1] == "--external") System.Windows.Application.Current.Shutdown();
+            //}
+            
             OnResetCameraClick(this, null);
+
+            ShutdownRequested += (s, e) =>
+            {
+                Thread.Sleep(200);
+                OnWindowClosing(s, null);
+                this.Close();
+            };
         }
 
-        private bool OpenVisualizerService()
+        private bool TryOpenVisualizerService()
         {
             try
             {
@@ -51,14 +63,16 @@ namespace WpfVisualizer
 
                 m_visualizerService.AddServiceEndpoint(typeof(IVisualizerService), httpBinding, VISUALIZATOR_SERVICE_URI);
                 m_visualizerService.Open();
-                m_viewModel.ApplicationStatus = "HTTP service started";
+                //m_viewModel.ApplicationStatus = "HTTP visualizer service opened successfully";
             }
             catch (Exception e)
             {
-                m_viewModel.ApplicationStatus = $"HTTP service FAILED to start";
+                //m_viewModel.ApplicationStatus = $"HTTP service FAILED to start";
+                m_viewModel.ApplicationStatus = "Couldn't open visualizer service (perhaps another instance had done it)";
                 return false;
                 //MessageBox.Show(e.Message);
             }
+            m_visualizerPreparationStage = ServicePreparationStage.Opened;
             return true;
         }
         #region Service implementation
@@ -76,8 +90,8 @@ namespace WpfVisualizer
 
         public void Shutdown()
         {
-            OnWindowClosing(this, null);
             this.Close();
+            //ShutdownRequested?.Invoke(this, null);
         }
 
         public string GetDescription()
@@ -110,7 +124,7 @@ namespace WpfVisualizer
             try
             {
                 PrepareModel(model, m_currentModelMeta.ModelType);
-                m_viewModel.ApplicationStatus = "Model from generator loaded";
+                m_viewModel.ApplicationStatus = "Model from generator loaded successfully";
             }
             catch (Exception e)
             {
@@ -165,18 +179,19 @@ namespace WpfVisualizer
         #endregion
 
         #region UI events
-        private void OnReconnectClick(object sender, RoutedEventArgs e)
+
+        private void TryReconnect()
         {
             try
             {
                 m_visualizationContorllerClient = ServiceUtility.SpawnClient<IVisualizationControllerService>(VISUALIZATION_CONTROLLER_SERVICE_URI);
             }
-            catch (Exception ex)
+            catch
             {
                 m_viewModel.ApplicationStatus = "Couldn't make HTTP client, try later";
                 return;
-                //MessageBox.Show(ex.Message);
             }
+            m_visualizerPreparationStage = ServicePreparationStage.CreatedRegistrationClient;
             try
             {
                 ((IClientChannel)m_visualizationContorllerClient).Open();
@@ -186,16 +201,32 @@ namespace WpfVisualizer
                 m_viewModel.ApplicationStatus = "Couldn't open HTTP client, try later";
                 return;
             }
-
+            m_visualizerPreparationStage = ServicePreparationStage.OpenedRegistrationClient;
+            bool registered;
             try
             {
-                m_visualizationContorllerClient.RegisterVisualizer(VISUALIZATOR_SERVICE_URI);
+                registered =
+                    m_visualizationContorllerClient.RegisterVisualizer(VISUALIZATOR_SERVICE_URI);
             }
             catch
             {
                 m_viewModel.ApplicationStatus = "Couldn't register HTTP client, try later";
                 return;
             }
+            if (!registered)
+            {
+                m_viewModel.ApplicationStatus = "HTTP visualizer service is ready, but registered by another instance";
+            }
+            else
+            {
+                m_viewModel.ApplicationStatus = "HTTP visualizer service is ready and registered";
+            }
+            m_visualizerPreparationStage = ServicePreparationStage.Ready;
+        }
+        private void OnReconnectClick(object sender, RoutedEventArgs e)
+        {
+            TryOpenVisualizerService();
+            TryReconnect();
         }
 
         private void OnResetCameraClick(object sender, RoutedEventArgs e)
@@ -224,7 +255,7 @@ namespace WpfVisualizer
                 try
                 {
                     PrepareModel(File.OpenRead(dialog.FileName), (ModelDataType)fileType, null, false);
-                    m_viewModel.ApplicationStatus = "Model file loaded: " +
+                    m_viewModel.ApplicationStatus = "Model file loaded successfully: " +
                         System.IO.Path.GetFileName(dialog.FileName);
                 }
                 catch
@@ -260,12 +291,31 @@ namespace WpfVisualizer
             {
                 client.Close();
             }
-            if (m_visualizerService.State == CommunicationState.Opened)
+            //if (m_visualizerService.State == CommunicationState.Opened)
             {
-                m_visualizerService.Close();
+              //  m_visualizerService.Close();
             }
             client.Dispose();
         }
+
+        private async void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            const int AUTO_CONNECT_TIMEOUT_MSEC = 60_000; 
+            const int AUTO_CONNECT_RETRY_PERIOD_MSEC = 500;
+            const int AUTO_CONNECT_RETRIES = AUTO_CONNECT_TIMEOUT_MSEC / AUTO_CONNECT_RETRY_PERIOD_MSEC;
+            int autoConnectRetriesLeft = AUTO_CONNECT_RETRIES;
+            if (m_visualizerPreparationStage != ServicePreparationStage.Opened) return;
+            while (autoConnectRetriesLeft > 0 && m_visualizerPreparationStage != ServicePreparationStage.Ready)
+            {
+                await Task.Run(() =>
+                {
+                    Thread.Sleep(AUTO_CONNECT_RETRY_PERIOD_MSEC);
+                    OnReconnectClick(sender, e);
+                });
+                autoConnectRetriesLeft--;
+            }
+        }
+
         #endregion
 
         private async void PrepareModel(Stream model, ModelDataType type,
@@ -312,8 +362,20 @@ namespace WpfVisualizer
         //private string m_nextMaterialFile;
         private ServiceHost m_visualizerService;
         private IVisualizationControllerService m_visualizationContorllerClient;
-
+        //private bool m_isVisualizerRegisteredByThisApplication;
+        //private bool m_isVisualizerOpenedByThisApplication;
+        private ServicePreparationStage m_visualizerPreparationStage;
         private const string VISUALIZATOR_SERVICE_URI = "http://localhost:64046/wpfVisualizerService";
         private const string VISUALIZATION_CONTROLLER_SERVICE_URI = "http://localhost:64046/visualizationControllerService";
+    }
+
+    enum ServicePreparationStage
+    {
+        NotOpened,
+        Opened,
+        CreatedRegistrationClient,
+        OpenedRegistrationClient,
+        Registered,
+        Ready
     }
 }

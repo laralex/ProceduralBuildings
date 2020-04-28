@@ -53,6 +53,7 @@
     <Reference Include="WcfVisualizerLibrary">
       <HintPath>..\..\Visualizers\WcfVisualizerLibrary\bin\Release\WcfVisualizerLibrary.dll</HintPath>
     </Reference>
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="generation\BuildingsGenerationController.cs" />
@@ -61,6 +62,7 @@
     <Compile Include="generation\IGenerationController.cs" />
     <Compile Include="generation\IParametersView.cs" />
     <Compile Include="InputController.cs" />
+    <Compile Include="viewmodel\BasementPropertiesViewModel.cs" />
     <Compile Include="viewmodel\GrammarNode.cs" />
     <Compile Include="viewmodel\IViewModel.cs" />
     <Compile Include="viewmodel\BuildingsViewModel.cs" />

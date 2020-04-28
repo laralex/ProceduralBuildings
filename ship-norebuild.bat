@@ -4,7 +4,7 @@ echo.
 echo CLEARING "ship"
 
 if not exist "ship" mkdir ship
-del /Q ship\*.*
+del /S /Q ship\*.*
 
 echo.
 echo COPYING

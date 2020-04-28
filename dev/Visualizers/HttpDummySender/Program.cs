@@ -17,12 +17,14 @@ namespace HttpDummySender
         public IEnumerable<IVisualizerService> Visualizers { get => openClients.Values.AsEnumerable(); }
         
         // Called by HTTP request
-        public void RegisterVisualizer(string visualizerUri)
+        public bool RegisterVisualizer(string visualizerUri)
         {
             if (!openClients.ContainsKey(visualizerUri) && !registeredClients.ContainsKey(visualizerUri)) {
                 var client = ServiceUtility.SpawnClient<IVisualizerService>(visualizerUri.ToString());
                 registeredClients[visualizerUri] = client;
+                return true;
             }
+            return false;
         }
         public void OpenClients()
         {

@@ -6,6 +6,8 @@ namespace ProceduralBuildingsGeneration
 {
     public class BuildingsGenerationParameters : GenerationParameters
     {
-        public float HeightMeters { get; } 
+        public double BasementExtrudeHeight { get; set; }
+        public double BasementLengthPerUnit { get; set; }
+        public IList<Point2D> BasementPoints { get; set; }
     }
 }

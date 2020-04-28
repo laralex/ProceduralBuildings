@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:helix="http://helix-toolkit.org/wpf"
         Height="650" Width="650" MinWidth="650" MinHeight="200"
-        Title="Preview Generated Model" Closing="OnWindowClosing">
+        Title="Preview Generated Model" Closing="OnWindowClosing" Loaded="OnLoaded">
     <Window.Resources>
         <Style x:Key="CommonButtonStyle" TargetType="Control">
             <Setter Property="Height" Value="30"/>

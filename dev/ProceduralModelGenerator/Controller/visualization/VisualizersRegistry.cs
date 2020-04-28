@@ -16,7 +16,7 @@ namespace GeneratorController
         public IEnumerable<IVisualizerService> Visualizers { get => openClients.Values.AsEnumerable(); }
 
         // Called by HTTP request
-        public void RegisterVisualizer(string visualizerUri)
+        public bool RegisterVisualizer(string visualizerUri)
         {
             if (!openClients.ContainsKey(visualizerUri) && !registeredClients.ContainsKey(visualizerUri))
             {
@@ -26,7 +26,9 @@ namespace GeneratorController
                 {
                     VisualizerUri = visualizerUri,
                 });
+                return true;
             }
+            return false;
         }
         public void OpenClients()
         {
@@ -48,17 +50,20 @@ namespace GeneratorController
             registeredClients = new Dictionary<string, IVisualizerService>();
         }
 
-        public void Dispose()
+        public async void Dispose()
         {
             foreach (var c in openClients.Values.Concat(registeredClients.Values))
             {
                 var clientChannel = (IClientChannel)c;
                 if (clientChannel.State == CommunicationState.Opened)
                 {
-                    c.Shutdown();
-                    clientChannel.Close();
-                    clientChannel.Dispose();
+                    await Task.Run(() =>
+                    {
+                        c.Shutdown();
+                        clientChannel.Close();
+                    });
                 }
+                clientChannel.Dispose();
             }
             registeredClients = null;
             openClients = null;

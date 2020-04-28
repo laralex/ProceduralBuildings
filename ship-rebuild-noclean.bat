@@ -9,12 +9,6 @@ if not exist "ship" mkdir ship
 del /S /Q ship\*.*
 
 echo. 
-echo CLEANING
-echo.
-
-call aux-clean.bat
-
-echo. 
 echo BUILDING  
 echo.
 

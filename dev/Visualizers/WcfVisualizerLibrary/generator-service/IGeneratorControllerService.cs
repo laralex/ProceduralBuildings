@@ -7,6 +7,6 @@ namespace WcfVisualizerLibrary
     public interface IVisualizationControllerService
     {
         [OperationContract]
-        void RegisterVisualizer(string visualizerUri);
+        bool RegisterVisualizer(string visualizerUri);
     }
 }

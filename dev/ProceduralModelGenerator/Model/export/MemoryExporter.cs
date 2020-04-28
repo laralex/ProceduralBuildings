@@ -13,8 +13,7 @@ namespace ProceduralBuildingsGeneration
             m_fileExporter = new FileExporter();
             m_fileExportParameters = new FileExportParameters
             {
-                Directory = Path.GetTempPath(),
-                FileName = "temp_model",
+                FilePath = Path.Combine(Path.GetTempPath(), "temp_model.obj"),
                 ModelFormat = ModelFormat.OBJ,
             };
         }
@@ -36,8 +35,7 @@ namespace ProceduralBuildingsGeneration
             if (!fileExportResult) return false;
             try
             {
-                var fs = new FileStream(Path.Combine(m_fileExportParameters.Directory, 
-                    m_fileExportParameters.FileName + m_fileExportParameters.FileExtention), FileMode.Open);
+                var fs = new FileStream(m_fileExportParameters.FilePath, FileMode.Open);
                 LatestExportedModel = fs;
             }
             catch

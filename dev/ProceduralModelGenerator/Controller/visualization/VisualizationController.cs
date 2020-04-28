@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.ServiceModel;
+using System.Threading.Tasks;
 using VisualizerLibrary;
 
 //using VisualizerLibrary;
@@ -14,7 +15,7 @@ namespace GeneratorController
 {
     public class VisualizationController : IDisposable
     {
-        public void InitializeService()
+        public bool InitializeService()
         {
             m_registractionHost = new VisualizersRegistry();
             var httpBinding = new BasicHttpBinding();
@@ -25,12 +26,13 @@ namespace GeneratorController
                 m_visualizationControllerHost.AddServiceEndpoint(typeof(IVisualizationControllerService), httpBinding, visualizationControllerServiceUri);
                 m_visualizationControllerHost.Open();
             }
-            // todo
-            catch (NotFiniteNumberException e)
+            catch 
             {
-                //m_viewModel.ApplicationStatus = $"HTTP service FAILED to start";
-                //MessageBox.Show(e.Message);
+                return false;
             }
+
+            m_registractionHost.VisualizerRegistered += async (s, e) => await Task.Run(() => m_registractionHost.OpenClients());
+            return true;
         }
 
         public void StartVisualizers(IEnumerable<string> visualizerProcesses)

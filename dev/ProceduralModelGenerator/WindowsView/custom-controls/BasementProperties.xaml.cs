@@ -15,6 +15,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using GeneratorController;
+
 namespace WindowsGeneratorView
 {
     /// <summary>
@@ -29,19 +31,22 @@ namespace WindowsGeneratorView
 
         private void OnPanelLoaded(object sender, RoutedEventArgs e)
         {
-            BasementPolygon = new CustomPolygon(c_canvas);
+            m_polygon = new CustomPolygon(c_canvas);
+            this.DataContext = m_viewModel = new BasementPropertiesViewModel(); 
             var widthThird = c_canvas.ActualWidth / 3;
             var heightThird = c_canvas.ActualHeight / 3;
-            BasementPolygon.AddPoint(c_canvas, new Point(widthThird, heightThird));
-            BasementPolygon.AddPoint(c_canvas, new Point(widthThird * 2, heightThird));
-            BasementPolygon.AddPoint(c_canvas, new Point(widthThird * 2, heightThird * 2));
-            BasementPolygon.AddPoint(c_canvas, new Point(widthThird, heightThird * 2));
-            BasementPolygon.Polygon.Stroke = Brushes.Black;
-            BasementPolygon.Polygon.StrokeThickness = 3;
-            BasementPolygon.Polygon.Fill = Brushes.LightGray;
+            m_polygon.AddPoint(c_canvas, new Point(widthThird, heightThird));
+            m_polygon.AddPoint(c_canvas, new Point(widthThird * 2, heightThird));
+            m_polygon.AddPoint(c_canvas, new Point(widthThird * 2, heightThird * 2));
+            m_polygon.AddPoint(c_canvas, new Point(widthThird, heightThird * 2));
+            m_polygon.Polygon.Stroke = Brushes.Black;
+            m_polygon.Polygon.StrokeThickness = 3;
+            m_polygon.Polygon.Fill = Brushes.LightGray;
             
-            c_canvas.Children.Add(BasementPolygon);
+            c_canvas.Children.Add(m_polygon);
             c_canvas.MouseMove += OnCanvasMouseMove_DraggingPoint;
+
+            OnCanvasLostFocus(sender, e);
         }
 
         private double FindDistanceToPointSquared(Point pt1, Point pt2)
@@ -88,9 +93,9 @@ namespace WindowsGeneratorView
 
         private bool MouseIsOverCornerPoint(Point mouse, out int hitPointIdx)
         {
-            for (int i = 0; i < BasementPolygon.Polygon.Points.Count; i++)
+            for (int i = 0; i < m_polygon.Polygon.Points.Count; i++)
             {
-                if (FindDistanceToPointSquared(BasementPolygon.Polygon.Points[i], mouse) < CustomPolygon.ThresholdPointSqrDistance)
+                if (FindDistanceToPointSquared(m_polygon.Polygon.Points[i], mouse) < CustomPolygon.ThresholdPointSqrDistance)
                 {
                     hitPointIdx = i;
                     return true;
@@ -102,32 +107,32 @@ namespace WindowsGeneratorView
 
         private void OnCanvasMouseMove_DraggingPoint(object sender, MouseEventArgs e)
         {
-            if (IsMovingPoint && MovingPointIdx >= 0)
+            if (m_isMovingPoint && m_movingPointIdx >= 0)
             {
                 var mouse = e.MouseDevice.GetPosition(c_canvas);
 
-                if (FindPointToSnap(MovingPointIdx, mouse, out var newSnapPoint) && !Keyboard.IsKeyDown(Key.LeftCtrl))
-                    BasementPolygon.MovePoint(c_canvas, MovingPointIdx, newSnapPoint);
+                if (FindPointToSnap(m_movingPointIdx, mouse, out var newSnapPoint) && !Keyboard.IsKeyDown(Key.LeftCtrl))
+                    m_polygon.MovePoint(c_canvas, m_movingPointIdx, newSnapPoint);
                 else
-                    BasementPolygon.MovePoint(c_canvas, MovingPointIdx, mouse);
+                    m_polygon.MovePoint(c_canvas, m_movingPointIdx, mouse);
             }
         }
 
         private void OnCanvasMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (!IsMovingPoint)
+            if (!m_isMovingPoint)
             {
                 var mouse = e.MouseDevice.GetPosition(c_canvas);
                 if (MouseIsOverCornerPoint(mouse, out var hitPoint))
                 {
                     if (e.MiddleButton == MouseButtonState.Pressed)
                     {
-                        BasementPolygon.RemovePoint(c_canvas, hitPoint);
+                        m_polygon.RemovePoint(c_canvas, hitPoint);
                     }
                     else
                     {
-                        IsMovingPoint = true;
-                        MovingPointIdx = hitPoint;
+                        m_isMovingPoint = true;
+                        m_movingPointIdx = hitPoint;
                     }
                 }
                 else
@@ -135,25 +140,25 @@ namespace WindowsGeneratorView
                     if (IsMouseOverEdge(mouse, out var hitPointIdx1, out var hitPointIdx2, out var closestPoint))
                     {
                         if (e.MiddleButton == MouseButtonState.Pressed)
-                            BasementPolygon.AddPoint(c_canvas, mouse, hitPointIdx2);
+                            m_polygon.AddPoint(c_canvas, mouse, hitPointIdx2);
                         else if (e.LeftButton == MouseButtonState.Pressed)
-                            BasementPolygon.SelectEdge(hitPointIdx1, hitPointIdx2);
+                            m_polygon.SelectEdge(hitPointIdx1, hitPointIdx2);
                     }
                 }
             }
         }
         private void OnCanvasMouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (IsMovingPoint)
+            if (m_isMovingPoint)
             {
-                IsMovingPoint = false;
+                m_isMovingPoint = false;
             }
         }
 
         private bool FindPointToSnap(int currentPointIdx, Point mouse, out Point newPointPosition)
         {
             const int SNAP_THRESHOLD = 10;
-            var points = BasementPolygon.Polygon.Points;
+            var points = m_polygon.Polygon.Points;
 
             var p1 = mouse;
             newPointPosition = p1;
@@ -161,7 +166,7 @@ namespace WindowsGeneratorView
             for (int p = 0; p < points.Count; p++)
             {
                 if (p == currentPointIdx) continue;
-                var p2 = BasementPolygon.Polygon.Points[p];
+                var p2 = m_polygon.Polygon.Points[p];
                 if (!foundX && Math.Abs(p1.X - p2.X) < SNAP_THRESHOLD)
                 {
                     newPointPosition.X = p2.X;
@@ -179,7 +184,7 @@ namespace WindowsGeneratorView
 
         private bool IsMouseOverEdge(Point mouse, out int hitPoint1, out int hitPoint2, out Point closestPoint)
         {
-            var points = BasementPolygon.Polygon.Points;
+            var points = m_polygon.Polygon.Points;
             for (int p1 = 0; p1 < points.Count; p1++)
             {
                 int p2 = (p1 + 1) % points.Count;
@@ -205,102 +210,16 @@ namespace WindowsGeneratorView
             TextValidators.OnPreviewTextBoxDecimal(sender, e);
         }
 
-        private CustomPolygon BasementPolygon;
-        private bool IsMovingPoint = false;
-        private int MovingPointIdx;
+        private CustomPolygon m_polygon;
+        private bool m_isMovingPoint = false;
+        private int m_movingPointIdx;
+        private BasementPropertiesViewModel m_viewModel;
 
-       
-    }
-
-    class CustomPolygon : UIElement
-    {
-        public static readonly int DotSize = 15;
-        public static readonly int ThresholdPointSqrDistance = DotSize * DotSize;
-        public Polygon Polygon { get; private set; }
-        public List<Ellipse> Corners { get; private set; }
-        public Line BaseSideHighlight { get; private set; }
-        public float BaseSideLength { get; set; }
-        public int BaseSideEnd1 { get; private set; }
-        public int BaseSideEnd2 { get; private set; }
-
-        public CustomPolygon(Canvas canvas)
+        private void OnCanvasLostFocus(object sender, RoutedEventArgs e)
         {
-            Polygon = new Polygon();
-            Corners = new List<Ellipse>();
-            BaseSideHighlight = new Line();
-            BaseSideHighlight.Stroke = Brushes.Red;
-            BaseSideHighlight.StrokeThickness = 4;
-            canvas.Children.Add(Polygon);
-            canvas.Children.Add(BaseSideHighlight);
-        }
-        public void MovePoint(Canvas canvas, int pointIdx, Point destination)
-        {
-            Polygon.Points[pointIdx] = destination;
-            Corners[pointIdx].Margin = new Thickness(destination.X - DotSize / 2, destination.Y - DotSize / 2, 0, 0);
-            if (pointIdx == BaseSideEnd1)
-            {
-                BaseSideHighlight.X1 = destination.X;
-                BaseSideHighlight.Y1 = destination.Y;
-            }
-            else if (pointIdx == BaseSideEnd2)
-            {
-                BaseSideHighlight.X2 = destination.X;
-                BaseSideHighlight.Y2 = destination.Y;
-            }
-        } 
-        
-        public void AddPoint(Canvas canvas, Point location, int pointIdx = -1)
-        {
-            Ellipse dot = new Ellipse();
-            dot.Stroke = new SolidColorBrush(Colors.Black);
-            dot.StrokeThickness = 1;
-            dot.Height = DotSize;
-            dot.Width = DotSize;
-            dot.Fill = new SolidColorBrush(Colors.Yellow);
-            dot.Margin = new Thickness(location.X - DotSize / 2, location.Y - DotSize / 2, 0, 0);
-            if (pointIdx == -1)
-            {
-                Corners.Add(dot);
-                Polygon.Points.Add(location);
-            }
-            else
-            {
-                Corners.Insert(pointIdx, dot);
-                Polygon.Points.Insert(pointIdx, location);
-            }
-            canvas.Children.Add(dot);
-            DeselectEdge();
-        }
-
-        public void RemovePoint(Canvas canvas, int pointIdx)
-        {
-            if (pointIdx >= 0 && pointIdx < Corners.Count)
-            {
-                canvas.Children.Remove(Corners[pointIdx]);
-                Corners.RemoveAt(pointIdx);
-                Polygon.Points.RemoveAt(pointIdx);
-                DeselectEdge();
-            }
-        }
-
-        public void SelectEdge(int endPointIdx1, int endPointIdx2)
-        {
-            BaseSideEnd1 = endPointIdx1;
-            BaseSideEnd2 = endPointIdx2;
-            var p1 = Polygon.Points[endPointIdx1];
-            var p2 = Polygon.Points[endPointIdx2];
-            BaseSideHighlight.StrokeThickness = 4;
-            BaseSideHighlight.X1 = p1.X;
-            BaseSideHighlight.Y1 = p1.Y;
-            BaseSideHighlight.X2 = p2.X;
-            BaseSideHighlight.Y2 = p2.Y;
-        }
-
-        public void DeselectEdge()
-        {
-            BaseSideHighlight.StrokeThickness = 0;
-            BaseSideEnd1 = -1;
-            BaseSideEnd2 = -1;
+            m_viewModel.SelectedSideEndpoint1 = m_polygon.BaseSideEnd1;
+            m_viewModel.SelectedSideEndpoint2 = m_polygon.BaseSideEnd2;
+            m_viewModel.PolygonPoints = m_polygon.Polygon.Points;
         }
     }
 }

@@ -12,6 +12,9 @@
 *.obj
 *.mtl
 
+# Shippment
+ship/
+
 # User-specific files (MonoDevelop/Xamarin Studio) 
 *.userprefs
 

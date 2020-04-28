@@ -45,20 +45,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MemoryExporter.cs" />
-    <Compile Include="BuildingsGenerationParameters.cs" />
-    <Compile Include="BuildingsModelsGenerator.cs" />
-    <Compile Include="ExportParameters.cs" />
-    <Compile Include="FileExporter.cs" />
-    <Compile Include="FileExportParameters.cs" />
-    <Compile Include="GenerationParameters.cs" />
-    <Compile Include="IExporter.cs" />
-    <Compile Include="IProceduralModelsGenerator.cs" />
+    <Compile Include="export\MemoryExporter.cs" />
+    <Compile Include="generation\BuildingsGenerationParameters.cs" />
+    <Compile Include="generation\BuildingsModelsGenerator.cs" />
+    <Compile Include="export\ExportParameters.cs" />
+    <Compile Include="export\FileExporter.cs" />
+    <Compile Include="export\FileExportParameters.cs" />
+    <Compile Include="generation\GenerationParameters.cs" />
+    <Compile Include="export\IExporter.cs" />
+    <Compile Include="generation\IProceduralModelsGenerator.cs" />
+    <Compile Include="generation\Point.cs" />
     <Compile Include="Model3D.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
