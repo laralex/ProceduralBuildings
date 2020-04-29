@@ -20,21 +20,35 @@ namespace GeneratorController
 
         public Model3D Generate(IViewModel generationData)
         {
-            var buildingsGenerationData = generationData as BuildingsViewModel;
+            var buildingsViewModel = generationData as BuildingsViewModel;
+            var basementViewModel = buildingsViewModel.BasementOptions as BasementPropertiesViewModel;
 
-            var point1 = buildingsGenerationData.BasementOptions.PolygonPoints[buildingsGenerationData.BasementOptions.SelectedSideEndpoint1];
-            var point2 = buildingsGenerationData.BasementOptions.PolygonPoints[buildingsGenerationData.BasementOptions.SelectedSideEndpoint2];
-            Point2D basementSelectedPoint1 = new Point2D { X = point1.X, Y = point1.Y };
-            Point2D basementSelectedPoint2 = new Point2D { X = point2.X, Y = point2.Y };
-            double basementSelectedSideLength = Math.Sqrt(
-                Math.Pow(basementSelectedPoint1.X - basementSelectedPoint2.X, 2) +
-                Math.Pow(basementSelectedPoint1.Y - basementSelectedPoint2.Y, 2)
-            );
+            double basementLengthPerUnit;
+            if (basementViewModel.SelectedSideEndpoint1 >= 0 && 
+                basementViewModel.SelectedSideEndpoint2 >= 0 &&
+                basementViewModel.SelectedSideEndpoint1 < basementViewModel.PolygonPoints.Count &&
+                basementViewModel.SelectedSideEndpoint2 < basementViewModel.PolygonPoints.Count)
+            {
+                var point1 = basementViewModel.PolygonPoints[basementViewModel.SelectedSideEndpoint1];
+                var point2 = basementViewModel.PolygonPoints[basementViewModel.SelectedSideEndpoint2];
+                Point2D basementSelectedPoint1 = new Point2D { X = point1.X, Y = point1.Y };
+                Point2D basementSelectedPoint2 = new Point2D { X = point2.X, Y = point2.Y };
+                double basementSelectedSideLength = Math.Sqrt(
+                    Math.Pow(basementSelectedPoint1.X - basementSelectedPoint2.X, 2) +
+                    Math.Pow(basementSelectedPoint1.Y - basementSelectedPoint2.Y, 2)
+                );
+                basementLengthPerUnit = basementViewModel.SelectedSideLength / basementSelectedSideLength;
+            }
+            else
+            {
+                basementLengthPerUnit = 1.0;
+            }
+            
             var generatorParameters = new BuildingsGenerationParameters
             {
-                BasementExtrudeHeight = buildingsGenerationData.BasementOptions.BuildingHeight,
-                BasementLengthPerUnit = buildingsGenerationData.BasementOptions.SelectedSideLength / basementSelectedSideLength,
-                BasementPoints = buildingsGenerationData.BasementOptions.PolygonPoints.Select(p => new Point2D { X=p.X, Y=p.Y}).ToList(),
+                BasementExtrudeHeight = basementViewModel.BuildingHeight,
+                BasementLengthPerUnit = basementLengthPerUnit,
+                BasementPoints = basementViewModel.PolygonPoints.Select(p => new Point2D { X=p.X, Y=p.Y}).ToList(),
                 // to do seed
             };
             LatestModel = Generator.GenerateModel(generatorParameters);

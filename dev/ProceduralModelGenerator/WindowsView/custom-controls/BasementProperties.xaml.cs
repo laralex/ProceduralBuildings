@@ -24,15 +24,15 @@ namespace WindowsGeneratorView
     /// </summary>
     public partial class BasementProperties : UserControl
     {
-        public BasementProperties()
+        public BasementProperties(BasementPropertiesViewModel viewModel)
         {
             InitializeComponent();
+            this.DataContext = m_viewModel = viewModel;
         }
 
         private void OnPanelLoaded(object sender, RoutedEventArgs e)
         {
             m_polygon = new CustomPolygon(c_canvas);
-            this.DataContext = m_viewModel = new BasementPropertiesViewModel(); 
             var widthThird = c_canvas.ActualWidth / 3;
             var heightThird = c_canvas.ActualHeight / 3;
             m_polygon.AddPoint(c_canvas, new Point(widthThird, heightThird));

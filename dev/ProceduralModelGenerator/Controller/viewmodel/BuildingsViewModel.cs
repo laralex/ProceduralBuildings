@@ -16,7 +16,7 @@ namespace GeneratorController
         public string HelpIconPath => Path.Combine(rootDir, @"data/info-icon.png");
         public string VisualizeIconPath => Path.Combine(rootDir, @"data/visualize-icon.png");
 
-        public BasementPropertiesViewModel BasementOptions { get; set; }
+        public IViewModel BasementOptions { get; set; }
 
         private ViewModelGrammar m_grammar;
         public ViewModelGrammar Grammar

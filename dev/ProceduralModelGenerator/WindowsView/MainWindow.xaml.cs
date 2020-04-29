@@ -79,7 +79,9 @@ namespace WindowsView
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            m_inputController.ViewModel.PropertiesPanel = new BasementProperties();
+            var basementViewModel = new BasementPropertiesViewModel();
+            m_inputController.ViewModel.PropertiesPanel = new BasementProperties(basementViewModel);
+            m_inputController.ViewModel.BasementOptions = basementViewModel;
             if (!m_inputController.StartService())
             {
                 MessageBox.Show("Another instance of the program is already started! Cannot start a new one.");
@@ -87,8 +89,6 @@ namespace WindowsView
             }
             // fixme
             var basementProps = (BasementProperties)(m_inputController.ViewModel.PropertiesPanel);
-            m_inputController.ViewModel.BasementOptions = basementProps.DataContext as BasementPropertiesViewModel;
-
         }
 
         private void OnPreviewSeedInput(object sender, TextCompositionEventArgs e)

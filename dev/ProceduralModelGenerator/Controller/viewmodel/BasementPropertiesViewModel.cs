@@ -8,7 +8,7 @@ using System.Windows;
 
 namespace GeneratorController
 {
-    public class BasementPropertiesViewModel : INotifyPropertyChanged
+    public class BasementPropertiesViewModel : INotifyPropertyChanged, IViewModel
     {
         public BasementPropertiesViewModel()
         {
