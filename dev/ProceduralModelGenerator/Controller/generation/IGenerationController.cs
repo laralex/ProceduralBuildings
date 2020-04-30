@@ -11,6 +11,6 @@ namespace GeneratorController
     {
         IProceduralModelsGenerator Generator { get; }
         //Model3D LatestModel { get; }
-        Model3D Generate(IViewModel generationData);
+        Model3d Generate(IViewModel generationData);
     }
 }

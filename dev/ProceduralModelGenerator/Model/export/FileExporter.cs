@@ -9,14 +9,14 @@ namespace ProceduralBuildingsGeneration
 {
     public class FileExporter : IExporter
     {
-        public bool ObjExport(Model3D model, ExportParameters parameters)
+        public bool ObjExport(Model3d model, ExportParameters parameters)
         {
             parameters.ModelFormat = ModelFormat.OBJ;
             var exportData = new List<WriteMesh> { new WriteMesh(model.Mesh) };
             return Export(exportData, parameters);
         }
 
-        public bool StlExport(Model3D model, ExportParameters parameters)
+        public bool StlExport(Model3d model, ExportParameters parameters)
         {
             parameters.ModelFormat = ModelFormat.STL;
             var exportData = new List<WriteMesh> { new WriteMesh(model.Mesh) };

@@ -80,7 +80,7 @@ namespace GeneratorController
             //ViewModel.Dispose();
         }
 
-        private Model3D m_latestModel;
+        private Model3d m_latestModel;
         private Stream m_latestModelTemporaryfile;
     }
 }

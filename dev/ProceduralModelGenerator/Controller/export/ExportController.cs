@@ -8,7 +8,7 @@ namespace GeneratorController
 {
     public class ExportController
     {
-        public bool ExportInFile(Model3D model, ExportParameters parameters)
+        public bool ExportInFile(Model3d model, ExportParameters parameters)
         {
             var exporter = new FileExporter();
             switch (parameters.ModelFormat)
@@ -20,7 +20,7 @@ namespace GeneratorController
             }
             return false;
         }
-        public bool ExportInStream(Model3D model, ExportParameters parameters, out Stream exportedModel)
+        public bool ExportInStream(Model3d model, ExportParameters parameters, out Stream exportedModel)
         {
             var exporter = new MemoryExporter();
             exportedModel = null;
@@ -37,7 +37,7 @@ namespace GeneratorController
             }
             return false;    
         }
-        private void Export(Model3D model, IExporter exporter, ExportParameters parameters)
+        private void Export(Model3d model, IExporter exporter, ExportParameters parameters)
         {
            // exporter.Export(model, parameters);
         }

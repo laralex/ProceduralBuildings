@@ -17,19 +17,19 @@ namespace ProceduralBuildingsGeneration
                 ModelFormat = ModelFormat.OBJ,
             };
         }
-        public bool ObjExport(Model3D model, ExportParameters parameters)
+        public bool ObjExport(Model3d model, ExportParameters parameters)
         {
             m_fileExportParameters.ModelFormat = ModelFormat.OBJ;
             return Export(model);
         }
 
-        public bool StlExport(Model3D model, ExportParameters parameters)
+        public bool StlExport(Model3d model, ExportParameters parameters)
         {
             m_fileExportParameters.ModelFormat = ModelFormat.STL;
             return Export(model);
         }
 
-        private bool Export(Model3D model)
+        private bool Export(Model3d model)
         {
             var fileExportResult = m_fileExporter.ObjExport(model, m_fileExportParameters);
             if (!fileExportResult) return false;

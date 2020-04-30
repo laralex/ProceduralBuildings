@@ -6,6 +6,6 @@ namespace ProceduralBuildingsGeneration
 {
     public interface IProceduralModelsGenerator
     {
-        Model3D GenerateModel(GenerationParameters parameters);
+        Model3d GenerateModel(GenerationParameters parameters);
     }
 }

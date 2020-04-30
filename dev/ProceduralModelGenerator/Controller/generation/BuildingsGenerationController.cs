@@ -10,7 +10,7 @@ namespace GeneratorController
 {
     internal class BuildingsGenerationController : IGenerationController
     {
-        public Model3D LatestModel { get; private set; }
+        public Model3d LatestModel { get; private set; }
         public IProceduralModelsGenerator Generator { get; private set; }
 
         public BuildingsGenerationController()
@@ -18,7 +18,7 @@ namespace GeneratorController
             Generator = new BuildingsModelsGenerator();
         }
 
-        public Model3D Generate(IViewModel generationData)
+        public Model3d Generate(IViewModel generationData)
         {
             var buildingsViewModel = generationData as BuildingsViewModel;
             var basementViewModel = buildingsViewModel.BasementOptions as BasementPropertiesViewModel;
