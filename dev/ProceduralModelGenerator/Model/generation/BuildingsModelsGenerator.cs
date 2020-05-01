@@ -8,11 +8,30 @@ namespace ProceduralBuildingsGeneration
 {
     public class BuildingsModelsGenerator : IProceduralModelsGenerator
     {
+        public BuildingsModelsGenerator()
+        {
+            
+        }
+
         public Model3d GenerateModel(GenerationParameters parameters)
         {
             var buildingParams = parameters as BuildingsGenerationParameters;
             var mesh = new DMesh3(false);//DMesh3Builder.Build(
 
+            MakeBuildingBody(mesh, buildingParams);
+            AddRoof(mesh, buildingParams);
+            // return result;
+            if (!mesh.CheckValidity()) throw new Exception("Generated mesh is invalid"); ;
+            return new Model3d { Mesh = mesh };
+        }
+
+        private void AddRoof(DMesh3 mesh, BuildingsGenerationParameters buildingParams)
+        {   
+            // top polygon, he
+        }
+
+        private void MakeBuildingBody(DMesh3 mesh, BuildingsGenerationParameters buildingParams)
+        {
             // is given basement counter clockwise
             if (Geometry.CalcSignedPolygonArea(buildingParams.BasementPoints) < 0.0)
             {
@@ -45,16 +64,10 @@ namespace ProceduralBuildingsGeneration
             var heightExtruder = new MeshExtrudeMesh(mesh);
             heightExtruder.ExtrudedPositionF = (pos, normal, idx) =>
             {
-                return pos + Vector3d.AxisZ * buildingParams.UnitsPerMeter * 
+                return pos + Vector3d.AxisZ * buildingParams.UnitsPerMeter *
                     buildingParams.BasementExtrudeHeight;
             };
-
-
             heightExtruder.Extrude();
-
-            // return result;
-            if (!mesh.CheckValidity()) throw new Exception("Generated mesh is invalid"); ;
-            return new Model3d { Mesh = mesh };
         }
 
         private int AddVertex3dFrom2d(DMesh3 mesh, Dictionary<Vector2d, int> vertices, Vector2d candidateV, Vector3f normal)

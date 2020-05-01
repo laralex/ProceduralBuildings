@@ -12,10 +12,22 @@ namespace GeneratorController
     {
         public Model3d LatestModel { get; private set; }
         public IProceduralModelsGenerator Generator { get; private set; }
-
+        public AssetsLoader AssetsLoader { get; private set; }
         public BuildingsGenerationController()
         {
             Generator = new BuildingsModelsGenerator();
+            AssetsLoader = new AssetsLoader();
+            try
+            {
+                if (AssetsLoader.TryReloadManifest())
+                {
+                    var missingAssets = AssetsLoader.FindMissingAssetsFiles();
+                }
+            }
+            catch
+            {
+                // corrupt xml
+            }
         }
 
         public Model3d Generate(IViewModel viewModelParameters)
@@ -25,7 +37,7 @@ namespace GeneratorController
             return LatestModel;
         }
 
-        private static BuildingsGenerationParameters MakeGenerationParameters(IViewModel viewModelParameters)
+        private BuildingsGenerationParameters MakeGenerationParameters(IViewModel viewModelParameters)
         {
             var buildingsViewModel = viewModelParameters as BuildingsViewModel;
             var basementViewModel = buildingsViewModel.BasementOptions as BasementPropertiesViewModel;
@@ -70,8 +82,9 @@ namespace GeneratorController
                 BasementExtrudeHeight = basementViewModel.BuildingHeight,
                 BasementLengthPerUnit = basementLengthPerUnit,
                 BasementPoints = basementViewModel.PolygonPoints.Select(p => new Point2d { X = p.X, Y = p.Y }).ToList(),
-                UnitsPerMeter = buildingsViewModel.SpaceUnitsPerMeter
+                UnitsPerMeter = buildingsViewModel.SpaceUnitsPerMeter,
                 // to do seed
+                Assets = AssetsLoader.AssetGroups,
             };
         }
         //basementViewModel.SelectedSideMeters *

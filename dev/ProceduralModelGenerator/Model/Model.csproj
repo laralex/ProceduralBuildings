@@ -46,6 +46,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="export\MemoryExporter.cs" />
+    <Compile Include="generation\assets\Asset.cs" />
+    <Compile Include="generation\assets\AssetsLoader.cs" />
     <Compile Include="generation\BuildingsGenerationParameters.cs" />
     <Compile Include="generation\BuildingsModelsGenerator.cs" />
     <Compile Include="export\ExportParameters.cs" />

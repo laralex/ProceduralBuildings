@@ -11,10 +11,10 @@ namespace GeneratorController
 {
     public class BuildingsViewModel : IViewModel
     {
-        public string GenerateIconPath => Path.Combine(rootDir, @"data/generate-icon.png");
-        public string ExportIconPath => Path.Combine(rootDir, @"data/export-icon.png");
-        public string HelpIconPath => Path.Combine(rootDir, @"data/info-icon.png");
-        public string VisualizeIconPath => Path.Combine(rootDir, @"data/visualize-icon.png");
+        public string GenerateIconPath => Path.Combine(rootDir, @"data/ui/generate-icon.png");
+        public string ExportIconPath => Path.Combine(rootDir, @"data/ui/export-icon.png");
+        public string HelpIconPath => Path.Combine(rootDir, @"data/ui/info-icon.png");
+        public string VisualizeIconPath => Path.Combine(rootDir, @"data/ui/visualize-icon.png");
 
         public float SpaceUnitsPerMeter = 1.0f;
         public IViewModel BasementOptions { get; set; }

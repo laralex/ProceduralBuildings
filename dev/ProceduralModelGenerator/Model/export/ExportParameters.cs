@@ -10,13 +10,22 @@ namespace ProceduralBuildingsGeneration
         public ModelFormat ModelFormat;
         public static ModelFormat FormatFromFilePath(string filePath)
         {
-            switch (Path.GetExtension(filePath))
+            if (!TryFormatFromString(Path.GetExtension(filePath).Remove(0, 1), out var modelFormat))
             {
-                case ".obj": return ModelFormat.OBJ; 
-                case ".stl": return ModelFormat.STL; 
-                case ".3ds": return ModelFormat.ThreeDS;
-                default: return ModelFormat.OBJ;
+                throw new ArgumentException("In filePath, an extension is not found/supported");
             }
+            return modelFormat;
+        }
+        public static bool TryFormatFromString(string formatCode, out ModelFormat result)
+        {
+            switch (formatCode)
+            {
+                case "obj": result = ModelFormat.OBJ; break;
+                case "stl": result = ModelFormat.STL; break;
+                case "3ds": result = ModelFormat.ThreeDS; break;
+                default: result = ModelFormat.OBJ; return false; 
+            }
+            return true;
         }
     }
 
