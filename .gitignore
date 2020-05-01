@@ -13,6 +13,7 @@
 *.mtl
 
 # Shippment
+!toship/*
 ship/
 
 # User-specific files (MonoDevelop/Xamarin Studio) 
@@ -79,7 +80,7 @@ StyleCopReport.xml
 *_h.h
 *.ilk
 *.meta
-*.obj
+#*.obj
 *.iobj
 *.pch
 *.pdb
