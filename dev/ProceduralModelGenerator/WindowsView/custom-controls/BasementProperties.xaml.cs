@@ -33,12 +33,12 @@ namespace WindowsGeneratorView
         private void OnPanelLoaded(object sender, RoutedEventArgs e)
         {
             m_polygon = new CustomPolygon(c_canvas);
-            var widthThird = c_canvas.ActualWidth / 3;
-            var heightThird = c_canvas.ActualHeight / 3;
+            var widthThird = c_canvas.ActualWidth / 3.0;
+            var heightThird = c_canvas.ActualHeight / 3.0;
             m_polygon.AddPoint(c_canvas, new Point(widthThird, heightThird));
-            m_polygon.AddPoint(c_canvas, new Point(widthThird * 2, heightThird));
-            m_polygon.AddPoint(c_canvas, new Point(widthThird * 2, heightThird * 2));
-            m_polygon.AddPoint(c_canvas, new Point(widthThird, heightThird * 2));
+            m_polygon.AddPoint(c_canvas, new Point(widthThird * 2.0, heightThird));
+            m_polygon.AddPoint(c_canvas, new Point(widthThird * 2.0, heightThird * 2.0));
+            m_polygon.AddPoint(c_canvas, new Point(widthThird, heightThird * 2.0));
             m_polygon.Polygon.Stroke = Brushes.Black;
             m_polygon.Polygon.StrokeThickness = 3;
             m_polygon.Polygon.Fill = Brushes.LightGray;

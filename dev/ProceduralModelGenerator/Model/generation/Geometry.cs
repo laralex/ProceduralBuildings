@@ -64,16 +64,16 @@ namespace ProceduralBuildingsGeneration
             return Math.Abs(angleSum) > 1;
         }
 
-        public static double CalcSignedPolygonArea(IList<Vector2d> polygon)
+        public static double CalcSignedPolygonArea(IList<Point2d> polygon)
         {
             double area = 0.0f;
             for (int i = 0; i < polygon.Count - 1; ++i)
             {
-                area += (polygon[i + 1].x - polygon[i].x) *
-                        (polygon[i + 1].y + polygon[i].y) / 2.0;
+                area += (polygon[i + 1].X - polygon[i].X) *
+                        (polygon[i + 1].Y + polygon[i].Y) / 2.0;
             }
-            area += (polygon[0].x - polygon.Last().x) *
-                    (polygon[0].y + polygon.Last().y) / 2.0;
+            area += (polygon[0].X - polygon.Last().X) *
+                    (polygon[0].Y + polygon.Last().Y) / 2.0;
             return area;
         }
 
@@ -83,6 +83,41 @@ namespace ProceduralBuildingsGeneration
             Vector2d sampleEdge2 = otherPoint2 - samplePoint;
             double cross = sampleEdge1.x * sampleEdge2.y - sampleEdge1.y * sampleEdge2.x;
             return (float)Math.Atan2(cross, sampleEdge1.Dot(sampleEdge2));
+        }
+
+        // Find the polygon's centroid.
+        public static Vector2d FindCentroid(IList<Point2d> polygon)
+        {
+            double X = 0;
+            double Y = 0;
+            for (int i = 0; i < polygon.Count - 1; i++)
+            {
+                double commonFactor =
+                    polygon[i].X * polygon[i + 1].Y -
+                    polygon[i + 1].X * polygon[i].Y;
+                X += (polygon[i].X + polygon[i + 1].X) * commonFactor;
+                Y += (polygon[i].Y + polygon[i + 1].Y) * commonFactor;
+            }
+
+            double commonFactor2 =
+                    polygon.Last().X * polygon[0].Y -
+                    polygon[0].X * polygon.Last().Y;
+            X += (polygon.Last().X + polygon[0].X) * commonFactor2;
+            Y += (polygon.Last().Y + polygon[0].Y) * commonFactor2;
+
+            // wikipedia formula
+            double polygon_area = Math.Abs(CalcSignedPolygonArea(polygon));
+            X /= (6 * polygon_area);
+            Y /= (6 * polygon_area);
+
+            // if the polygon is oriented counterclockwise
+            if (X < 0)
+            {
+                X = -X;
+                Y = -Y;
+            }
+
+            return new Vector2d(X, Y);
         }
     }
 }

@@ -18,41 +18,75 @@ namespace GeneratorController
             Generator = new BuildingsModelsGenerator();
         }
 
-        public Model3d Generate(IViewModel generationData)
+        public Model3d Generate(IViewModel viewModelParameters)
         {
-            var buildingsViewModel = generationData as BuildingsViewModel;
-            var basementViewModel = buildingsViewModel.BasementOptions as BasementPropertiesViewModel;
-
-            double basementLengthPerUnit;
-            if (basementViewModel.SelectedSideEndpoint1 >= 0 && 
-                basementViewModel.SelectedSideEndpoint2 >= 0 &&
-                basementViewModel.SelectedSideEndpoint1 < basementViewModel.PolygonPoints.Count &&
-                basementViewModel.SelectedSideEndpoint2 < basementViewModel.PolygonPoints.Count)
-            {
-                var point1 = basementViewModel.PolygonPoints[basementViewModel.SelectedSideEndpoint1];
-                var point2 = basementViewModel.PolygonPoints[basementViewModel.SelectedSideEndpoint2];
-                Point2D basementSelectedPoint1 = new Point2D { X = point1.X, Y = point1.Y };
-                Point2D basementSelectedPoint2 = new Point2D { X = point2.X, Y = point2.Y };
-                double basementSelectedSideLength = Math.Sqrt(
-                    Math.Pow(basementSelectedPoint1.X - basementSelectedPoint2.X, 2) +
-                    Math.Pow(basementSelectedPoint1.Y - basementSelectedPoint2.Y, 2)
-                );
-                basementLengthPerUnit = basementViewModel.SelectedSideLength / basementSelectedSideLength;
-            }
-            else
-            {
-                basementLengthPerUnit = 1.0;
-            }
-            
-            var generatorParameters = new BuildingsGenerationParameters
-            {
-                BasementExtrudeHeight = basementViewModel.BuildingHeight,
-                BasementLengthPerUnit = basementLengthPerUnit,
-                BasementPoints = basementViewModel.PolygonPoints.Select(p => new Point2D { X=p.X, Y=p.Y}).ToList(),
-                // to do seed
-            };
+            var generatorParameters = MakeGenerationParameters(viewModelParameters);
             LatestModel = Generator.GenerateModel(generatorParameters);
             return LatestModel;
         }
+
+        private static BuildingsGenerationParameters MakeGenerationParameters(IViewModel viewModelParameters)
+        {
+            var buildingsViewModel = viewModelParameters as BuildingsViewModel;
+            var basementViewModel = buildingsViewModel.BasementOptions as BasementPropertiesViewModel;
+
+            int p1, p2;
+            double baseSideLength;
+            if (basementViewModel.SelectedSideEndpoint1 < 0 ||
+                basementViewModel.SelectedSideEndpoint2 < 0 ||
+                basementViewModel.SelectedSideEndpoint1 >= basementViewModel.PolygonPoints.Count ||
+                basementViewModel.SelectedSideEndpoint2 >= basementViewModel.PolygonPoints.Count)
+            {
+                p1 = 0;
+                p2 = basementViewModel.PolygonPoints.Count - 1;
+                baseSideLength = basementViewModel.PolygonPoints[p1]
+                        .DistanceTo(basementViewModel.PolygonPoints[p2]);
+                // no specific base side specified, so just take the longest
+                for (int p = 0; p < basementViewModel.PolygonPoints.Count - 1; ++p)
+                {
+                    var candidateDistance = basementViewModel.PolygonPoints[p]
+                        .DistanceTo(basementViewModel.PolygonPoints[p + 1]);
+                    if (candidateDistance > baseSideLength)
+                    {
+                        p1 = p;
+                        p2 = p + 1;
+                        baseSideLength = candidateDistance;
+                    }
+                }
+            }
+            else
+            {
+                p1 = basementViewModel.SelectedSideEndpoint1;
+                p2 = basementViewModel.SelectedSideEndpoint2;
+                baseSideLength = basementViewModel.PolygonPoints[p1]
+                    .DistanceTo(basementViewModel.PolygonPoints[p2]);
+            }
+
+            double basementLengthPerUnit = buildingsViewModel.SpaceUnitsPerMeter *
+                basementViewModel.SelectedSideMeters / baseSideLength;
+
+            return new BuildingsGenerationParameters
+            {
+                BasementExtrudeHeight = basementViewModel.BuildingHeight,
+                BasementLengthPerUnit = basementLengthPerUnit,
+                BasementPoints = basementViewModel.PolygonPoints.Select(p => new Point2d { X = p.X, Y = p.Y }).ToList(),
+                UnitsPerMeter = buildingsViewModel.SpaceUnitsPerMeter
+                // to do seed
+            };
+        }
+        //basementViewModel.SelectedSideMeters *
+        //buildingsViewModel.SpaceUnitsPerMeter
     }
+
+    
+    public static class PointsExtension
+    {
+        public static double DistanceTo(this System.Windows.Point t, System.Windows.Point other)
+        {
+            var dx = t.X - other.X;
+            var dy = t.Y - other.Y;
+            return Math.Sqrt(dx * dx + dy * dy);
+        }
+    }
+
 }

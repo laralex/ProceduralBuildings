@@ -12,15 +12,15 @@ namespace GeneratorController
     {
         public BasementPropertiesViewModel()
         {
-            SelectedSideLength = 1.0f;
-            BuildingHeight = 5.0f;
+            SelectedSideMeters = 5.0f;
+            BuildingHeight = 6.0f;
             PolygonPoints = new List<Point>();
             m_selectedSideEndpoint1 = -1;
             m_selectedSideEndpoint2 = -1;
         }
 
         private float m_selectedSideLength;
-        public float SelectedSideLength
+        public float SelectedSideMeters
         {
             get => m_selectedSideLength;
             set

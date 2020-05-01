@@ -22,7 +22,6 @@ namespace WpfVisualizer
         {
             InitializeComponent();
             m_replacementMaterial = MaterialHelper.CreateMaterial(Brushes.LightBlue, 0.0, 40);
-
             m_viewModel = new MainViewModel
             {
                 ShownVisual3d = new ModelVisual3D()
@@ -271,7 +270,7 @@ namespace WpfVisualizer
         {
             if (m_viewModel.ContourVisual3D == null) {
                 m_viewModel.ContourVisual3D = 
-                    ContourUtility.AddContours(s_shownModelVisual3D, 10, 10, 10, 0.5);
+                    ContourUtility.AddContours(s_shownModelVisual3D, 10, 10, 10, 0.07);
             }
             c_helixViewport.Children.Add(m_viewModel.ContourVisual3D);
             c_helixViewport.Children.Remove(s_shownModelVisual3D);
@@ -348,7 +347,7 @@ namespace WpfVisualizer
                     foreach (var m in modelContent.Children)
                     {
                         (m as GeometryModel3D).Material = m_replacementMaterial;
-                        (m as GeometryModel3D).BackMaterial = m_replacementMaterial;
+                        //(m as GeometryModel3D).BackMaterial = m_replacementMaterial;
                     }
                 });
             }

@@ -55,7 +55,7 @@
     <Compile Include="export\IExporter.cs" />
     <Compile Include="generation\Geometry.cs" />
     <Compile Include="generation\IProceduralModelsGenerator.cs" />
-    <Compile Include="generation\Point.cs" />
+    <Compile Include="generation\Point2d.cs" />
     <Compile Include="Model3D.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

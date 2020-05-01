@@ -15,22 +15,19 @@
             <StackPanel DockPanel.Dock="Top" Grid.Row="2">
                 <StackPanel Orientation="Horizontal">
                     <TextBox Margin="3" VerticalContentAlignment="Center" 
-                             Width="100" Text="{Binding SelectedSideLength}" 
+                             Width="70" Text="{Binding SelectedSideMeters}" 
                              PreviewTextInput="OnPreviewTextBoxDecimal"/>
                     <Label Margin="3" VerticalContentAlignment="Center" 
-                           Content="Selected wall length (meters)" />
+                           Content="Selected (or longest) wall length (meters)" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <TextBox Margin="3" VerticalContentAlignment="Center" 
-                             Width="100" Text="{Binding BuildingHeight}" 
+                             Width="70" Text="{Binding BuildingHeight}" 
                              PreviewTextInput="OnPreviewTextBoxDecimal"/>
                     <Label Margin="3" VerticalContentAlignment="Center" 
                            Content="Height (meters)"/>
                 </StackPanel>
-                <CheckBox Margin="3" Height="30" VerticalContentAlignment="Center" 
-                          Content="Include a plug node above"/>
-                <CheckBox Margin="3" Height="30" VerticalContentAlignment="Center" 
-                          Content="Include a plug node below"/>
+                
             </StackPanel>
         </DockPanel>
     </ScrollViewer>
@@ -38,6 +35,10 @@
 </UserControl>
 
 <!--
+    <CheckBox Margin="3" Height="30" VerticalContentAlignment="Center" 
+                          Content="Include a plug node above"/>
+                <CheckBox Margin="3" Height="30" VerticalContentAlignment="Center" 
+                          Content="Include a plug node below"/>
     <Button Margin="3" Content="Apply changes" Height="25" Width="100" HorizontalAlignment="Left"/>
     MouseMove="OnCanvasMouseMove_NoDragging"
             MouseDown="OnCanvasMouseDown"

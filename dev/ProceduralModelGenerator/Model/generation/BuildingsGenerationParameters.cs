@@ -8,6 +8,7 @@ namespace ProceduralBuildingsGeneration
     {
         public double BasementExtrudeHeight { get; set; }
         public double BasementLengthPerUnit { get; set; }
-        public IList<Point2D> BasementPoints { get; set; }
+        public IList<Point2d> BasementPoints { get; set; }
+        public double UnitsPerMeter { get; set; }
     }
 }
