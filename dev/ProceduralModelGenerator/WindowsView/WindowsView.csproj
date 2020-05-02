@@ -66,6 +66,22 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="custom-controls\IntervalField.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="custom-controls\LabeledTextBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="custom-controls\RoofProperties.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="custom-controls\SegmentingProperties.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -78,6 +94,18 @@
       <DependentUpon>BasementProperties.xaml</DependentUpon>
     </Compile>
     <Compile Include="custom-controls\CustomPolygon.cs" />
+    <Compile Include="custom-controls\IntervalField.xaml.cs">
+      <DependentUpon>IntervalField.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="custom-controls\LabeledTextBox.xaml.cs">
+      <DependentUpon>LabeledTextBox.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="custom-controls\RoofProperties.xaml.cs">
+      <DependentUpon>RoofProperties.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="custom-controls\SegmentingProperties.xaml.cs">
+      <DependentUpon>SegmentingProperties.xaml</DependentUpon>
+    </Compile>
     <Compile Include="custom-controls\TextValidators.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

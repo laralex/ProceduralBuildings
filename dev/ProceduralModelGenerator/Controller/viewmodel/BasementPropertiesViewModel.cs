@@ -13,7 +13,7 @@ namespace GeneratorController
         public BasementPropertiesViewModel()
         {
             SelectedSideMeters = 5.0f;
-            BuildingHeight = 6.0f;
+            BuildingMinHeight = 6.0f;
             PolygonPoints = new List<Point>();
             m_selectedSideEndpoint1 = -1;
             m_selectedSideEndpoint2 = -1;
@@ -30,14 +30,25 @@ namespace GeneratorController
             }
         }
 
-        private float m_buildingHeight;
-        public float BuildingHeight
+        private float m_buildingMinHeight;
+        public float BuildingMinHeight
         {
-            get => m_buildingHeight;
+            get => m_buildingMinHeight;
             set
             {
-                m_buildingHeight = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("BuildingHeight"));
+                m_buildingMinHeight = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("BuildingMinHeight"));
+            }
+        }
+
+        private float m_buildingMaxHeight;
+        public float BuildingMaxHeight
+        {
+            get => m_buildingMaxHeight;
+            set
+            {
+                m_buildingMaxHeight = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("BuildingMaxHeight"));
             }
         }
 

@@ -7,7 +7,8 @@
         xmlns:viewmodel="clr-namespace:GeneratorController;assembly=GeneratorController"
         xmlns:local="clr-namespace:WindowsGeneratorView"
         mc:Ignorable="d" Loaded="OnLoaded" Closing="OnClosing"
-        Height="800" Width="700" MinWidth="400" MinHeight="200"
+        Height="600" Width="500" MinWidth="400" MinHeight="200"
+        Name="mainWindow"
         Title="Procedural Buildings 3D Models Generator">
     <Window.Resources>
         <Style x:Key="CommonButtonStyle" TargetType="Control">
@@ -21,36 +22,63 @@
         <Menu DockPanel.Dock="Top" FontSize="15">
             <MenuItem Header="_Generate" Click="OnGenerateClick">
                 <MenuItem.Icon>
-                <Image Source="{Binding Path=GenerateIconPath}" />
+                    <Image Source="{Binding GenerateIconPath, ElementName=mainWindow}" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator/>
             <MenuItem Header="_Export" Click="OnExportClick">
                 <MenuItem.Icon>
-                    <Image Source="{Binding Path=ExportIconPath}" />
+                    <Image Source="{Binding ExportIconPath, ElementName=mainWindow}" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator/>
             <MenuItem Header="_Visualize" Click="OnVisualizeClick">
                 <MenuItem.Icon>
-                    <Image Source="{Binding Path=VisualizeIconPath}" />
+                    <Image Source="{Binding VisualizeIconPath, ElementName=mainWindow}" />
                 </MenuItem.Icon>
+            </MenuItem>
+            <Separator/>
+            <MenuItem HorizontalAlignment="Right">
+                <MenuItem.Header>
+                    <Label Content="{Binding ApplicationStatus, ElementName=mainWindow}"
+                       FontSize="14" FontFamily="Courier New"/>
+                </MenuItem.Header>
             </MenuItem>
         </Menu>
     <ScrollViewer HorizontalScrollBarVisibility="Auto"
                     VerticalScrollBarVisibility="Auto">
-            <Grid ScrollViewer.CanContentScroll="True">
-                <Grid.ColumnDefinitions>
+            <StackPanel Name="c_panels">
+                <StackPanel Orientation="Horizontal">
+                    <local:LabeledTextBox TextBoxValue="{Binding SeedString, Mode=TwoWay}" 
+                              LabelValue="Randomization seed" Margin="0, 10, 0, 0" 
+                              FilterType="LatinLetters" TextBoxWidth="150"/>
+                    <Button Margin="10,10,0,0" Width="70" Height="25" 
+                            Content="New seed" Click="OnNewSeedClick"/>
+                </StackPanel>
+            </StackPanel>
+    </ScrollViewer>
+
+    </DockPanel>
+</Window>
+
+
+
+<!--<Separator Margin="0, 10"/>
+                <ContentControl x:Name="c_propertiesPanel" Content="{Binding PropertiesPanel}"/>
+                <Separator Margin="0, 10"/>
+                <ContentControl x:Name="c_propertiesPanel" Content="{Binding PropertiesPanel}"/> -->
+<!--                
+                    <DockPanel Grid.Column="0">
+                    
+                </DockPanel>
+    <GridSplitter Grid.Column="1" Width="4" VerticalAlignment="Stretch" />
+                    <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2*" MinWidth="150" MaxWidth="300"/>
                     <ColumnDefinition Width="4"/>
                     <ColumnDefinition Width="3*" MinWidth="200"/>
                 </Grid.ColumnDefinitions>
-                <DockPanel Grid.Column="0">
-                    <StackPanel Orientation="Horizontal" Height="30" DockPanel.Dock="Top">
-                        <TextBox Margin="3" VerticalContentAlignment="Center" Width="100" Text="ABC" PreviewTextInput="OnPreviewSeedInput"/>
-                        <Label Margin="3" VerticalContentAlignment="Center" Content="Seed"/>
-                    </StackPanel>
-                    <TreeView x:Name="c_hierarchy" FontSize="16" DockPanel.Dock="Bottom">
+    
+    <TreeView x:Name="c_hierarchy" FontSize="16" DockPanel.Dock="Bottom">
                         <TreeView.ItemContainerStyle>
                             <Style TargetType="TreeViewItem">
                                 <Setter Property="IsExpanded" Value="True" />
@@ -62,16 +90,7 @@
                             </HierarchicalDataTemplate>
                         </TreeView.ItemTemplate>
                     </TreeView>
-                </DockPanel>
-                <GridSplitter Grid.Column="1" Width="4" VerticalAlignment="Stretch" />
-                <ContentControl x:Name="c_propertiesPanel" Grid.Column="2" Content="{Binding PropertiesPanel}"/>
-            </Grid>
-    </ScrollViewer>
-
-    </DockPanel>
-</Window>
-
-<!--<MenuItem.Icon>
+    <MenuItem.Icon>
                 <Image Source="{Binding Path=GenerateIconPath}" />
             </MenuItem.Icon>
     <MenuItem.Icon>

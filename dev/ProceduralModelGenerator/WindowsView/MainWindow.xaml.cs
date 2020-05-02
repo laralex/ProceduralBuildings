@@ -23,21 +23,35 @@ namespace WindowsView
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window, IParametersView
+    public partial class MainWindow : Window, IParametersView, INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private static string rootDir => Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.FullName;
+        public string GenerateIconPath => System.IO.Path.Combine(rootDir, @"data/ui/generate-icon.png");
+        public string ExportIconPath => System.IO.Path.Combine(rootDir, @"data/ui/export-icon.png");
+        public string HelpIconPath => System.IO.Path.Combine(rootDir, @"data/ui/info-icon.png");
+        public string VisualizeIconPath => System.IO.Path.Combine(rootDir, @"data/ui/visualize-icon.png");
+
+
+        private string m_applicationStatus;
+        public string ApplicationStatus
+        {
+            get => m_applicationStatus;
+            set
+            {
+                m_applicationStatus = "Status: " + value; 
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ApplicationStatus"));
+            }
+        }
+
+
+
         public MainWindow()
         {
             m_inputController = new InputController();
             this.DataContext = m_inputController.ViewModel;
 
-            //var m1 = new GrammarNode("MY1");
-            //m_viewModel.Grammar.Children.Add(m1);
-            //m1.Children.Add(new GrammarNode("SUB1"));
-            //m1.Children.Add(new GrammarNode("SUB2"));
-            //var m2 = new GrammarNode("MY2");
-            //m2.Children.Add(new GrammarNode("LOL2"));
-            //m2.Children.Add(new GrammarNode("LOL1"));
-            //generationController.Generate(generationData);
             InitializeComponent();
         }
 
@@ -46,6 +60,7 @@ namespace WindowsView
         private void OnGenerateClick(object sender, RoutedEventArgs e)
         {
             m_inputController.RequestGenerate();
+            ApplicationStatus = "Model was generated!";
         }
 
         private void OnExportClick(object sender, RoutedEventArgs e)
@@ -65,7 +80,12 @@ namespace WindowsView
                 var exportResult = m_inputController.RequestExport(dialog.FileName);
                 if (!exportResult)
                 {
-                    System.Windows.MessageBox.Show("Nothing to export or export IO error");
+                    ApplicationStatus = "Nothing to export or export IO error";
+                    //System.Windows.MessageBox.Show("Nothing to export or export IO error");
+                }
+                else
+                {
+                    ApplicationStatus = "Export completed!";
                 }
             }
 
@@ -74,21 +94,49 @@ namespace WindowsView
         private void OnVisualizeClick(object sender, RoutedEventArgs e)
         {
             var visualizationResult = m_inputController.RequestVisualize();
+            ApplicationStatus = visualizationResult ? 
+                "Model was sent to client visualizers!" :
+                "An error during visualization";
         }
 
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            var basementViewModel = new BasementPropertiesViewModel();
-            m_inputController.ViewModel.PropertiesPanel = new BasementProperties(basementViewModel);
-            m_inputController.ViewModel.BasementOptions = basementViewModel;
+            // application settings
+            m_inputController.ViewModel.SeedString = "FOOBAR";
+
+            // basement settings
+            var basementViewModel = new BasementPropertiesViewModel
+            {
+                BuildingMinHeight = 4.0f,
+                BuildingMaxHeight = 15.0f,
+            };
+            m_inputController.ViewModel.BasementSettings = basementViewModel;
+            AddPanel(new BasementProperties(basementViewModel));
+
+            // roof settings
+            var roofViewModel = new RoofProperties();
+            AddPanel(roofViewModel);
+            roofViewModel.RoofMinHeight = 1.0f;
+            roofViewModel.RoofMaxHeight = 12.0f;
+
+            // segmenting splits
+            var segmengingViewModel = new SegmentingProperties();
+            AddPanel(segmengingViewModel);
+            segmengingViewModel.MinNumberOfFloors = 1;
+            segmengingViewModel.MaxNumberOfFloors = 3;
+            segmengingViewModel.MinSelectedWallHorizontalSegments = 1;
+            segmengingViewModel.MaxSelectedWallHorizontalSegments = 3;
+            
+            // windows
+            // doors
+
             if (!m_inputController.StartService())
             {
                 MessageBox.Show("Another instance of the program is already started! Cannot start a new one.");
                 System.Windows.Application.Current.Shutdown();
             }
-            // fixme
-            var basementProps = (BasementProperties)(m_inputController.ViewModel.PropertiesPanel);
+            ApplicationStatus = "Loaded and ready";
         }
 
         private void OnPreviewSeedInput(object sender, TextCompositionEventArgs e)
@@ -101,6 +149,37 @@ namespace WindowsView
             m_inputController.Dispose();
         }
 
+        private void AddPanel(UserControl panel)
+        {
+            c_panels.Children.Add(new Separator { Margin = new Thickness(0, 10, 0, 10) });
+            c_panels.Children.Add(panel);
+        }
+
         private InputController m_inputController;
+
+        private void OnNewSeedClick(object sender, RoutedEventArgs e)
+        {
+            const int seedSize = 6;
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+            var stringChars = new char[seedSize];
+            var random = new Random();
+
+            for (int i = 0; i < stringChars.Length; i++)
+                stringChars[i] = chars[random.Next(chars.Length)];
+
+            m_inputController.ViewModel.SeedString = new String(stringChars);
+        }
     }
 }
+
+//private UserControl m_propertyPanel;
+//public UserControl PropertiesPanel
+//{
+//    get => m_propertyPanel;
+//    set
+//    {
+//        m_propertyPanel = value;
+//        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("PropertiesPanel"));
+//    }
+//}

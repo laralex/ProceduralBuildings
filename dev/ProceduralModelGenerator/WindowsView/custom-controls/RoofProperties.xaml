@@ -1,0 +1,16 @@
+﻿<UserControl x:Class="WindowsGeneratorView.RoofProperties"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WindowsGeneratorView"
+             mc:Ignorable="d" Loaded="OnLoaded">
+    <StackPanel>
+        <Label Content="Roof settings"
+                   FontWeight="Bold" FontSize="16"/> 
+        <local:IntervalField MinValue="{Binding RoofMinHeight}" 
+               MaxValue="{Binding RoofMaxHeight}" 
+               LabelValue="Roof height in meters" 
+               FilterType="Decimal" TextBoxWidth="70"/>    
+    </StackPanel>
+</UserControl>

@@ -40,7 +40,7 @@ namespace GeneratorController
         private BuildingsGenerationParameters MakeGenerationParameters(IViewModel viewModelParameters)
         {
             var buildingsViewModel = viewModelParameters as BuildingsViewModel;
-            var basementViewModel = buildingsViewModel.BasementOptions as BasementPropertiesViewModel;
+            var basementViewModel = buildingsViewModel.BasementSettings as BasementPropertiesViewModel;
 
             int p1, p2;
             double baseSideLength;
@@ -79,11 +79,11 @@ namespace GeneratorController
 
             return new BuildingsGenerationParameters
             {
-                BasementExtrudeHeight = basementViewModel.BuildingHeight,
+                BasementExtrudeHeight = basementViewModel.BuildingMinHeight,
                 BasementLengthPerUnit = basementLengthPerUnit,
                 BasementPoints = basementViewModel.PolygonPoints.Select(p => new Point2d { X = p.X, Y = p.Y }).ToList(),
                 UnitsPerMeter = buildingsViewModel.SpaceUnitsPerMeter,
-                // to do seed
+                Seed = buildingsViewModel.SeedString.GetHashCode(),
                 Assets = AssetsLoader.AssetGroups,
             };
         }

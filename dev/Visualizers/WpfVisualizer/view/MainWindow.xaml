@@ -33,8 +33,8 @@
                 </ModelVisual3D.Content>
             </ModelVisual3D>
             <helix:SunLight Ambient="0.2" Brightness="0.3"/>
-            <helix:GridLinesVisual3D Width="1000" Length="1000" 
-                MajorDistance="50" MinorDistance="50" Thickness="0.05" 
+            <helix:GridLinesVisual3D Width="500" Length="500" 
+                MajorDistance="50" MinorDistance="50" Thickness="0.08" 
                 Visible="{Binding ElementName=c_gridToggle, Path=IsChecked}"/>
             <helix:HelixVisual3D x:Name="s_shownModelVisual3D" 
                 Content="{Binding Path=ShownVisual3d.Content}"/>

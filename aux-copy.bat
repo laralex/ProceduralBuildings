@@ -26,5 +26,5 @@ echo = Data
 copy /Y "toship\readme-for-shipped-app.txt" ".\ship\README.txt"
 copy /Y "toship\licence-for-shipped-app.txt" ".\ship\LICENCE.txt"
 copy /Y "toship\register-http-url.bat" "ship\INSTALL(run as ADMIN).bat"
-
+copy /Y "toship\unregister-http-url.bat" "ship\UNINSTALL(run as ADMIN).bat"
 xcopy /Y /C /H /Q /E toship\data\* ship\data\* 1>nul

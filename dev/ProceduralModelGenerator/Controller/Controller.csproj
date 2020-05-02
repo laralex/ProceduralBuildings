@@ -62,6 +62,7 @@
     <Compile Include="generation\IGenerationController.cs" />
     <Compile Include="generation\IParametersView.cs" />
     <Compile Include="InputController.cs" />
+    <Compile Include="viewmodel\ApplicationViewModel.cs" />
     <Compile Include="viewmodel\BasementPropertiesViewModel.cs" />
     <Compile Include="viewmodel\GrammarNode.cs" />
     <Compile Include="viewmodel\IViewModel.cs" />

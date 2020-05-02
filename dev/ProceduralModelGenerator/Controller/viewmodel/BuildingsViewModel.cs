@@ -11,13 +11,23 @@ namespace GeneratorController
 {
     public class BuildingsViewModel : IViewModel
     {
-        public string GenerateIconPath => Path.Combine(rootDir, @"data/ui/generate-icon.png");
-        public string ExportIconPath => Path.Combine(rootDir, @"data/ui/export-icon.png");
-        public string HelpIconPath => Path.Combine(rootDir, @"data/ui/info-icon.png");
-        public string VisualizeIconPath => Path.Combine(rootDir, @"data/ui/visualize-icon.png");
-
         public float SpaceUnitsPerMeter = 1.0f;
-        public IViewModel BasementOptions { get; set; }
+        public IViewModel BasementSettings { get; set; }
+        public IViewModel RoofSettings { get; set; }
+        public IViewModel HorizontalSplitSettings { get; set; }
+        public IViewModel VerticalSplitSettings { get; set; }
+        public IViewModel WindowsSettings { get; set; }
+        public IViewModel DoorsSettings { get; set; }
+        private string m_seedString;
+        public string SeedString
+        {
+            get => m_seedString;
+            set
+            {
+                m_seedString = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SeedString"));
+            }
+        }
 
         private ViewModelGrammar m_grammar;
         public ViewModelGrammar Grammar
@@ -30,25 +40,11 @@ namespace GeneratorController
             }
         }
 
-        private UserControl m_propertyPanel;
-        public UserControl PropertiesPanel
-        {
-            get => m_propertyPanel;
-            set
-            {
-                m_propertyPanel = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("PropertiesPanel"));
-            }
-        }
-
         public void RegisterChangingItem(INotifyPropertyChanged v)
         {
             v.PropertyChanged += (s, e) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Grammar"));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-
-        private static string rootDir => Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.FullName;
-
     }
 }
