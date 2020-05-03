@@ -5,18 +5,21 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:WindowsGeneratorView"
              mc:Ignorable="d" Loaded="OnPanelLoaded" LostKeyboardFocus="OnCanvasLostFocus">
-    <ScrollViewer>
         <DockPanel>
             <Label Content="Basement settings" DockPanel.Dock="Top" 
                    FontWeight="Bold" FontSize="16"/>
-            <Canvas Name="c_canvas" Height="200" Grid.Row="0" Background="GhostWhite"
+            <ScrollViewer Height="300" DockPanel.Dock="Top"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalAlignment="Stretch">
+            <Canvas Name="c_canvas" Height="400" Background="GhostWhite"
                 MouseDown="OnCanvasMouseDown" MouseUp="OnCanvasMouseUp" DockPanel.Dock="Top"
                 Margin="15" ClipToBounds="True" VerticalAlignment="Stretch"/>
-            <!--<GridSplitter DockPanel.Dock="Top" Grid.Row="1" Height="4" 
+            </ScrollViewer>
+    <!--<GridSplitter DockPanel.Dock="Top" Grid.Row="1" Height="4" 
                           HorizontalAlignment="Stretch" ResizeDirection="Rows"/>-->
             <StackPanel>
                 <local:LabeledTextBox TextBoxValue="{Binding SelectedSideMeters}"
-                                      LabelValue="Selected (or longest) wall length in meters" 
+                                      LabelValue="Length of selected (or longest) wall in meters" 
                                       FilterType="Decimal" TextBoxWidth="70"/>
                 <local:IntervalField MinValue="{Binding BuildingMinHeight}" 
                                      MaxValue="{Binding BuildingMaxHeight}" 
@@ -24,8 +27,6 @@
                                      FilterType="Decimal" TextBoxWidth="70"/>
             </StackPanel>
         </DockPanel>
-    </ScrollViewer>
-    
 </UserControl>
 
 <!--

@@ -22,6 +22,7 @@ namespace WpfVisualizer
         {
             InitializeComponent();
             m_replacementMaterial = MaterialHelper.CreateMaterial(Brushes.LightBlue, 0.0, 40);
+            m_backReplacementMaterial = MaterialHelper.CreateMaterial(Brushes.Green, 0.0, 40);
             m_viewModel = new MainViewModel
             {
                 ShownVisual3d = new ModelVisual3D()
@@ -346,8 +347,9 @@ namespace WpfVisualizer
                 {
                     foreach (var m in modelContent.Children)
                     {
-                        (m as GeometryModel3D).Material = m_replacementMaterial;
-                        //(m as GeometryModel3D).BackMaterial = m_replacementMaterial;
+                        //(m as GeometryModel3D).BackMaterial = null;
+                        (m as GeometryModel3D).Material = m_replacementMaterial; //m_replacementMaterial;
+                        (m as GeometryModel3D).BackMaterial = m_replacementMaterial;
                     }
                 });
             }
@@ -358,6 +360,7 @@ namespace WpfVisualizer
         private Model3DGroup m_currentModel;
         private ModelMetaBase m_currentModelMeta;
         private Material m_replacementMaterial;
+        private Material m_backReplacementMaterial;
         //private string m_nextMaterialFile;
         private ServiceHost m_visualizerService;
         private IVisualizationControllerService m_visualizationContorllerClient;

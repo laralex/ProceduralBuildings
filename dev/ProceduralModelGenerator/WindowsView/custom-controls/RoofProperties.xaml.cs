@@ -50,9 +50,39 @@ namespace WindowsGeneratorView
             this.DataContext = this;
         }
 
-        private void OnLoaded(object sender, RoutedEventArgs e)
+        //public RoofStyle RoofStyle
+        //{
+        //    get => (RoofStyle)SelectedStyleIdx;
+        //    set => SelectedStyleIdx = (int)value;
+        //}
+        private RoofStyle m_roofStyle;
+        public RoofStyle RoofStyle
         {
-            //
+            get => m_roofStyle;
+            set
+            {
+                m_roofStyle = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("RoofStyle"));
+            }
         }
     }
+
+    public enum RoofStyle
+    {
+        Flat, SlopeFlat, Slope
+    }
+
+    public class RoofStyleToIdxConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return (int)value;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return (RoofStyle)value;
+        }
+    }
+
 }

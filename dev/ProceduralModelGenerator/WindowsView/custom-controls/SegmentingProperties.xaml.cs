@@ -23,8 +23,8 @@ namespace WindowsGeneratorView
     public partial class SegmentingProperties : UserControl, IViewModel
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        private float m_minNumberOfFloors;
-        public float MinNumberOfFloors
+        private int m_minNumberOfFloors;
+        public int MinNumberOfFloors
         {
             get => m_minNumberOfFloors;
             set
@@ -34,19 +34,19 @@ namespace WindowsGeneratorView
             }
         }
 
-        private float m_maxNumberOfFloors;
-        public float MaxNumberOfFloors
+        private int m_maxNumberOfFloors;
+        public int MaxNumberOfFloors
         {
-            get => m_minNumberOfFloors;
+            get => m_maxNumberOfFloors;
             set
             {
-                m_minNumberOfFloors = value;
+                m_maxNumberOfFloors = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MaxNumberOfFloors"));
             }
         } 
 
-        private float m_minVerticalSplitsNumber;
-        public float MinSelectedWallHorizontalSegments
+        private int m_minVerticalSplitsNumber;
+        public int MinSelectedWallHorizontalSegments
         {
             get => m_minVerticalSplitsNumber;
             set
@@ -56,19 +56,20 @@ namespace WindowsGeneratorView
             }
         }
 
-        private float m_maxHorizontalSegmentsNumber;
-        public float MaxSelectedWallHorizontalSegments
+        private int m_maxHorizontalSegmentsNumber;
+        public int MaxSelectedWallHorizontalSegments
         {
-            get => m_minVerticalSplitsNumber;
+            get => m_maxHorizontalSegmentsNumber;
             set
             {
-                m_minVerticalSplitsNumber = value;
+                m_maxHorizontalSegmentsNumber = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MaxSelectedWallHorizontalSegments"));
             }
         }
         public SegmentingProperties()
         {
             InitializeComponent();
+            this.DataContext = this;
         }
     }
 }

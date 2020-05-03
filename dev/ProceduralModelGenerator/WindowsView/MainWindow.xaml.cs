@@ -16,6 +16,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 using GeneratorController;
+using GeneratorController.viewmodel;
 using WindowsGeneratorView;
 
 namespace WindowsView
@@ -105,6 +106,12 @@ namespace WindowsView
             // application settings
             m_inputController.ViewModel.SeedString = "FOOBAR";
 
+            // assets 
+            var assetsViewModel = new AssetsViewModel();
+            m_inputController.ViewModel.AssetsViewModel = assetsViewModel;
+            assetsViewModel.DoorsAssetsGroupName = "Doors";
+            assetsViewModel.WindowsAssetsGroupName = "Windows";
+
             // basement settings
             var basementViewModel = new BasementPropertiesViewModel
             {
@@ -116,20 +123,39 @@ namespace WindowsView
 
             // roof settings
             var roofViewModel = new RoofProperties();
+            m_inputController.ViewModel.RoofSettings = roofViewModel;
             AddPanel(roofViewModel);
             roofViewModel.RoofMinHeight = 1.0f;
             roofViewModel.RoofMaxHeight = 12.0f;
+            roofViewModel.RoofStyle = RoofStyle.Flat;
 
             // segmenting splits
             var segmengingViewModel = new SegmentingProperties();
+            m_inputController.ViewModel.SegmentingSettings = segmengingViewModel;
             AddPanel(segmengingViewModel);
             segmengingViewModel.MinNumberOfFloors = 1;
             segmengingViewModel.MaxNumberOfFloors = 3;
             segmengingViewModel.MinSelectedWallHorizontalSegments = 1;
             segmengingViewModel.MaxSelectedWallHorizontalSegments = 3;
-            
+
             // windows
+            var windowsViewModel = new WindowsProperties(m_inputController);
+            m_inputController.ViewModel.WindowsSettings = windowsViewModel;
+            AddPanel(windowsViewModel);
+            windowsViewModel.IsVerticalSymmetryPreserved = true;
+            windowsViewModel.IsSingleStyleWindow = true;
+            windowsViewModel.MinWindowsOnSelectedWall = 0;
+            windowsViewModel.MaxWindowsOnSelectedWall = 3;
+            windowsViewModel.AssetsViewModel = assetsViewModel;
+            windowsViewModel.SelectedStyleIdx = 3;
+
+
             // doors
+            var doorsViewModel = new DoorsProperties(m_inputController);
+            m_inputController.ViewModel.DoorsSettings = doorsViewModel;
+            AddPanel(doorsViewModel);
+            doorsViewModel.AssetsViewModel = assetsViewModel;
+            doorsViewModel.SelectedStyleIdx = 1;
 
             if (!m_inputController.StartService())
             {

@@ -12,22 +12,9 @@ namespace GeneratorController
     {
         public Model3d LatestModel { get; private set; }
         public IProceduralModelsGenerator Generator { get; private set; }
-        public AssetsLoader AssetsLoader { get; private set; }
         public BuildingsGenerationController()
         {
             Generator = new BuildingsModelsGenerator();
-            AssetsLoader = new AssetsLoader();
-            try
-            {
-                if (AssetsLoader.TryReloadManifest())
-                {
-                    var missingAssets = AssetsLoader.FindMissingAssetsFiles();
-                }
-            }
-            catch
-            {
-                // corrupt xml
-            }
         }
 
         public Model3d Generate(IViewModel viewModelParameters)
@@ -84,11 +71,10 @@ namespace GeneratorController
                 BasementPoints = basementViewModel.PolygonPoints.Select(p => new Point2d { X = p.X, Y = p.Y }).ToList(),
                 UnitsPerMeter = buildingsViewModel.SpaceUnitsPerMeter,
                 Seed = buildingsViewModel.SeedString.GetHashCode(),
-                Assets = AssetsLoader.AssetGroups,
+                // todo bad passing
+                Assets = (buildingsViewModel.AssetsViewModel as AssetsViewModel).AssetsLoader.AssetGroups.Values.ToList(),
             };
         }
-        //basementViewModel.SelectedSideMeters *
-        //buildingsViewModel.SpaceUnitsPerMeter
     }
 
     

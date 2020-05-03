@@ -11,6 +11,6 @@ namespace ProceduralBuildingsGeneration
         public IList<Point2d> BasementPoints { get; set; }
         public double UnitsPerMeter { get; set; }
         public int Seed { get; set; }
-        public IList<AssetGroup> Assets { get; set; }
+        public IList<AssetsGroup> Assets { get; set; }
     }
 }

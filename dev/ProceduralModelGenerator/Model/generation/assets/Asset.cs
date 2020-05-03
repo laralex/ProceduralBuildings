@@ -34,16 +34,16 @@ namespace ProceduralBuildingsGeneration
         }
     }
 
-    public class AssetGroup
+    public class AssetsGroup
     {
         public string GroupName { get; private set; }
         public IList<Asset> Assets { get; private set; }
-        public AssetGroup(string groupName, IEnumerable<Asset> assets)
+        public AssetsGroup(string groupName, IEnumerable<Asset> assets)
         {
             GroupName = groupName;
             Assets = assets.ToList();    
         }
-        public AssetGroup(string groupName)
+        public AssetsGroup(string groupName)
         {
             GroupName = groupName;
             Assets = new List<Asset>();

@@ -14,10 +14,10 @@ namespace GeneratorController
         public float SpaceUnitsPerMeter = 1.0f;
         public IViewModel BasementSettings { get; set; }
         public IViewModel RoofSettings { get; set; }
-        public IViewModel HorizontalSplitSettings { get; set; }
-        public IViewModel VerticalSplitSettings { get; set; }
+        public IViewModel SegmentingSettings { get; set; }
         public IViewModel WindowsSettings { get; set; }
         public IViewModel DoorsSettings { get; set; }
+        public IViewModel AssetsViewModel { get; set; }
         private string m_seedString;
         public string SeedString
         {

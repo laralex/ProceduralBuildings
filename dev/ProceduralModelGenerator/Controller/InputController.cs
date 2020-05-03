@@ -59,17 +59,35 @@ namespace GeneratorController
         public bool RequestVisualize()
         {
             if (m_latestModelTemporaryfile == null) return false;
+            try
             {
-                try
-                {
-                    VisualizationController.Visualize(m_latestModelTemporaryfile, LatestModelTemporaryFileFormat);
-                }
-                catch
-                {
-                    return false;
-                }
+                VisualizationController.Visualize(m_latestModelTemporaryfile, LatestModelTemporaryFileFormat);
+            }
+            catch
+            {
+                return false;
             }
             return true;
+        }
+
+
+        public void RequestVisualizeAsset(AssetsViewModel assetsViewModel, string assetGroupName, int assetIdx)
+        {
+            if (!assetsViewModel.CorrectlyParsedManifest) return;
+            var asset = assetsViewModel.AssetsLoader
+                .AssetGroups[assetGroupName]
+                .Assets[assetIdx];
+            var assetStream = asset.OpenAssetFile();
+            try
+            {
+                VisualizationController.Visualize(assetStream, asset.FileFormat);
+            }
+            catch
+            {
+
+            }
+            assetStream?.Close();
+            assetStream?.Dispose();
         }
 
         public void Dispose()

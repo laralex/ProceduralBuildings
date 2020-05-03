@@ -42,7 +42,14 @@ namespace WindowsGeneratorView
         }
 
         public static readonly DependencyProperty TextBoxValueProperty =
-            DependencyProperty.Register("TextBoxValue", typeof(string), typeof(LabeledTextBox));
+            DependencyProperty.Register("TextBoxValue", typeof(string), typeof(LabeledTextBox),
+                new PropertyMetadata("1", new PropertyChangedCallback((d, a) =>
+                {
+                    if (d != null)
+                        (d as LabeledTextBox).TextBoxValue =
+                            (a.NewValue as string == "" ? a.OldValue : a.NewValue) as string;
+                })));
+                
         public string TextBoxValue
         {
             get => this.GetValue(TextBoxValueProperty) as string;

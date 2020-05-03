@@ -63,7 +63,8 @@ namespace WindowsGeneratorView
         {
             if (value == "")
             {
-                return "";
+                if (isNewMax) return MinValue;
+                else return MaxValue;
             }
             switch (FilterType)
             {
@@ -72,13 +73,23 @@ namespace WindowsGeneratorView
                     {
                         if (!double.TryParse(MinValue, out var min))
                             return value;
-                        return Math.Max(double.Parse(value), min).ToString();
+                        var candidate = Math.Max(double.Parse(value), min);
+                        if (double.Parse(value) == candidate)
+                        {
+                            return value;
+                        }
+                        return candidate.ToString();
                     }
                     else
                     {
                         if (!double.TryParse(MaxValue, out var max))
                             return value;
-                        return Math.Min(double.Parse(value), max).ToString();
+                        var candidate = Math.Min(double.Parse(value), max);
+                        if (double.Parse(value) == candidate)
+                        {
+                            return value;
+                        }
+                        return candidate.ToString();
                     }
                 default:
                     return value;

@@ -10,15 +10,13 @@
                Content="Min:"/>
         <TextBox VerticalContentAlignment="Center" Margin="0,3"  
                  Width="{Binding TextBoxWidth, ElementName=intervalField}" 
-                 Text="{Binding MinValue, ElementName=intervalField, Mode=TwoWay,
-                        UpdateSourceTrigger=PropertyChanged}" 
+                 Text="{Binding MinValue, ElementName=intervalField, Mode=TwoWay}" 
                  PreviewTextInput="OnPreviewTextInput"/>
         <Label VerticalContentAlignment="Center"
                Content="Max:"/>
         <TextBox VerticalContentAlignment="Center" Margin="0,3"
                  Width="{Binding TextBoxWidth, ElementName=intervalField}" 
-                 Text="{Binding MaxValue, ElementName=intervalField, Mode=TwoWay,
-                        UpdateSourceTrigger=PropertyChanged}" 
+                 Text="{Binding MaxValue, ElementName=intervalField, Mode=TwoWay}" 
                  PreviewTextInput="OnPreviewTextInput"/>
         <Label VerticalContentAlignment="Center"
                Content="{Binding LabelValue, ElementName=intervalField}"/>

@@ -8,8 +8,7 @@
     <StackPanel Orientation="Horizontal" Height="30">
         <TextBox Margin="3" VerticalContentAlignment="Center" 
            Width="{Binding TextBoxWidth, ElementName=labeledTextBox}" 
-           Text="{Binding TextBoxValue, ElementName=labeledTextBox, Mode=TwoWay,
-                  UpdateSourceTrigger=PropertyChanged}"
+           Text="{Binding TextBoxValue, ElementName=labeledTextBox, Mode=TwoWay}"
            PreviewTextInput="OnPreviewTextInput"/>
         <Label VerticalContentAlignment="Stretch" 
                Content="{Binding LabelValue, ElementName=labeledTextBox}"/>

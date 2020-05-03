@@ -39,13 +39,13 @@ namespace WindowsGeneratorView
             switch (filterType)
             {
                 case TextBoxFilter.Integer:
-                    TextValidators.OnPreviewTextBoxInteger(sender, e);
+                    OnPreviewTextBoxInteger(sender, e);
                     break;
                 case TextBoxFilter.Decimal:
-                    TextValidators.OnPreviewTextBoxDecimal(sender, e);
+                    OnPreviewTextBoxDecimal(sender, e);
                     break;
                 case TextBoxFilter.LatinLetters:
-                    TextValidators.OnPreviewTextBoxCode(sender, e);
+                    OnPreviewTextBoxCode(sender, e);
                     break;
                 default:
                     break;
