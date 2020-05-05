@@ -53,6 +53,7 @@
     <Compile Include="export\ExportParameters.cs" />
     <Compile Include="export\FileExporter.cs" />
     <Compile Include="export\FileExportParameters.cs" />
+    <Compile Include="generation\Facade.cs" />
     <Compile Include="generation\GenerationParameters.cs" />
     <Compile Include="export\IExporter.cs" />
     <Compile Include="generation\Geometry.cs" />
