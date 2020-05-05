@@ -13,7 +13,8 @@
 *.mtl
 
 # Shippment
-!toship/
+!toship
+!toship/**/*.*
 ship/
 
 # User-specific files (MonoDevelop/Xamarin Studio) 
