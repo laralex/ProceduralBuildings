@@ -51,7 +51,7 @@ namespace ProceduralBuildingsGeneration
             int addedTriangleIdx = 0;
             foreach (var triangle in basementTriangles)
             {
-                Vector3f upNormal = Vector3f.AxisZ;
+                Vector3f upNormal = Vector3f.AxisY;
 
                 int a0 = AddVertex3dFrom2d(mesh, vertexToIndex, triangle[0], -upNormal);
                 int b0 = AddVertex3dFrom2d(mesh, vertexToIndex, triangle[1], -upNormal);
@@ -64,7 +64,7 @@ namespace ProceduralBuildingsGeneration
             var heightExtruder = new MeshExtrudeMesh(mesh);
             heightExtruder.ExtrudedPositionF = (pos, normal, idx) =>
             {
-                return pos + Vector3d.AxisZ * buildingParams.UnitsPerMeter *
+                return pos + Vector3d.AxisY * buildingParams.UnitsPerMeter *
                     buildingParams.BasementExtrudeHeight;
             };
             heightExtruder.Extrude();
@@ -77,7 +77,7 @@ namespace ProceduralBuildingsGeneration
                 return vertices[candidateV] =
                         mesh.AppendVertex(new NewVertexInfo
                         {
-                            v = new Vector3d(candidateV.x, candidateV.y, 0.0),
+                            v = new Vector3d(candidateV.x, 0.0, candidateV.y),
                             n = normal,
                         });
             }

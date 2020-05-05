@@ -57,11 +57,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="generation\BuildingsGenerationController.cs" />
-    <Compile Include="generation\EntryPoint.cs" />
     <Compile Include="export\ExportController.cs" />
     <Compile Include="generation\IGenerationController.cs" />
-    <Compile Include="generation\IParametersView.cs" />
     <Compile Include="InputController.cs" />
+    <Compile Include="IProceduralGeneratorUi.cs" />
     <Compile Include="viewmodel\ApplicationViewModel.cs" />
     <Compile Include="viewmodel\AssetsViewModel.cs" />
     <Compile Include="viewmodel\BasementPropertiesViewModel.cs" />
