@@ -103,8 +103,10 @@ namespace WindowsView
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
+            var vm = m_inputController.ViewModel;
+
             // application settings
-            m_inputController.ViewModel.SeedString = "FOOBAR";
+            vm.SeedString = "FOOBAR";
 
             // assets 
             var assetsViewModel = new AssetsViewModel();
@@ -113,49 +115,36 @@ namespace WindowsView
             assetsViewModel.WindowsAssetsGroupName = "Windows";
 
             // basement settings
-            var basementViewModel = new BasementPropertiesViewModel
-            {
-                BuildingMinHeight = 4.0f,
-                BuildingMaxHeight = 15.0f,
-            };
-            m_inputController.ViewModel.BasementSettings = basementViewModel;
-            AddPanel(new BasementProperties(basementViewModel));
+            AddPanel(new BasementProperties(vm));
+            vm.BuildingMinHeight = 4.0f;
+            vm.BuildingMaxHeight = 15.0f;
 
             // roof settings
-            var roofViewModel = new RoofProperties();
-            m_inputController.ViewModel.RoofSettings = roofViewModel;
-            AddPanel(roofViewModel);
-            roofViewModel.RoofMinHeight = 1.0f;
-            roofViewModel.RoofMaxHeight = 12.0f;
-            roofViewModel.RoofStyle = RoofStyle.Flat;
+            AddPanel(new RoofProperties(vm));
+            vm.RoofMinHeight = 0.5f;
+            vm.RoofMaxHeight = 1.0f;
+            vm.RoofStyle = RoofStyle.Flat;
 
             // segmenting splits
-            var segmengingViewModel = new SegmentingProperties();
-            m_inputController.ViewModel.SegmentingSettings = segmengingViewModel;
-            AddPanel(segmengingViewModel);
-            segmengingViewModel.MinNumberOfFloors = 1;
-            segmengingViewModel.MaxNumberOfFloors = 3;
-            segmengingViewModel.MinSelectedWallHorizontalSegments = 1;
-            segmengingViewModel.MaxSelectedWallHorizontalSegments = 3;
+            AddPanel(new SegmentingProperties(vm));
+            vm.MinNumberOfFloors = 1;
+            vm.MaxNumberOfFloors = 3;
+            vm.MinSelectedWallHorizontalSegments = 1;
+            vm.MaxSelectedWallHorizontalSegments = 3;
 
             // windows
-            var windowsViewModel = new WindowsProperties(m_inputController);
-            m_inputController.ViewModel.WindowsSettings = windowsViewModel;
-            AddPanel(windowsViewModel);
-            windowsViewModel.IsVerticalSymmetryPreserved = true;
-            windowsViewModel.IsSingleStyleWindow = true;
-            windowsViewModel.MinWindowsOnSelectedWall = 0;
-            windowsViewModel.MaxWindowsOnSelectedWall = 3;
-            windowsViewModel.AssetsViewModel = assetsViewModel;
-            windowsViewModel.SelectedStyleIdx = 3;
-
+            AddPanel(new WindowsProperties(m_inputController));
+            vm.IsVerticalSymmetryPreserved = true;
+            vm.IsSingleStyleWindow = true;
+            vm.MinWindowsOnSelectedWall = 0;
+            vm.MaxWindowsOnSelectedWall = 3;
+            vm.AssetsViewModel = assetsViewModel;
+            vm.SelectedWindowStyleIdx = 3;
 
             // doors
-            var doorsViewModel = new DoorsProperties(m_inputController);
-            m_inputController.ViewModel.DoorsSettings = doorsViewModel;
-            AddPanel(doorsViewModel);
-            doorsViewModel.AssetsViewModel = assetsViewModel;
-            doorsViewModel.SelectedStyleIdx = 1;
+            AddPanel(new DoorsProperties(m_inputController));
+            vm.SelectedDoorStyleIdx = 1;
+            vm.IsDoorOnSelectedWall = true;
 
             if (!m_inputController.StartService())
             {

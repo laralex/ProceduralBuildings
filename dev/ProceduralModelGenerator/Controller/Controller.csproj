@@ -63,7 +63,6 @@
     <Compile Include="IProceduralGeneratorUi.cs" />
     <Compile Include="viewmodel\ApplicationViewModel.cs" />
     <Compile Include="viewmodel\AssetsViewModel.cs" />
-    <Compile Include="viewmodel\BasementPropertiesViewModel.cs" />
     <Compile Include="viewmodel\GrammarNode.cs" />
     <Compile Include="viewmodel\IViewModel.cs" />
     <Compile Include="viewmodel\BuildingsViewModel.cs" />

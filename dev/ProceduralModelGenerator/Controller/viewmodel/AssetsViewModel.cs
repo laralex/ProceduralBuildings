@@ -44,9 +44,9 @@ namespace GeneratorController
                     DoorsAssets = AssetsLoader
                         .AssetGroups[value]
                         .Assets;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("DoorsAssetsGroupName"));
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("DoorsAssets"));
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("DoorsAssetsNames"));
+                    NotifyChange("DoorsAssetsGroupName");
+                    NotifyChange("DoorsAssets");
+                    NotifyChange("DoorsAssetsNames");
                 }
             }
         }
@@ -68,9 +68,9 @@ namespace GeneratorController
                     WindowsAssets = AssetsLoader
                         .AssetGroups[value]
                         .Assets;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("WindowsAssetsGroupName"));
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("WindowsAssets"));
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("WindowsAssetsNames"));
+                    NotifyChange("WindowsAssetsGroupName");
+                    NotifyChange("WindowsAssets");
+                    NotifyChange("WindowsAssetsNames");
                 }
             }
         }
@@ -89,7 +89,7 @@ namespace GeneratorController
             set
             {
                 m_selectedDoorAssetIdx = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedDoorAssetIdx"));
+                NotifyChange("SelectedDoorAssetIdx");
             }
         }
 
@@ -100,8 +100,13 @@ namespace GeneratorController
             set
             {
                 m_selectedWindowAssetIdx = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedWindowAssetIdx"));
+                NotifyChange("SelectedWindowAssetIdx");
             }
+        }
+
+        private void NotifyChange(string property)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
         }
     }
 }

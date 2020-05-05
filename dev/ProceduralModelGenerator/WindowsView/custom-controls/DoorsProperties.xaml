@@ -17,7 +17,7 @@
         </StackPanel>
         
         <ListBox Name="c_WindowsStyles" Margin="5,-3,5,5" HorizontalAlignment="Left"
-            SelectedIndex="{Binding SelectedStyleIdx, Mode=TwoWay}" 
+            SelectedIndex="{Binding SelectedDoorStyleIdx, Mode=TwoWay}" 
             ItemsSource="{Binding Path=AssetsViewModel.DoorsAssetsNames}">
         </ListBox>
     </StackPanel>

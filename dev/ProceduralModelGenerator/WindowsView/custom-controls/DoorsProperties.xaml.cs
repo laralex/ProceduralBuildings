@@ -20,10 +20,12 @@ namespace WindowsGeneratorView
     /// <summary>
     /// Interaction logic for DoorsProperties.xaml
     /// </summary>
-    public partial class DoorsProperties : UserControl, IViewModel
+    public partial class DoorsProperties : UserControl
     {
-        public event PropertyChangedEventHandler PropertyChanged;
         private InputController m_inputController;
+        private BuildingsViewModel m_vm;
+
+        /*
         private AssetsViewModel m_assetsViewModel;
         public AssetsViewModel AssetsViewModel
         {
@@ -45,17 +47,17 @@ namespace WindowsGeneratorView
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedStyleIdx"));
             }
         }
-
+          */
         public DoorsProperties(InputController inputController)
         {
             InitializeComponent();
             m_inputController = inputController;
-            this.DataContext = this;
+            this.DataContext = m_vm = inputController.ViewModel;
         }
 
         private void OnPreviewClick(object sender, RoutedEventArgs e)
         {
-            m_inputController.RequestVisualizeAsset(AssetsViewModel, "Doors", SelectedStyleIdx);
+            m_inputController.RequestVisualizeAsset(m_vm.AssetsViewModel, "Doors", m_vm.SelectedDoorStyleIdx);
         }
     }
 }

@@ -64,8 +64,7 @@ namespace ProceduralBuildingsGeneration
             var heightExtruder = new MeshExtrudeMesh(mesh);
             heightExtruder.ExtrudedPositionF = (pos, normal, idx) =>
             {
-                return pos + Vector3d.AxisY * buildingParams.UnitsPerMeter *
-                    buildingParams.BasementExtrudeHeight;
+                return pos + Vector3d.AxisY * buildingParams.BasementExtrudeHeight;
             };
             heightExtruder.Extrude();
         }

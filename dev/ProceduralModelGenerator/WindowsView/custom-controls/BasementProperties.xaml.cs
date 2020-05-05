@@ -24,7 +24,7 @@ namespace WindowsGeneratorView
     /// </summary>
     public partial class BasementProperties : UserControl
     {
-        public BasementProperties(BasementPropertiesViewModel viewModel)
+        public BasementProperties(BuildingsViewModel viewModel)
         {
             InitializeComponent();
             this.DataContext = m_viewModel = viewModel;
@@ -213,7 +213,7 @@ namespace WindowsGeneratorView
         private CustomPolygon m_polygon;
         private bool m_isMovingPoint = false;
         private int m_movingPointIdx;
-        private BasementPropertiesViewModel m_viewModel;
+        private BuildingsViewModel m_viewModel;
 
         private void OnCanvasLostFocus(object sender, RoutedEventArgs e)
         {

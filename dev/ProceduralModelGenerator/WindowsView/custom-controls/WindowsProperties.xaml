@@ -26,8 +26,8 @@
                 <Button Margin="10, 0, 0, 5" Width="70" Height="25" 
                     Content="Preview" Click="OnPreviewClick"/>
             </StackPanel>
-            <ListBox Name="c_WindowsStyles" Margin="5,-3,5,5" HorizontalAlignment="Left"
-                SelectedIndex="{Binding SelectedStyleIdx}"
+            <ListBox Name="c_WindowsStyles" Margin="5,0,5,5" HorizontalAlignment="Left"
+                SelectedIndex="{Binding SelectedWindowStyleIdx}"
                 ItemsSource="{Binding Path=AssetsViewModel.WindowsAssetsNames}">
             </ListBox>
         </StackPanel>
