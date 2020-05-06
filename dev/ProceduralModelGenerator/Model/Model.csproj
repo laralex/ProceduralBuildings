@@ -53,12 +53,14 @@
     <Compile Include="export\ExportParameters.cs" />
     <Compile Include="export\FileExporter.cs" />
     <Compile Include="export\FileExportParameters.cs" />
-    <Compile Include="generation\Facade.cs" />
+    <Compile Include="generation\DoorUtilitycs.cs" />
+    <Compile Include="generation\FacadeUtility.cs" />
     <Compile Include="generation\GenerationParameters.cs" />
     <Compile Include="export\IExporter.cs" />
     <Compile Include="generation\Geometry.cs" />
     <Compile Include="generation\IProceduralModelsGenerator.cs" />
     <Compile Include="generation\Point2d.cs" />
+    <Compile Include="generation\SegmentingUtility.cs" />
     <Compile Include="Model3d.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

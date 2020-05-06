@@ -184,7 +184,7 @@ namespace WpfVisualizer
         {
             try
             {
-                m_visualizationContorllerClient = ServiceUtility.SpawnClient<IVisualizationControllerService>(VISUALIZATION_CONTROLLER_SERVICE_URI);
+                m_visualizationContorllerClient = WcfServiceUtility.SpawnClient<IVisualizationControllerService>(VISUALIZATION_CONTROLLER_SERVICE_URI);
             }
             catch
             {
@@ -361,11 +361,8 @@ namespace WpfVisualizer
         private ModelMetaBase m_currentModelMeta;
         private Material m_replacementMaterial;
         private Material m_backReplacementMaterial;
-        //private string m_nextMaterialFile;
         private ServiceHost m_visualizerService;
         private IVisualizationControllerService m_visualizationContorllerClient;
-        //private bool m_isVisualizerRegisteredByThisApplication;
-        //private bool m_isVisualizerOpenedByThisApplication;
         private ServicePreparationStage m_visualizerPreparationStage;
         private const string VISUALIZATOR_SERVICE_URI = "http://localhost:64046/wpfVisualizerService";
         private const string VISUALIZATION_CONTROLLER_SERVICE_URI = "http://localhost:64046/visualizationControllerService";

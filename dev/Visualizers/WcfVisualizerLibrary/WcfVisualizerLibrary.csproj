@@ -48,7 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="generator-service\IGeneratorControllerService.cs" />
-    <Compile Include="ServiceUtility.cs" />
+    <Compile Include="WcfServiceUtility.cs" />
     <Compile Include="visualizer-service\IVisualizerService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

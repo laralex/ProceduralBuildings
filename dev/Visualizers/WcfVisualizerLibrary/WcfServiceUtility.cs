@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace WcfVisualizerLibrary
 {
-    public class ServiceUtility
+    public class WcfServiceUtility
     {
         public static ServiceInterface SpawnClient<ServiceInterface>(string visualizerUri)
         {

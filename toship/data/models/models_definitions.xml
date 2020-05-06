@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <models>
 	<group name="Windows">
-		<model name="2 sections window" 			src="windows/window_1.obj" type="obj"/>
-		<model name="1 section classic plastic window"  		src="windows/window_2.obj" type="obj"/>
+		<model name="2 sections window" src="windows/window_1.obj" type="obj"/>
+		<model name="1 section classic plastic window" src="windows/window_2.obj" type="obj"/>
 		<model name="1 section dull window with arc-shaped top" src="windows/window_3.obj" type="obj"/>
-		<model name="1 section window with a subwindow top" 	src="windows/window_4.obj" type="obj"/>
-		<model name="1 section sliding window" 					src="windows/window_5.obj" type="obj"/>
-		<model name="1 section dull highly decorated window" 	src="windows/window_6.obj" type="obj"/>
+		<model name="1 section window with a subwindow top" src="windows/window_4.obj" type="obj"/>
+		<model name="1 section sliding window" src="windows/window_5.obj" type="obj"/>
+		<model name="1 section dull highly decorated window" src="windows/window_6.obj" type="obj"/>
 	</group>
 	<group name="Doors">
-		<model name="1 section decorated wooden door" 			src="doors/door_1.obj"	   type="obj"/>
-		<model name="1 section classic wooden door" 			src="doors/door_2.obj"	   type="obj"/>
-		<model name="1 section big arc door" 					src="doors/door_3.obj"	   type="obj"/>
-		<model name="2 sections plastic door" 					src="doors/door_4.obj"	   type="obj"/>
+		<model name="1 section decorated wooden door" src="doors/door_1.obj" type="obj"/>
+		<model name="1 section classic wooden door" src="doors/door_2.obj" type="obj"/>
+		<model name="1 section big arc door" src="doors/door_3.obj"	type="obj"/>
+		<model name="2 sections plastic door" src="doors/door_4.obj" type="obj"/>
 	</group>
 </models>

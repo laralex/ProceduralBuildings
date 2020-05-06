@@ -127,7 +127,11 @@ namespace WindowsGeneratorView
                 {
                     if (e.MiddleButton == MouseButtonState.Pressed)
                     {
-                        m_polygon.RemovePoint(c_canvas, hitPoint);
+                        if (m_polygon.Polygon.Points.Count > 3)
+                        {
+                            m_polygon.RemovePoint(c_canvas, hitPoint);
+                        }
+                        
                     }
                     else
                     {

@@ -9,6 +9,9 @@ namespace ProceduralBuildingsGeneration.generation
 {
     class DoorUtilitycs
     {
-        public static void PlaceDoor(DMesh3 mesh)
+        public static void PlaceDoor(DMesh3 mesh, Asset doorModel)
+        {
+
+        }
     }
 }

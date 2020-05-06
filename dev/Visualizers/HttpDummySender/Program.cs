@@ -20,7 +20,7 @@ namespace HttpDummySender
         public bool RegisterVisualizer(string visualizerUri)
         {
             if (!openClients.ContainsKey(visualizerUri) && !registeredClients.ContainsKey(visualizerUri)) {
-                var client = ServiceUtility.SpawnClient<IVisualizerService>(visualizerUri.ToString());
+                var client = WcfServiceUtility.SpawnClient<IVisualizerService>(visualizerUri.ToString());
                 registeredClients[visualizerUri] = client;
                 return true;
             }
