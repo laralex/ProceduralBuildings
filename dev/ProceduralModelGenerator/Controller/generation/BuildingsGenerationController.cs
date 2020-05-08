@@ -103,6 +103,7 @@ namespace GeneratorController
                 WindowsAssets = windowsAssets,
                 DoorsAssets = doorsAsset,
                 DoorWall = new WallIndices(p1, p2),
+                RandomGenerator = rng,
                 // todo bad passing
             };
         }

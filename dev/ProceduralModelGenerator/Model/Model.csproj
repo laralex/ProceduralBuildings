@@ -58,6 +58,7 @@
     <Compile Include="generation\GenerationParameters.cs" />
     <Compile Include="export\IExporter.cs" />
     <Compile Include="generation\Geometry.cs" />
+    <Compile Include="generation\GrammarToMeshTranslator.cs" />
     <Compile Include="generation\grammar\GrammarNode.cs" />
     <Compile Include="generation\grammar\RulesRegistry.cs" />
     <Compile Include="generation\IProceduralModelsGenerator.cs" />

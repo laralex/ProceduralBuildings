@@ -16,13 +16,17 @@ namespace ProceduralBuildingsGeneration
         public Model3d GenerateModel(GenerationParameters parameters)
         {
             var buildingParams = parameters as BuildingsGenerationParameters;
-            var mesh = new DMesh3(false);//DMesh3Builder.Build(
+            var mesh = new DMesh3(false);
 
-            FacadeUtility.MakeFacadeBody(mesh, buildingParams);
-            //AddRoof(mesh, buildingParams);
-            // return result;
-            if (!mesh.CheckValidity()) throw new Exception("Generated mesh is invalid"); ;
-            return new Model3d { Mesh = mesh };
+            // make grammar
+            var grammarController = new BuildingsGrammarController(buildingParams.RandomGenerator);
+            var buildingWord = grammarController.TransformWordUntilTermination(parameters);
+
+            // build model
+            // to do no parameters
+            var buildingMesh = BuildingsMeshMaker.MakeMeshFromGrammar(buildingWord, buildingParams);
+            if (!buildingMesh.CheckValidity()) throw new Exception("Generated mesh is invalid"); ;
+            return new Model3d { Mesh = buildingMesh };
         }
 
         private void AddRoof(DMesh3 mesh, BuildingsGenerationParameters buildingParams)
@@ -30,16 +34,16 @@ namespace ProceduralBuildingsGeneration
             // top polygon, he
         }
 
-        private RulesRegistry MakeGrammar(BuildingsGenerationParameters parameters)
+        /*
+        private GrammarController MakeGrammar(BuildingsGenerationParameters parameters)
         {
-            var rules = new RulesRegistry();
+            var rules = new GrammarController();
             
             // Root to floors
             {
-                var floorsUtil = new FloorCollectionNode(parameters.FloorsNumber + 1);
-                floorsUtil.FillFloors(parameters.FloorsNumber + 1);
-                var floorsList = floorsUtil.Floors;
-                var root = new RootNode(floorsList);
+                var floorsCollection = new FloorCollectionNode(parameters.FloorsNumber + 1);
+                floorsCollection.FillFloors(parameters.FloorsNumber + 1);
+                var root = new RootNode(floorsCollection.Floors);
                 var consequence = new List<GrammarNode> { root };
                 var antedecent = new HashSet<Type> { typeof(RootNode) };
                 rules.AddRule(antedecent, consequence);
@@ -81,5 +85,6 @@ namespace ProceduralBuildingsGeneration
 
             return rules;
         }
+        */
     }
 }
