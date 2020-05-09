@@ -2,12 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ProceduralBuildingsGeneration
 {
-    class Geometry
+    public class Geometry
     {
         public static IList<Triangle2d> Triangulate(IList<Vector2d> polygon)
         {
@@ -86,7 +84,7 @@ namespace ProceduralBuildingsGeneration
         }
 
         // Find the polygon's centroid.
-        public static Vector2d FindCentroid(IList<Point2d> polygon)
+        public static Point2d FindCentroid(IList<Point2d> polygon)
         {
             double X = 0;
             double Y = 0;
@@ -117,7 +115,21 @@ namespace ProceduralBuildingsGeneration
                 Y = -Y;
             }
 
-            return new Vector2d(X, Y);
+            return new Point2d { X = X, Y = Y };
         }
+
+        public static IList<Vector3d> OffsetPolygon(IList<Vector3d> polygon, double upOffset)
+        {
+            var polygonCopy = new List<Vector3d>(polygon);
+            for (int i = 0; i < polygonCopy.Count; ++i)
+            {
+                var newPoint = new Vector3d(polygonCopy[i]);
+                newPoint.y += upOffset;
+                polygonCopy[i] = newPoint;
+            }
+            return polygonCopy;
+        }
+
+
     }
 }

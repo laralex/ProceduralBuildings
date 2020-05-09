@@ -1,9 +1,6 @@
 ﻿using g3;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ProceduralBuildingsGeneration
 {
@@ -17,25 +14,32 @@ namespace ProceduralBuildingsGeneration
             Subnodes = subnodes != null ? subnodes : new List<GrammarNode>();
         }
 
-        // to do no params
-        public abstract bool BuildOnMesh(DMesh3 mesh, BuildingsGenerationParameters parameters);
+        public abstract bool BuildOnMesh(DMesh3 mesh);
 
     }
 
     public class RootNode : GrammarNode
     {
         public new readonly string Code = "Initial node";
-        //public int FloorsNumber { get; private set; }
-        //public IList<int> SegmentsCountPerWall { get; private set; }
-        public RootNode(IList<GrammarNode> subnodes = null) : base(subnodes)
-        {
+        public BuildingsGenerationParameters Parameters;
 
-        }
-
-        public override bool BuildOnMesh(DMesh3 mesh, BuildingsGenerationParameters parameters)
+        public override bool BuildOnMesh(DMesh3 mesh)
         {
-            return false;
-            //throw new NotImplementedException();
+            MeshUtility.FillPolygon(mesh, Parameters.BasementPoints
+                .Select(p => new Vector3d(p.X, 0.0, p.Y)).ToList(),
+                -Vector3f.AxisY);
+            //for (int v = 0; v < Parameters.BasementPoints.Count; ++v)
+            //{
+            //    newVertices[v] = mesh.AppendVertex(new Vector3d(
+            //        Parameters.BasementPoints[v].X,
+            //        0.0,
+            //        Parameters.BasementPoints[v].Y
+            //    ));
+            //}
+
+            //var base2d = BaseShape.Select(p => p.xz).ToList();
+            
+            return true;
         }
     }
 
@@ -48,16 +52,30 @@ namespace ProceduralBuildingsGeneration
     {
         public new readonly string Code = "Floor";
         public FloorMark FloorType { get; set; }
+        public double Height { get; set; }
+        public double SegmentWidth { get; set; }
+        public IList<int> SegmentsPerWall { get; set; }
+        public IList<Vector3d> BaseShape { get; set; }
 
-        public FloorNode(FloorMark floorType)
+        public override bool BuildOnMesh(DMesh3 mesh)
         {
-            FloorType = floorType;
-        }
+            int[] newVertices = new int[BaseShape.Count];
+            for (int v = 0; v < BaseShape.Count; ++v)
+            {
+                newVertices[v] = mesh.AppendVertex(BaseShape[v]);
+            }
+            MeshUtility.AddTriangleStripBetweenPolygons(mesh, newVertices,
+                BaseShape.Select(v => v + Vector3d.AxisY * Height).ToList());
 
-        public override bool BuildOnMesh(DMesh3 mesh, BuildingsGenerationParameters parameters)
-        {
-            return false;
-            //throw new NotImplementedException();
+            //AddTriangleStripBetweenPolygons(mesh, )
+            return true;
+            //var heightExtruder = new MeshExtrudeMesh(mesh);
+            //heightExtruder.ExtrudedPositionF = (pos, normal, idx) =>
+            //{
+            //    return pos + Vector3d.AxisY * buildingParams.BasementExtrudeHeight;
+            //};
+            //heightExtruder.Extrude();
+
         }
     }
 
@@ -70,65 +88,76 @@ namespace ProceduralBuildingsGeneration
         public new readonly string Code = "Wall side of a floor";
 
         public WallMark WallType { get; set; }
-        public int SegmentsNumber { get; private set; }
-        public WallStripNode(int segmentsNumber)
-        {
-            SegmentsNumber = segmentsNumber;
-        }
-
-        public override bool BuildOnMesh(DMesh3 mesh, BuildingsGenerationParameters parameters)
+        public FloorMark FloorType { get; set; }
+        public int SegmentsNumber { get; set; }
+        public double Height { get; set; }
+        public double Width { get; set; }
+        public Vector3d Origin { get; set; }
+        public Vector3d FrontNormal { get; set; }
+        public Vector3d AlongWidthDirection { get; set; }
+        public override bool BuildOnMesh(DMesh3 mesh)
         {
             return false;
-            //throw new NotImplementedException();
         }
     }
 
     public class RoofNode : GrammarNode
     {
         public new readonly string Code = "Roof";
-        public double RoofHeight { get; private set; }
-        public RoofStyle RoofStyle { get; private set; }
+        public IList<Vector3d> BaseShape { get; set; }
+        public Vector3d Normal { get; set; }
+        public double RoofHeight { get; set; }
+        public RoofStyle RoofStyle { get; set; }
 
-        public RoofNode(double roofHeight, RoofStyle roofStyle)
+        public override bool BuildOnMesh(DMesh3 mesh)
         {
-            this.RoofHeight = roofHeight;
-            this.RoofStyle = roofStyle;
-        }
-
-        public override bool BuildOnMesh(DMesh3 mesh, BuildingsGenerationParameters parameters)
-        {
-            return false;
-            //throw new NotImplementedException();
+            MeshUtility.FillPolygon(mesh, BaseShape, Vector3f.AxisY); // todo: bad move
+            return true;
         }
     }
 
     public class SegmentNode : GrammarNode
     {
         public new readonly string Code = "Part of wall on a floor";
-        public override bool BuildOnMesh(DMesh3 mesh, BuildingsGenerationParameters parameters)
+        public double Height { get; set; }
+        public double Width { get; set; }
+        public Vector3d Origin { get; set; }
+        public Vector3d FrontNormal { get; set; }
+        public Vector3d AlongWidthDirection { get; set; }
+        public WallMark WallType { get; set; }
+        public FloorMark FloorType { get; set; }
+        public bool IsDoorRequired { get; set; }
+        public override bool BuildOnMesh(DMesh3 mesh)
         {
             return false;
-            //throw new NotImplementedException();
         }
     }
 
     public class DoorNode : GrammarNode
     {
         public new readonly string Code = "Door";
-        public override bool BuildOnMesh(DMesh3 mesh, BuildingsGenerationParameters parameters)
+        public double Height { get; set; }
+        // width is defined from height to prevent distortion
+        public Vector3d Origin { get; set; }
+        public Vector3d FrontNormal { get; set; }
+        public Asset Asset { get; set; }
+        public override bool BuildOnMesh(DMesh3 mesh)
         {
             return false;
-            //throw new NotImplementedException();
         }
     }
 
     public class WindowNode : GrammarNode
     {
         public new readonly string Code = "Window";
-        public override bool BuildOnMesh(DMesh3 mesh, BuildingsGenerationParameters parameters)
+        public double Height { get; set; }
+        // width is defined from height to prevent distortion
+        public Vector3d Origin { get; set; }
+        public Vector3d FrontNormal { get; set; }
+        public Asset Asset { get; set; }
+        public override bool BuildOnMesh(DMesh3 mesh)
         {
             return false;
-            //throw new NotImplementedException();
         }
     }
 }

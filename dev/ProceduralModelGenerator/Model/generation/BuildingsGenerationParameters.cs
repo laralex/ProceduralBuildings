@@ -13,8 +13,9 @@ namespace ProceduralBuildingsGeneration
         public RoofStyle RoofStyle { get; set; }
         public double RoofHeight { get; set; } 
         public int FloorsNumber { get; set; }
-        public int SegmentsOnSelectedWall { get; set; }
-        public int WindowsNumberOnSelectedWall { get; set; }
+        public int SelectedWallSegments { get; set; }
+        //public int SelectedWallWindowsPerFloor { get; set; }
+        public float WindowsToSegmentsFraction { get; set; }
         public IList<Asset> WindowsAssets { get; set; }
         public IList<Asset> DoorsAssets { get; set; }
         public double AssetsScaleModifier { get; set; }

@@ -85,32 +85,61 @@ namespace GeneratorController
                 p1 = rndPolygonPoint;
                 p2 = (rndPolygonPoint + 1) % vm.PolygonPoints.Count; 
             }
+
+            IList<Point2d> basementPoints = vm.PolygonPoints.Select(p => new Point2d { X = p.X, Y = p.Y }).ToList();
+            // is given basement counter clockwise
+            if (Geometry.CalcSignedPolygonArea(basementPoints) < 0.0)
+                basementPoints = basementPoints.Reverse().ToList();
+
+            basementPoints = ScaleCenteredPolygon(
+                CenterPolygon(basementPoints, out var basementCentroid),
+                basementLengthPerUnit
+            );
+
             // is single style window    
             return new BuildingsGenerationParameters
             {
                 // assets groups
                 BasementExtrudeHeight = facadeHeight,
                 BasementLengthPerUnit = basementLengthPerUnit,
-                BasementPoints = vm.PolygonPoints.Select(p => new Point2d { X = p.X, Y = p.Y }).ToList(),
+                BasementPoints = basementPoints,
                 Seed = seed,
                 RoofStyle = (ProceduralBuildingsGeneration.RoofStyle)vm.RoofStyle,
                 RoofHeight = roofHeight,
                 FloorsNumber = floors,
                 IsVerticalWindowSymmetryPreserved = vm.IsVerticalSymmetryPreserved,
                 AssetsScaleModifier = 10.0,
-                WindowsNumberOnSelectedWall = windowsOnSelectedWall,
-                SegmentsOnSelectedWall = segmentsOnSelectedWall,
+                SelectedWallSegments = segmentsOnSelectedWall,
+                WindowsToSegmentsFraction = (float)windowsOnSelectedWall / segmentsOnSelectedWall,
                 WindowsAssets = windowsAssets,
                 DoorsAssets = doorsAsset,
                 DoorWall = new WallIndices(p1, p2),
                 RandomGenerator = rng,
-                // todo bad passing
             };
         }
 
-        private double Lerp(double a, double b, double theta)
+        private static double Lerp(double a, double b, double theta)
         {
             return a + (b - a) * theta;
+        }
+
+        public static IEnumerable<Point2d> CenterPolygon(IList<Point2d> polygon, out Point2d centroid)
+        {
+            var centroidCopy = centroid = Geometry.FindCentroid(polygon);
+            return polygon.Select(point => new Point2d
+            {
+                X = point.X - centroidCopy.X,
+                Y = point.Y - centroidCopy.Y,
+            });
+        }
+
+        public static IList<Point2d> ScaleCenteredPolygon(IEnumerable<Point2d> polygon, double scaleFactor)
+        {
+            return polygon.Select(p => new Point2d
+            {
+                X = p.X * scaleFactor,
+                Y = p.Y * scaleFactor,
+            }).ToList();
         }
     }
 

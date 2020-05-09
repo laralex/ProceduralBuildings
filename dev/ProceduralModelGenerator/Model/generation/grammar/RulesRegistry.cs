@@ -1,4 +1,5 @@
-﻿using System;
+﻿using g3;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,13 +9,13 @@ namespace ProceduralBuildingsGeneration
 {
     interface IGrammarController
     {
-        IList<Rule> Rules { get; }
+        IList<GrammarRule> Rules { get; }
         GrammarNode CurrentWord { get; }
-        GrammarNode TransformWordUntilTermination(GenerationParameters buildingParameters, int depthLimit = 10);
+        GrammarNode TransformWordRepeatedly(GenerationParameters buildingParameters, int epochs, int depthLimit = 50);
     }
     class BuildingsGrammarController : IGrammarController
     {
-        public IList<Rule> Rules { get; private set; }
+        public IList<GrammarRule> Rules { get; private set; }
         public GrammarNode CurrentWord { get; private set; }
         private Random m_rng { get; set; }
         public BuildingsGrammarController(Random rng)
@@ -23,238 +24,285 @@ namespace ProceduralBuildingsGeneration
             m_rng = rng;
         }
 
-        public GrammarNode TransformWordUntilTermination(GenerationParameters buildingParameters, int depthLimit = 10)
+        public GrammarNode TransformWordRepeatedly(GenerationParameters buildingParameters, int epochs, int depthLimit = 50)
         {
-            Rules = new List<Rule>
+            Rules = new List<GrammarRule>
             {
                 new RootSplitRule(),
                 new TopFloorToRoofRule(),
-                new FloorToWallStripRule(buildingParameters as BuildingsGenerationParameters),
-                new WallStripToSegmentsRule(),
-                new SegmentsToDoorsRule(buildingParameters.RandomGenerator),
+                new FloorToWallStripRule(),
+                new WallStripToSegmentRule(),
+                new SegmentToDoorsRule(),
+                new SegmentsToWindowsRule(),
             };
 
-            foreach (var rule in Rules)
+            while(epochs > 0 || epochs < 0 && Rules.Any(r => !r.IsTerminated))
             {
-                CurrentWord = rule.TransformGrammarTree(CurrentWord, buildingParameters, depthLimit);
+                foreach (var rule in Rules)
+                {
+                    CurrentWord = rule.Apply(CurrentWord, buildingParameters, depthLimit);
+                }
+                --epochs;
             }
             return CurrentWord;    
         }
     }
 
-    abstract class Rule
+    abstract class GrammarRule
     {
-        public ISet<Type> Antedecent { get; protected set; }
-        public Rule(params Type[] antedecentTypes)
+        public bool IsTerminated { get; set; }
+        public ISet<GrammarNode> ChangedNodes;
+        public GrammarRule()
         {
-            Antedecent = new HashSet<Type>(antedecentTypes);
+            ChangedNodes = new HashSet<GrammarNode>(); 
         }
-        public abstract GrammarNode TransformGrammarTree(GrammarNode node, GenerationParameters parameters, int depthLimit);
-        
-        protected GrammarNode ApplyRecursively(GrammarNode node, GenerationParameters parameters, int depthLimit)
+
+        public GrammarNode Apply(GrammarNode node, GenerationParameters parameters, int depthLimit)
         {
-            for(int c = 0; c < node.Subnodes.Count; ++c)
+            if (IsTerminated || depthLimit == 0) return node;
+            node = TransformGrammarTree(node, parameters);
+            for (int c = 0; c < node.Subnodes.Count; ++c)
             {
-                node.Subnodes[c] = TransformGrammarTree(node.Subnodes[c], parameters, depthLimit - 1);
+                node.Subnodes[c] = Apply(node.Subnodes[c], parameters, depthLimit - 1);
             }
             return node;
         }
+        public abstract GrammarNode TransformGrammarTree(GrammarNode node, GenerationParameters parameters);
     }
 
-    class RootSplitRule : Rule
+    class RootSplitRule : GrammarRule
     {
-        public RootSplitRule() : base(typeof(RootNode))
+        public override GrammarNode TransformGrammarTree(GrammarNode node, GenerationParameters parameters)
         {
+            if (!(node is RootNode) || ChangedNodes.Contains(node)) return node;
+            var bp = parameters as BuildingsGenerationParameters;
+            (node as RootNode).Parameters = bp;
 
-        }
-        public override GrammarNode TransformGrammarTree(GrammarNode node, GenerationParameters parameters, int depthLimit)
-        {
-            var buildingsParams = parameters as BuildingsGenerationParameters;
-            bool isApplicable = Antedecent.Any(t => t == node.GetType());
-            if (!isApplicable)
+            var basementPolygon = MakePolygon3d(bp.BasementPoints);
+
+            var doorWallLength = bp.BasementPoints[bp.DoorWall.PointIdx1]
+                .DistanceTo(bp.BasementPoints[bp.DoorWall.PointIdx2]);
+            var segmentLength = doorWallLength / bp.SelectedWallSegments;
+
+            var segmentsPerWall = new List<int>();
+            for (int p = 0; p < bp.BasementPoints.Count - 1; ++p)
             {
-                return ApplyRecursively(node, buildingsParams, depthLimit);
-            }
-
-            int f = 0;
-            if (buildingsParams.FloorsNumber > 0)
-            {
-                AddFloor(node, FloorMark.Ground);
-                ++f;
-            }
-            while (f < buildingsParams.FloorsNumber - 1)
-            {
-                AddFloor(node, FloorMark.None);
-                ++f;
-            }
-            if (f < buildingsParams.FloorsNumber)
-            {
-                AddFloor(node, FloorMark.Top);
-                ++f;
-            }
-            return ApplyRecursively(node, buildingsParams, depthLimit);
-        }
-
-        public void AddFloor(GrammarNode destination, FloorMark layerType)
-        {
-            destination.Subnodes.Add(new FloorNode(layerType));
-        }
-    }
-
-    class TopFloorToRoofRule : Rule
-    {
-        public TopFloorToRoofRule() : base(typeof(FloorNode))
-        {
-
-        }
-
-        public override GrammarNode TransformGrammarTree(GrammarNode node, GenerationParameters parameters, int depthLimit)
-        {
-            var buildingsParams = parameters as BuildingsGenerationParameters;
-            bool isApplicable = Antedecent.Any(t => t == node.GetType());
-            if (!isApplicable || (node as FloorNode).FloorType != FloorMark.Top)
-            {
-                return ApplyRecursively(node, buildingsParams, depthLimit);
-            }
-            return new RoofNode(buildingsParams.RoofHeight, buildingsParams.RoofStyle);
-        }
-    }
-
-    class FloorToWallStripRule : Rule
-    {
-        private List<int> m_segmentsPerWall;
-        public FloorToWallStripRule(BuildingsGenerationParameters parameters) : base(typeof(FloorNode))
-        {
-            // get segments number per wall
-            var doorWallLength = parameters.BasementPoints[parameters.DoorWall.PointIdx1]
-                .DistanceTo(parameters.BasementPoints[parameters.DoorWall.PointIdx2]);
-
-            var segmentLength = doorWallLength / parameters.SegmentsOnSelectedWall;
-
-            m_segmentsPerWall = new List<int>();
-            for (int p = 0; p < parameters.BasementPoints.Count - 1; ++p)
-            {
-                var p1 = parameters.BasementPoints[p];
-                var p2 = parameters.BasementPoints[p + 1];
+                var p1 = bp.BasementPoints[p];
+                var p2 = bp.BasementPoints[p + 1];
                 var d = p1.DistanceTo(p2);
-                m_segmentsPerWall.Add((int)(d / segmentLength));
+                segmentsPerWall.Add((int)(d / segmentLength));
             }
-            var dlast = parameters.BasementPoints.Last().DistanceTo(parameters.BasementPoints[0]);
-            m_segmentsPerWall.Add((int)(dlast / segmentLength));
-        }
+            var dlast = bp.BasementPoints.Last().DistanceTo(bp.BasementPoints[0]);
+            segmentsPerWall.Add((int)(dlast / segmentLength));
 
-        public override GrammarNode TransformGrammarTree(GrammarNode node, GenerationParameters parameters, int depthLimit)
-        {
-            var bparams = parameters as BuildingsGenerationParameters;
-            bool isApplicable = Antedecent.Any(t => t == node.GetType());
-            if (!isApplicable) {
-                return ApplyRecursively(node, parameters, depthLimit);
-            }
-            var floorNode = node as FloorNode;
-            var firstAddedIdx = node.Subnodes.Count;
-            foreach (var segmentsNumber in m_segmentsPerWall)
+            var regularFloorHeight = bp.BasementExtrudeHeight / bp.FloorsNumber;
+            for (int f = 0; f < bp.FloorsNumber + 1; ++f)
             {
-                node.Subnodes.Add(new WallStripNode(segmentsNumber) { WallType = WallMark.None });
+                var type = f == 0 ? FloorMark.Ground :
+                    (f == bp.FloorsNumber ? FloorMark.Top : FloorMark.None);
+                var height = type == FloorMark.Top ? bp.RoofHeight : regularFloorHeight;
+                node.Subnodes.Add(new FloorNode {
+                    FloorType = type,
+                    Height = height,
+                    BaseShape = basementPolygon,
+                    SegmentWidth = segmentLength,
+                    SegmentsPerWall = segmentsPerWall,
+                });
+                basementPolygon = Geometry.OffsetPolygon(basementPolygon, height);
             }
-            (node.Subnodes[firstAddedIdx + bparams.DoorWall.PointIdx1] as WallStripNode)
-                .WallType = WallMark.Parade;
-            return ApplyRecursively(node, bparams, depthLimit);
-        }
-    }
-
-    class WallStripToSegmentsRule : Rule
-    {
-        public WallStripToSegmentsRule() : base(typeof(WallStripNode))
-        {
-
-        }
-        public override GrammarNode TransformGrammarTree(GrammarNode node, GenerationParameters parameters, int depthLimit)
-        {
-            var bparams = parameters as BuildingsGenerationParameters;
-            bool isApplicable = Antedecent.Any(t => t == node.GetType());
-            if (!isApplicable)
-            {
-                return ApplyRecursively(node, parameters, depthLimit);
-            }
-            var wallStrip = node as WallStripNode;
-            for(int s = 0; s < wallStrip.SegmentsNumber; ++s)
-            {
-                wallStrip.Subnodes.Add(new SegmentNode());
-            }
-            return ApplyRecursively(node, parameters, depthLimit);
-        }
-    }
-
-    class SegmentsToDoorsRule : Rule
-    {
-        private Random m_rng;
-        public SegmentsToDoorsRule(Random rng) : base(typeof(SegmentNode))
-        {
-            m_rng = rng;
-        }
-        public override GrammarNode TransformGrammarTree(GrammarNode node, GenerationParameters parameters, int depthLimit)
-        {
-            var bparams = parameters as BuildingsGenerationParameters;
-            var paradeGroundWallStrips = new List<WallStripNode>();
-            TraverseForDoorsMetadata(node, paradeGroundWallStrips, null);
-            if (paradeGroundWallStrips.Count == 0) return node;
-            var randomWallStrip = paradeGroundWallStrips[m_rng.Next(paradeGroundWallStrips.Count)];
-            var candidateSegments = randomWallStrip.Subnodes
-                .Select((n, i) => new { Segment = n, Idx = i})
-                .Where(m => m.Segment.GetType() == typeof(SegmentNode))
-                .ToArray();
-            var doorSegment = candidateSegments[m_rng.Next(candidateSegments.Length)];
-            randomWallStrip.Subnodes[doorSegment.Idx].Subnodes.Add(new DoorNode()); // todo style
+            ChangedNodes.Add(node);
+            //this.IsTerminated = true;
             return node;
         }
 
-        private void TraverseForDoorsMetadata(GrammarNode node, List<WallStripNode> doorCandidateStrips, FloorNode groundFloor)
+        private IList<Vector3d> MakePolygon3d(IList<Point2d> polygon)
         {
-            if (groundFloor == null)
-            {
-                if (node is FloorNode)
-                {
-                    var floor = node as FloorNode;
-                    if (floor.FloorType == FloorMark.Ground)
-                    {
-                        groundFloor = floor;
-                    }
-                }
-            } 
-            else
-            {
-                if (node is WallStripNode)
-                {
-                    var wallStrip = node as WallStripNode;
-                    if (wallStrip.WallType == WallMark.Parade)
-                    {
-                        doorCandidateStrips.Add(wallStrip);
-                    }
-                }
-            }
-            foreach(var child in node.Subnodes)
-            {
-                TraverseForDoorsMetadata(child, doorCandidateStrips, groundFloor);
-            }
+            return polygon.Select(p => new Vector3d(p.X, 0.0, p.Y)).ToList();
         }
+        
+    }
 
-        private struct WallStripInfo
+    class TopFloorToRoofRule : GrammarRule
+    {
+        public override GrammarNode TransformGrammarTree(GrammarNode node, GenerationParameters parameters)
         {
-            public GrammarNode FloorNode;
-            public int ChildIdx;
+            if (!(node is FloorNode) || ChangedNodes.Contains(node)) return node;
+            var floor = (node as FloorNode);
+            var buildingsParams = parameters as BuildingsGenerationParameters;
+            if (floor.FloorType != FloorMark.Top) return node;
+            ChangedNodes.Add(node);
+            return new RoofNode {
+                RoofHeight = buildingsParams.RoofHeight,
+                RoofStyle = buildingsParams.RoofStyle,
+                BaseShape = Geometry.OffsetPolygon(floor.BaseShape, floor.Height),
+                Normal = Vector3d.AxisY, // todo: universally
+            };
         }
     }
 
-    class SegmentToWindowsRule : Rule
+    class FloorToWallStripRule : GrammarRule
     {
-        private BuildingsGenerationParameters m_parameters;
-        public SegmentToWindowsRule(BuildingsGenerationParameters parameters) : base(typeof(SegmentNode))
+        public override GrammarNode TransformGrammarTree(GrammarNode node, GenerationParameters parameters)
         {
-            m_parameters = parameters;
+            if (!(node is FloorNode) || ChangedNodes.Contains(node)) return node;
+            var floor = (node as FloorNode);
+            var buildingsParams = parameters as BuildingsGenerationParameters;
+            var firstAddedIdx = floor.Subnodes.Count;
+            for(int w = 0; w < floor.SegmentsPerWall.Count; ++w)
+            {
+                var nextWallPoint = floor.BaseShape[(w + 1) % floor.BaseShape.Count];
+                var alongWallDirection = nextWallPoint - floor.BaseShape[w];
+                node.Subnodes.Add(new WallStripNode {
+                    WallType = WallMark.None,
+                    FloorType = floor.FloorType,
+                    SegmentsNumber = floor.SegmentsPerWall[w],
+                    Height = floor.Height,
+                    Width = floor.SegmentWidth,
+                    Origin = floor.BaseShape[w],
+                    FrontNormal = alongWallDirection.UnitCross(Vector3d.AxisY),
+                    AlongWidthDirection = alongWallDirection,
+                });
+            }
+            var doorWallIdx = firstAddedIdx + buildingsParams.DoorWall.PointIdx1;
+            var doorWallNode = node.Subnodes[doorWallIdx] as WallStripNode;
+            doorWallNode.WallType = WallMark.Parade;
+            ChangedNodes.Add(node);
+            return node;
         }
-        public override GrammarNode TransformGrammarTree(GrammarNode node, GenerationParameters parameters, int depthLimit)
+    }
+
+    class WallStripToSegmentRule : GrammarRule
+    {
+        public override GrammarNode TransformGrammarTree(GrammarNode node, GenerationParameters parameters)
         {
-            throw new NotImplementedException();
+            if (!(node is WallStripNode) || ChangedNodes.Contains(node)) return node;
+            var wallStrip = node as WallStripNode;
+            var bparams = parameters as BuildingsGenerationParameters;
+
+            var segmentOrigin = wallStrip.Origin;
+            var segmentWidth = wallStrip.Width / wallStrip.SegmentsNumber;
+            for (int s = 0; s < wallStrip.SegmentsNumber; ++s)
+            {
+                wallStrip.Subnodes.Add(new SegmentNode
+                {
+                    Width = segmentWidth,
+                    Height = wallStrip.Height,
+                    Origin = segmentOrigin,
+                    FrontNormal = wallStrip.FrontNormal,
+                    FloorType = wallStrip.FloorType,
+                    WallType = wallStrip.WallType,
+                    AlongWidthDirection = wallStrip.AlongWidthDirection,
+                });
+                segmentOrigin += wallStrip.AlongWidthDirection * segmentWidth;
+            }
+            ChangedNodes.Add(node);
+            return node;
+        }
+    }
+
+    // todo: AssetsScaleModifier
+    class SegmentToDoorsRule : GrammarRule
+    {
+        private bool m_isGroundDoorPlaced = false;
+        public override GrammarNode TransformGrammarTree(GrammarNode node, GenerationParameters parameters)
+        {
+            if (!(node is SegmentNode) || ChangedNodes.Contains(node)) return node;
+            var segment = node as SegmentNode;
+            var isGroundParadeSegment = segment.WallType == WallMark.Parade && segment.FloorType == FloorMark.Ground;
+            var isGroundParadeCandidate = isGroundParadeSegment && !m_isGroundDoorPlaced;
+            if (!isGroundParadeCandidate && !segment.IsDoorRequired) return node;
+
+            if (isGroundParadeSegment)
+            {
+                m_isGroundDoorPlaced = true;
+            }
+
+            var bparams = parameters as BuildingsGenerationParameters;
+            var randomDoorAssetIdx = bparams.RandomGenerator.Next(bparams.DoorsAssets.Count);
+
+            var segmentBottomCenter = segment.Origin + segment.AlongWidthDirection * segment.Width / 2.0;
+            segment.Subnodes.Add(new DoorNode
+            {
+                Asset = bparams.DoorsAssets[randomDoorAssetIdx],
+                FrontNormal = segment.FrontNormal,
+                Origin = segmentBottomCenter,
+                Height = segment.Height * 0.8, // todo: why hardcoded
+            });
+            ChangedNodes.Add(node);
+            return node;
+        }
+    }
+
+    class SegmentsToWindowsRule : GrammarRule
+    {
+        public override GrammarNode TransformGrammarTree(GrammarNode node, GenerationParameters parameters)
+        {
+            if (!(node is SegmentNode) || ChangedNodes.Contains(node)) return node;
+            var segment = node as SegmentNode;
+            var bparams = parameters as BuildingsGenerationParameters;
+            //bparams.IsVerticalWindowSymmetryPreserved
+            //bparams.WindowsToSegmentsFraction
+            var randomWindowAssetIdx = bparams.RandomGenerator.Next(bparams.WindowsAssets.Count);
+            var segmentBottomCenter = segment.Origin + segment.AlongWidthDirection * segment.Width / 2.0;
+            var segmentCenter = segmentBottomCenter + Vector3d.AxisY * segment.Height * 0.5; // todo: hardcode
+            segment.Subnodes.Add(new WindowNode
+            {
+                Asset = bparams.WindowsAssets[randomWindowAssetIdx],
+                FrontNormal = segment.FrontNormal,
+                Origin = segmentCenter, // todo: hardcode
+                Height = segment.Height * 0.6,  // todo: hardcode 
+            });
+            ChangedNodes.Add(node);
+            return node;
         }
     }
 }
+
+    //var paradeGroundWallStrips = new List<WallStripNode>();
+    //TraverseForDoorsMetadata(node, paradeGroundWallStrips, null);
+    //if (paradeGroundWallStrips.Count == 0) return node;
+    //var randomWallStrip = paradeGroundWallStrips[m_rng.Next(paradeGroundWallStrips.Count)];
+    //var candidateSegments = randomWallStrip.Subnodes
+    //    .Select((n, i) => new { Segment = n, Idx = i})
+    //    .Where(m => m.Segment.GetType() == typeof(SegmentNode))
+    //    .ToArray();
+    //var doorSegment = candidateSegments[m_rng.Next(candidateSegments.Length)];
+    //randomWallStrip.Subnodes[doorSegment.Idx].Subnodes.Add(new DoorNode()); // todo style
+    //return node;
+//}
+
+//private void TraverseForDoorsMetadata(GrammarNode node, List<WallStripNode> doorCandidateStrips, FloorNode groundFloor)
+//{
+//    if (groundFloor == null)
+//    {
+//        if (node is FloorNode)
+//        {
+//            var floor = node as FloorNode;
+//            if (floor.FloorType == FloorMark.Ground)
+//            {
+//                groundFloor = floor;
+//            }
+//        }
+//    }
+//    else
+//    {
+//        if (node is WallStripNode)
+//        {
+//            var wallStrip = node as WallStripNode;
+//            if (wallStrip.WallType == WallMark.Parade)
+//            {
+//                doorCandidateStrips.Add(wallStrip);
+//            }
+//        }
+//    }
+//    foreach (var child in node.Subnodes)
+//    {
+//        TraverseForDoorsMetadata(child, doorCandidateStrips, groundFloor);
+//    }
+//}
+
+//private struct WallStripInfo
+//{
+//    public GrammarNode FloorNode;
+//    public int ChildIdx;
+//}

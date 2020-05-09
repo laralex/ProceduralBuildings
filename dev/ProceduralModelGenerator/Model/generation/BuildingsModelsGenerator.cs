@@ -20,11 +20,11 @@ namespace ProceduralBuildingsGeneration
 
             // make grammar
             var grammarController = new BuildingsGrammarController(buildingParams.RandomGenerator);
-            var buildingWord = grammarController.TransformWordUntilTermination(parameters);
+            var buildingWord = grammarController.TransformWordRepeatedly(parameters, 10);
 
             // build model
-            // to do no parameters
-            var buildingMesh = BuildingsMeshMaker.MakeMeshFromGrammar(buildingWord, buildingParams);
+            // todo: no parameters
+            var buildingMesh = BuildingsMeshMaker.MakeMeshFromGrammar(buildingWord);
             if (!buildingMesh.CheckValidity()) throw new Exception("Generated mesh is invalid"); ;
             return new Model3d { Mesh = buildingMesh };
         }
