@@ -1,10 +1,7 @@
-﻿using ProceduralBuildingsGeneration;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ProceduralBuildingsGeneration
 {
@@ -24,13 +21,14 @@ namespace ProceduralBuildingsGeneration
 
         public void CloseAssetFile()
         {
-            Dispose();
+            OpenedFile?.Close();
+            OpenedFile?.Dispose();
+            OpenedFile = null;
         }
 
         public void Dispose()
         {
-            OpenedFile?.Close();
-            OpenedFile?.Dispose();
+            CloseAssetFile();
         }
     }
 

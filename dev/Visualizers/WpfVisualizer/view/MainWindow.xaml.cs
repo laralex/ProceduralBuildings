@@ -34,10 +34,6 @@ namespace WpfVisualizer
             {
                 TryReconnect();
             }
-
-            //{
-            //if (args[1] == "--external") System.Windows.Application.Current.Shutdown();
-            //}
             
             OnResetCameraClick(this, null);
 
@@ -63,14 +59,11 @@ namespace WpfVisualizer
 
                 m_visualizerService.AddServiceEndpoint(typeof(IVisualizerService), httpBinding, VISUALIZATOR_SERVICE_URI);
                 m_visualizerService.Open();
-                //m_viewModel.ApplicationStatus = "HTTP visualizer service opened successfully";
             }
             catch (Exception e)
             {
-                //m_viewModel.ApplicationStatus = $"HTTP service FAILED to start";
                 m_viewModel.ApplicationStatus = "Couldn't open visualizer service (perhaps another instance had done it)";
                 return false;
-                //MessageBox.Show(e.Message);
             }
             m_visualizerPreparationStage = ServicePreparationStage.Opened;
             return true;
@@ -348,7 +341,7 @@ namespace WpfVisualizer
                     foreach (var m in modelContent.Children)
                     {
                         //(m as GeometryModel3D).BackMaterial = null;
-                        (m as GeometryModel3D).Material = m_replacementMaterial; //m_replacementMaterial;
+                        (m as GeometryModel3D).Material = m_replacementMaterial;
                         (m as GeometryModel3D).BackMaterial = m_replacementMaterial;
                     }
                 });

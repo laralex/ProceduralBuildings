@@ -1,10 +1,6 @@
 ﻿using ProceduralBuildingsGeneration;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GeneratorController
 {
@@ -92,10 +88,7 @@ namespace GeneratorController
 
         public void Dispose()
         {
-            //GenerationControler.Dispose();
-            //ExportController.Dispose();
             VisualizationController.Dispose();
-            //ViewModel.Dispose();
         }
 
         private Model3d m_latestModel;

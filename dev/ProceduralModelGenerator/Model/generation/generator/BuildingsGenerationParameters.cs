@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace ProceduralBuildingsGeneration
 {
@@ -9,12 +7,10 @@ namespace ProceduralBuildingsGeneration
         public double BasementExtrudeHeight { get; set; }
         public double BasementLengthPerUnit { get; set; }
         public IList<Point2d> BasementPoints { get; set; }
-        //public IList<AssetsGroup> Assets { get; set; }
         public RoofStyle RoofStyle { get; set; }
         public double RoofHeight { get; set; } 
         public int FloorsNumber { get; set; }
         public int SelectedWallSegments { get; set; }
-        //public int SelectedWallWindowsPerFloor { get; set; }
         public float WindowsToSegmentsFraction { get; set; }
         public IList<Asset> WindowsAssets { get; set; }
         public IList<Asset> DoorsAssets { get; set; }

@@ -15,8 +15,6 @@ namespace HttpDummySender
     {
         public int ClientsCount => openClients.Count;
         public IEnumerable<IVisualizerService> Visualizers { get => openClients.Values.AsEnumerable(); }
-        
-        // Called by HTTP request
         public bool RegisterVisualizer(string visualizerUri)
         {
             if (!openClients.ContainsKey(visualizerUri) && !registeredClients.ContainsKey(visualizerUri)) {

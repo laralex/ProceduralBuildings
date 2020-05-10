@@ -1,24 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace WindowsGeneratorView
 {
-    /// <summary>
-    /// Interaction logic for IntervalField.xaml
-    /// </summary>
     public partial class IntervalField : UserControl, INotifyPropertyChanged
     {
 
@@ -60,7 +47,16 @@ namespace WindowsGeneratorView
             if (newVal.CompareTo(value as string) != 0)
             {
                 ((IntervalField)d).MaxValue = newVal;
-                //((IntervalField)d).PropertyChanged?.Invoke(d, new PropertyChangedEventArgs("MaxValue"));
+            }
+            return newVal;
+        }
+
+        private static object MinValueChangeCallback(DependencyObject d, object value)
+        {
+            var newVal = ((IntervalField)d).CoerceValueToBounds(value as string, false);
+            if (newVal.CompareTo(value as string) != 0)
+            {
+                ((IntervalField)d).MinValue = newVal;
             }
             return newVal;
         }
@@ -100,17 +96,6 @@ namespace WindowsGeneratorView
                 default:
                     return value;
             }
-        }
-
-        private static object MinValueChangeCallback(DependencyObject d, object value)
-        {
-            var newVal = ((IntervalField)d).CoerceValueToBounds(value as string, false);
-            if (newVal.CompareTo(value as string) != 0)
-            {
-                ((IntervalField)d).MinValue = newVal;
-                //((IntervalField)d).PropertyChanged?.Invoke(d, new PropertyChangedEventArgs("MaxValue"));
-            }
-            return newVal;
         }
 
         public static readonly DependencyProperty MinValueProperty =

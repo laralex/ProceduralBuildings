@@ -1,24 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 
 namespace GeneratorController
 {
     public class BuildingsViewModel : IViewModel
     {
-        //public IViewModel BasementSettings { get; set; }
-        //public IViewModel RoofSettings { get; set; }
-        //public IViewModel SegmentingSettings { get; set; }
-        //public IViewModel WindowsSettings { get; set; }
-        //public IViewModel DoorsSettings { get; set; }
-        //public IViewModel AssetsViewModel { get; set; }
-
         public BuildingsViewModel()
         {
             SelectedSideMeters = 5.0f;

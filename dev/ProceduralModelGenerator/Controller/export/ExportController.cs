@@ -1,8 +1,5 @@
 ﻿using ProceduralBuildingsGeneration;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace GeneratorController
 {
@@ -36,10 +33,6 @@ namespace GeneratorController
                     break;
             }
             return false;    
-        }
-        private void Export(Model3d model, IExporter exporter, ExportParameters parameters)
-        {
-           // exporter.Export(model, parameters);
         }
     }
 }

@@ -46,7 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="export\MemoryExporter.cs" />
-    <Compile Include="generation\assets\Asset.cs" />
+    <Compile Include="generation\assets\Assets.cs" />
     <Compile Include="generation\assets\AssetsLoader.cs" />
     <Compile Include="generation\generator\BuildingsGenerationParameters.cs" />
     <Compile Include="generation\generator\BuildingsModelsGenerator.cs" />
@@ -55,6 +55,8 @@
     <Compile Include="export\FileExportParameters.cs" />
     <Compile Include="generation\generator\GenerationParameters.cs" />
     <Compile Include="export\IExporter.cs" />
+    <Compile Include="generation\grammar\BuildingsGrammarController.cs" />
+    <Compile Include="generation\grammar\IGrammarController.cs" />
     <Compile Include="generation\utility\Geometry.cs" />
     <Compile Include="generation\grammar\GrammarNode.cs" />
     <Compile Include="generation\grammar\RulesRegistry.cs" />
