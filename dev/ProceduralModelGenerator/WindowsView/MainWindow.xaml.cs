@@ -27,6 +27,15 @@ namespace WindowsView
         public IViewModel ViewModel { get; set; }
 
 
+        public MainWindow()
+        {
+            m_inputController = new InputController();
+            m_tokenSource = new CancellationTokenSource();
+            this.DataContext = m_inputController.ViewModel;
+            InitializeComponent();
+        }
+
+
         private string m_applicationStatus;
         public string ApplicationStatus
         {
@@ -38,28 +47,26 @@ namespace WindowsView
             }
         }
 
-        public MainWindow()
+        private void OnGenerateButtonFocused(object sender, RoutedEventArgs e)
         {
-            m_inputController = new InputController();
-            m_tokenSource = new CancellationTokenSource();
-            this.DataContext = m_inputController.ViewModel;
-
-            InitializeComponent();
+            Keyboard.ClearFocus();
         }
-
 
         private void OnGenerateClick(object sender, RoutedEventArgs e)
         {
+            Keyboard.ClearFocus();
             RequestGeneration(m_tokenSource.Token);
         }
 
         private void OnExportClick(object sender, RoutedEventArgs e)
         {
+            Keyboard.ClearFocus();
             RequestExport(m_tokenSource.Token);
         }
 
         private void OnVisualizeClick(object sender, RoutedEventArgs e)
         {
+            Keyboard.ClearFocus();
             RequestGenerationVisualization(m_tokenSource.Token);
         }
 

@@ -48,24 +48,20 @@
     <Compile Include="export\MemoryExporter.cs" />
     <Compile Include="generation\assets\Asset.cs" />
     <Compile Include="generation\assets\AssetsLoader.cs" />
-    <Compile Include="generation\BuildingsGenerationParameters.cs" />
-    <Compile Include="generation\BuildingsModelsGenerator.cs" />
+    <Compile Include="generation\generator\BuildingsGenerationParameters.cs" />
+    <Compile Include="generation\generator\BuildingsModelsGenerator.cs" />
     <Compile Include="export\ExportParameters.cs" />
     <Compile Include="export\FileExporter.cs" />
     <Compile Include="export\FileExportParameters.cs" />
-    <Compile Include="generation\DoorUtilitycs.cs" />
-    <Compile Include="generation\FacadeUtility.cs" />
-    <Compile Include="generation\GenerationParameters.cs" />
+    <Compile Include="generation\generator\GenerationParameters.cs" />
     <Compile Include="export\IExporter.cs" />
-    <Compile Include="generation\Geometry.cs" />
-    <Compile Include="generation\GrammarToMeshTranslator.cs" />
+    <Compile Include="generation\utility\Geometry.cs" />
     <Compile Include="generation\grammar\GrammarNode.cs" />
     <Compile Include="generation\grammar\RulesRegistry.cs" />
-    <Compile Include="generation\IProceduralModelsGenerator.cs" />
-    <Compile Include="generation\mesh\MeshUtility.cs" />
-    <Compile Include="generation\Point2d.cs" />
-    <Compile Include="generation\SegmentingUtility.cs" />
-    <Compile Include="Model3d.cs" />
+    <Compile Include="generation\generator\IProceduralModelsGenerator.cs" />
+    <Compile Include="generation\utility\MeshUtility.cs" />
+    <Compile Include="generation\utility\Point2d.cs" />
+    <Compile Include="generation\Model3d.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

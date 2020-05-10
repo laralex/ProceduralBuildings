@@ -35,13 +35,6 @@ namespace GeneratorController
             set { m_seedString = value; NotifyChange("SeedString"); }
         }
 
-        private ViewModelGrammar m_grammar;
-        public ViewModelGrammar Grammar
-        {
-            get => m_grammar;
-            set { m_grammar = value; NotifyChange("Grammar"); }
-        }
-
         private float m_selectedSideLength;
         public float SelectedSideMeters
         {

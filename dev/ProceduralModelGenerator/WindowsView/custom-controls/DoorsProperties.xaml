@@ -9,7 +9,7 @@
         <Label Content="Doors settings" 
                FontWeight="Bold" FontSize="16"/>
         <CheckBox Content="Door on the selected wall" 
-                  Margin="3,5" IsChecked="{Binding IsDoorOnSelectedWall}"/>
+                  Margin="3,5" IsChecked="{Binding IsDoorOnSelectedWall, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
         <StackPanel Orientation="Horizontal" Margin="0,5">
             <Label Content="Door style:"/>
             <Button Margin="10, 0, 0, 5" Width="70" Height="25" 
@@ -17,7 +17,7 @@
         </StackPanel>
         
         <ListBox Name="c_WindowsStyles" Margin="5,-3,5,5" HorizontalAlignment="Left"
-            SelectedIndex="{Binding SelectedDoorStyleIdx, Mode=TwoWay}" 
+            SelectedIndex="{Binding SelectedDoorStyleIdx, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
             ItemsSource="{Binding Path=AssetsViewModel.DoorsAssetsNames}">
         </ListBox>
     </StackPanel>

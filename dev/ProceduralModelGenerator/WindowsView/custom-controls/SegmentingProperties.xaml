@@ -9,12 +9,12 @@
     <StackPanel>
         <Label Content="Segmenting settings" 
                    FontWeight="Bold" FontSize="16"/>
-        <local:IntervalField MinValue="{Binding MinNumberOfFloors}" 
-               MaxValue="{Binding MaxNumberOfFloors}" 
+        <local:IntervalField MinValue="{Binding MinNumberOfFloors, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+               MaxValue="{Binding MaxNumberOfFloors, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                LabelValue="Floors" 
                FilterType="Integer" TextBoxWidth="70"/>
-        <local:IntervalField MinValue="{Binding MinSelectedWallHorizontalSegments}" 
-               MaxValue="{Binding MaxSelectedWallHorizontalSegments}" 
+        <local:IntervalField MinValue="{Binding MinSelectedWallHorizontalSegments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+               MaxValue="{Binding MaxSelectedWallHorizontalSegments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                LabelValue="Horizontal segments on selected wall" 
                FilterType="Integer" TextBoxWidth="70"/>
     </StackPanel>

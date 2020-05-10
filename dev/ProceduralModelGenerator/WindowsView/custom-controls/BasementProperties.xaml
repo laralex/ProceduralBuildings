@@ -18,11 +18,11 @@
     <!--<GridSplitter DockPanel.Dock="Top" Grid.Row="1" Height="4" 
                           HorizontalAlignment="Stretch" ResizeDirection="Rows"/>-->
             <StackPanel>
-            <local:LabeledTextBox TextBoxValue="{Binding SelectedSideMeters, Mode=TwoWay}"
+            <local:LabeledTextBox TextBoxValue="{Binding SelectedSideMeters, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                       LabelValue="Length of selected (or longest) wall in meters" 
                                       FilterType="Decimal" TextBoxWidth="70"/>
-                <local:IntervalField MinValue="{Binding BuildingMinHeight, Mode=TwoWay}" 
-                                     MaxValue="{Binding BuildingMaxHeight, Mode=TwoWay}" 
+            <local:IntervalField MinValue="{Binding BuildingMinHeight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                     MaxValue="{Binding BuildingMaxHeight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                      LabelValue="Facade height in meters" 
                                      FilterType="Decimal" TextBoxWidth="70"/>
             </StackPanel>

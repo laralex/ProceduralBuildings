@@ -81,7 +81,7 @@ namespace ProceduralBuildingsGeneration
             var basementPolygon = MakePolygon3d(bp.BasementPoints);
 
             var doorWallLength = bp.BasementPoints[bp.DoorWall.PointIdx1]
-                .DistanceTo(bp.BasementPoints[bp.DoorWall.PointIdx2]);
+                .Distance(bp.BasementPoints[bp.DoorWall.PointIdx2]);
             var segmentLength = doorWallLength / bp.SelectedWallSegments;
 
             var segmentsPerWall = new List<int>();
@@ -89,10 +89,10 @@ namespace ProceduralBuildingsGeneration
             {
                 var p1 = bp.BasementPoints[p];
                 var p2 = bp.BasementPoints[p + 1];
-                var d = p1.DistanceTo(p2);
+                var d = p1.Distance(p2);
                 segmentsPerWall.Add((int)(d / segmentLength));
             }
-            var dlast = bp.BasementPoints.Last().DistanceTo(bp.BasementPoints[0]);
+            var dlast = bp.BasementPoints.Last().Distance(bp.BasementPoints[0]);
             segmentsPerWall.Add((int)(dlast / segmentLength));
 
             var regularFloorHeight = bp.BasementExtrudeHeight / bp.FloorsNumber;

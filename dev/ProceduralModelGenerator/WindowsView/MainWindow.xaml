@@ -20,7 +20,7 @@
     </Window.Resources>
     <DockPanel>
         <Menu DockPanel.Dock="Top" FontSize="15">
-            <MenuItem Header="_Generate" Click="OnGenerateClick">
+            <MenuItem Header="_Generate" Click="OnGenerateClick" GotFocus="OnGenerateButtonFocused">
                 <MenuItem.Icon>
                     <Image Source="{Binding GenerateIconPath, ElementName=mainWindow}" />
                 </MenuItem.Icon>
@@ -49,11 +49,13 @@
                     VerticalScrollBarVisibility="Auto">
             <StackPanel Name="c_panels">
                 <StackPanel Orientation="Horizontal">
-                    <local:LabeledTextBox TextBoxValue="{Binding SeedString, Mode=TwoWay}" 
+                    <local:LabeledTextBox TextBoxValue="{Binding SeedString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                               LabelValue="Randomization seed" Margin="0, 10, 0, 0" 
                               FilterType="LatinLetters" TextBoxWidth="150"/>
                     <Button Margin="10,10,0,0" Width="70" Height="25" 
                             Content="New seed" Click="OnNewSeedClick"/>
+                    <Button Margin="10,10,0,0" Width="90" Height="25" 
+                            Content="Save changes"/>
                 </StackPanel>
             </StackPanel>
     </ScrollViewer>

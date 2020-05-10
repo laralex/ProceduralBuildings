@@ -11,14 +11,14 @@
     <StackPanel>
         <Label Content="Windows settings" 
                FontWeight="Bold" FontSize="16"/>
-        <local:IntervalField MinValue="{Binding MinWindowsOnSelectedWall}" 
-               MaxValue="{Binding MaxWindowsOnSelectedWall}" 
+        <local:IntervalField MinValue="{Binding MinWindowsOnSelectedWall, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+               MaxValue="{Binding MaxWindowsOnSelectedWall, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                LabelValue="Windows on selected (or longest) wall" 
                FilterType="Integer" TextBoxWidth="70"/>
         <CheckBox Content="Keep vertical symmetry" 
-                  Margin="3,5" IsChecked="{Binding IsVerticalSymmetryPreserved}"/>
+                  Margin="3,5" IsChecked="{Binding IsVerticalSymmetryPreserved, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
         <CheckBox Content="Single window style" Name="c_SingleStyle"
-                  Margin="3,5" IsChecked="{Binding IsSingleStyleWindow}"/>
+                  Margin="3,5" IsChecked="{Binding IsSingleStyleWindow, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
         <StackPanel Visibility="{Binding IsChecked, ElementName=c_SingleStyle, 
             Converter={StaticResource BoolToVis}}">
             <StackPanel Orientation="Horizontal">
@@ -27,7 +27,7 @@
                     Content="Preview" Click="OnPreviewClick"/>
             </StackPanel>
             <ListBox Name="c_WindowsStyles" Margin="5,0,5,5" HorizontalAlignment="Left"
-                SelectedIndex="{Binding SelectedWindowStyleIdx}"
+                SelectedIndex="{Binding SelectedWindowStyleIdx, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                 ItemsSource="{Binding Path=AssetsViewModel.WindowsAssetsNames}">
             </ListBox>
         </StackPanel>

@@ -50,6 +50,7 @@ namespace WindowsGeneratorView
                 default:
                     break;
             }
+            //if (!e.Handled) (sender as TextBox).GetBindingExpression(TextBox.TextProperty).UpdateSource();
         }
     }
     public enum TextBoxFilter

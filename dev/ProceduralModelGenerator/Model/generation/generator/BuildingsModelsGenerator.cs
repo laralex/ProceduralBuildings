@@ -24,15 +24,32 @@ namespace ProceduralBuildingsGeneration
 
             // build model
             // todo: no parameters
-            var buildingMesh = BuildingsMeshMaker.MakeMeshFromGrammar(buildingWord);
+            var buildingMesh = MakeMeshFromGrammar(buildingWord);
             if (!buildingMesh.CheckValidity()) throw new Exception("Generated mesh is invalid"); ;
             return new Model3d { Mesh = buildingMesh };
         }
 
-        private void AddRoof(DMesh3 mesh, BuildingsGenerationParameters buildingParams)
-        {   
-            // top polygon, he
+        private static DMesh3 MakeMeshFromGrammar(GrammarNode buildingWord)
+        {
+            var mesh = new DMesh3();
+            ApplyNodesRecursively(mesh, buildingWord);
+            return mesh;
         }
+
+        private static void ApplyNodesRecursively(DMesh3 mesh, GrammarNode currentNode)
+        {
+            if (currentNode == null) return;
+            currentNode.BuildOnMesh(mesh);
+            foreach (var child in currentNode.Subnodes)
+            {
+                ApplyNodesRecursively(mesh, child);
+            }
+        }
+
+        //private void AddRoof(DMesh3 mesh, BuildingsGenerationParameters buildingParams)
+        //{   
+        //    // top polygon, he
+        //}
 
         /*
         private GrammarController MakeGrammar(BuildingsGenerationParameters parameters)

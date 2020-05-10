@@ -26,7 +26,6 @@ namespace WindowsGeneratorView
         public LabeledTextBox()
         {
             InitializeComponent();
-            
         }
 
         public static readonly DependencyProperty TextBoxWidthProperty =

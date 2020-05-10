@@ -56,7 +56,13 @@ namespace WindowsGeneratorView
 
         private static object MaxValueChangeCallback(DependencyObject d, object value)
         {
-            return ((IntervalField)d).CoerceValueToBounds(value as string, true);
+            var newVal = ((IntervalField)d).CoerceValueToBounds(value as string, true);
+            if (newVal.CompareTo(value as string) != 0)
+            {
+                ((IntervalField)d).MaxValue = newVal;
+                //((IntervalField)d).PropertyChanged?.Invoke(d, new PropertyChangedEventArgs("MaxValue"));
+            }
+            return newVal;
         }
 
         private string CoerceValueToBounds(string value, bool isNewMax)
@@ -98,7 +104,13 @@ namespace WindowsGeneratorView
 
         private static object MinValueChangeCallback(DependencyObject d, object value)
         {
-            return ((IntervalField)d).CoerceValueToBounds(value as string, false);
+            var newVal = ((IntervalField)d).CoerceValueToBounds(value as string, false);
+            if (newVal.CompareTo(value as string) != 0)
+            {
+                ((IntervalField)d).MinValue = newVal;
+                //((IntervalField)d).PropertyChanged?.Invoke(d, new PropertyChangedEventArgs("MaxValue"));
+            }
+            return newVal;
         }
 
         public static readonly DependencyProperty MinValueProperty =
