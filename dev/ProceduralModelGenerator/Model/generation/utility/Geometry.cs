@@ -7,25 +7,25 @@ namespace ProceduralBuildingsGeneration
 {
     public class Geometry
     {
-        public static IList<Triangle2d> Triangulate(IList<Vector2d> polygon)
+        public static IList<Triangle3d> Triangulate(IList<Vector3d> polygon)
         {
-            var triangles = new List<Triangle2d>(polygon.Count - 2);
-            var polygonCopy = new List<Vector2d>(polygon);
+            var triangles = new List<Triangle3d>(polygon.Count - 2);
+            var polygonCopy = new List<Vector3d>(polygon);
             while(polygonCopy.Count > 3)
             {
                 var ear = GetPolygonEar(polygonCopy);
                 if (ear == null) throw new ArgumentException("Polygon is not simple");
-                triangles.Add(new Triangle2d(
+                triangles.Add(new Triangle3d(
                     polygonCopy[ear.Item1],
                     polygonCopy[ear.Item2],
                     polygonCopy[ear.Item3]));
                 polygonCopy.RemoveAt(ear.Item2);
             }
-            triangles.Add(new Triangle2d(polygonCopy[0],polygonCopy[1],polygonCopy[2]));
+            triangles.Add(new Triangle3d(polygonCopy[0], polygonCopy[1], polygonCopy[2]));
             return triangles;
         }
 
-        public static Tuple<int, int, int> GetPolygonEar(IList<Vector2d> polygon)
+        public static Tuple<int, int, int> GetPolygonEar(IList<Vector3d> polygon)
         {
             int v1, vm, v2;
             for (v1 = 0; v1 < polygon.Count; v1++)
@@ -37,7 +37,7 @@ namespace ProceduralBuildingsGeneration
             return null;
         }
 
-        public static bool IsEarOfPolygon(IList<Vector2d> polygon, int v1, int v2, int v3)
+        public static bool IsEarOfPolygon(IList<Vector3d> polygon, int v1, int v2, int v3)
         {
             if (CalcAngleInTriangleRad(polygon[v1], polygon[v2], polygon[v3]) > 0.0)
             {
@@ -53,7 +53,7 @@ namespace ProceduralBuildingsGeneration
             }
             return true;
         }
-        public static bool IsPointInTriangle(IList<Vector2d> polygon, int v1, int v2, int v3, Vector2d point)
+        public static bool IsPointInTriangle(IList<Vector3d> polygon, int v1, int v2, int v3, Vector3d point)
         {
             var angleSum = 0.0;
             angleSum += CalcAngleInTriangleRad(point, polygon[v1], polygon[v2]);
@@ -75,12 +75,16 @@ namespace ProceduralBuildingsGeneration
             return area;
         }
 
-        public static float CalcAngleInTriangleRad(Vector2d samplePoint, Vector2d otherPoint1, Vector2d otherPoint2)
+        public static double CalcAngleInTriangleRad(Vector3d samplePoint, Vector3d otherPoint1, Vector3d otherPoint2)
         {
-            Vector2d sampleEdge1 = otherPoint1 - samplePoint;
-            Vector2d sampleEdge2 = otherPoint2 - samplePoint;
-            double cross = sampleEdge1.x * sampleEdge2.y - sampleEdge1.y * sampleEdge2.x;
-            return (float)Math.Atan2(cross, sampleEdge1.Dot(sampleEdge2));
+
+            Vector3d sampleEdge1 = otherPoint1 - samplePoint;
+            Vector3d sampleEdge2 = otherPoint2 - samplePoint;
+            return Vector3d.AngleR(sampleEdge2, sampleEdge2);
+            //var crossL2 = sampleEdge1.Cross(sampleEdge2).;
+            //var crossSign = Math.Sign(crossL2);
+            //double cross = crossSign * crossL2;
+            //return (float)Math.Atan2(cross, sampleEdge1.Dot(sampleEdge2));
         }
 
         // Find the polygon's centroid.

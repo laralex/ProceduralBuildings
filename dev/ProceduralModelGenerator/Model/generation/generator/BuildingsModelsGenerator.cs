@@ -1,5 +1,6 @@
 ﻿using g3;
 using System;
+using System.Collections.Generic;
 
 namespace ProceduralBuildingsGeneration
 {
@@ -8,8 +9,7 @@ namespace ProceduralBuildingsGeneration
         public Model3d GenerateModel(GenerationParameters parameters)
         {
             var buildingParams = parameters as BuildingsGenerationParameters;
-            var mesh = new DMesh3(false);
-
+            
             foreach (var doorAsset in buildingParams.DoorsAssets)
                 doorAsset.OpenAssetFile();
             foreach (var windowAsset in buildingParams.WindowsAssets)
@@ -20,8 +20,8 @@ namespace ProceduralBuildingsGeneration
             var buildingWord = grammarController.TransformWordRepeatedly(parameters, 10);
 
             // build model
-            var buildingMesh = MakeMeshFromGrammar(buildingWord);
-            if (!buildingMesh.CheckValidity()) throw new Exception("Generated mesh is invalid");
+            var buildingMeshes = MakeMeshFromGrammar(buildingWord);
+            if (!buildingMeshes[0].CheckValidity()) throw new Exception("Generated mesh is invalid");
 
 
             foreach (var doorAsset in buildingParams.DoorsAssets)
@@ -29,23 +29,28 @@ namespace ProceduralBuildingsGeneration
             foreach (var windowAsset in buildingParams.WindowsAssets)
                 windowAsset.CloseAssetFile();
 
-            return new Model3d { Mesh = buildingMesh };
+            return new Model3d { Mesh = buildingMeshes };
         }
 
-        private static DMesh3 MakeMeshFromGrammar(GrammarNode buildingWord)
+        private static IList<DMesh3> MakeMeshFromGrammar(GrammarNode buildingWord)
         {
-            var mesh = new DMesh3();
-            ApplyNodesRecursively(mesh, buildingWord);
-            return mesh;
+            var mesh = new DMesh3(MeshComponents.VertexNormals | MeshComponents.FaceGroups);
+            var builder = new DMesh3Builder() {
+                Meshes = { mesh },
+                DuplicateTriBehavior = DMesh3Builder.AddTriangleFailBehaviors.DiscardTriangle,
+            };
+            builder.SetActiveMesh(0);
+            ApplyNodesRecursively(builder, buildingWord);
+            return builder.Meshes;
         }
 
-        private static void ApplyNodesRecursively(DMesh3 mesh, GrammarNode currentNode)
+        private static void ApplyNodesRecursively(IMeshBuilder meshBuilder, GrammarNode currentNode)
         {
             if (currentNode == null) return;
-            currentNode.BuildOnMesh(mesh);
+            currentNode.BuildOnMesh(meshBuilder);
             foreach (var child in currentNode.Subnodes)
             {
-                ApplyNodesRecursively(mesh, child);
+                ApplyNodesRecursively(meshBuilder, child);
             }
         }
     }

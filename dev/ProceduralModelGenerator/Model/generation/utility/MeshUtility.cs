@@ -7,14 +7,14 @@ namespace ProceduralBuildingsGeneration
 {
     class MeshUtility
     {
-        public static int AddVertex3dFrom2d(DMesh3 mesh, Dictionary<Vector2d, int> vertices, Vector2d candidateV, Vector3f normal)
+        public static int AddDistinctVertex3d(IMeshBuilder meshBuilder, Dictionary<Vector3d, int> vertices, Vector3d candidateV, Vector3f normal)
         {
             if (!vertices.ContainsKey(candidateV))
             {
                 return vertices[candidateV] =
-                        mesh.AppendVertex(new NewVertexInfo
+                        meshBuilder.AppendVertex(new NewVertexInfo
                         {
-                            v = new Vector3d(candidateV.x, 0.0, candidateV.y),
+                            v = candidateV,
                             n = normal,
                         });
             }
@@ -46,23 +46,22 @@ namespace ProceduralBuildingsGeneration
             return Tuple.Create(newVertices, newTriangles);
         }
 
-        public static Tuple<int[], int[]> FillPolygon(DMesh3 mesh, IList<Vector3d> newPolygon, Vector3f normal)
+        public static Tuple<int[], int[]> FillPolygon(IMeshBuilder meshBuilder, IList<Vector3d> newPolygon, Vector3f normal)
         {
-            var basementTriangles = Geometry.Triangulate(newPolygon
-                .Select(p => p.xz).ToList());
+            var triangulation = Geometry.Triangulate(newPolygon);
 
             //add vertices and triangles of basement to mesh
-            var vertexToIndex = new Dictionary<Vector2d, int>();
-            var addedTriangles = new int[basementTriangles.Count];
+            var vertexToIndex = new Dictionary<Vector3d, int>();
+            var addedTriangles = new int[triangulation.Count];
             int addedTriangleIdx = 0;
-            foreach (var triangle in basementTriangles)
+            foreach (var triangle in triangulation)
             {
 
-                int a0 = AddVertex3dFrom2d(mesh, vertexToIndex, triangle[0], normal);
-                int b0 = AddVertex3dFrom2d(mesh, vertexToIndex, triangle[1], normal);
-                int c0 = AddVertex3dFrom2d(mesh, vertexToIndex, triangle[2], normal);
+                int a0 = AddDistinctVertex3d(meshBuilder, vertexToIndex, triangle[0], normal);
+                int b0 = AddDistinctVertex3d(meshBuilder, vertexToIndex, triangle[1], normal);
+                int c0 = AddDistinctVertex3d(meshBuilder, vertexToIndex, triangle[2], normal);
 
-                addedTriangles[addedTriangleIdx] = mesh.AppendTriangle(a0, b0, c0);
+                addedTriangles[addedTriangleIdx] = meshBuilder.AppendTriangle(a0, b0, c0);
                 addedTriangleIdx++;
             }
             int[] newVertices = vertexToIndex.Values.ToArray();

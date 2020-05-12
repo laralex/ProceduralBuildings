@@ -19,7 +19,7 @@ namespace GeneratorController
         {
             if (!openClients.ContainsKey(visualizerUri) && !registeredClients.ContainsKey(visualizerUri))
             {
-                var client = ServiceUtility.SpawnClient<IVisualizerService>(visualizerUri.ToString());
+                var client = WcfServiceUtility.SpawnClient<IVisualizerService>(visualizerUri.ToString());
                 registeredClients[visualizerUri] = client;
                 VisualizerRegistered?.Invoke(this, new VisualizerRegisteredEventArgs
                 {

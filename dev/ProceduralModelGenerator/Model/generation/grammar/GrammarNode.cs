@@ -14,8 +14,22 @@ namespace ProceduralBuildingsGeneration
             Subnodes = subnodes ?? new List<GrammarNode>();
         }
 
-        public abstract bool BuildOnMesh(DMesh3 mesh);
+        public abstract bool BuildOnMesh(DMesh3Builder meshBuilder);
 
+    }
+
+    public class AbstractNode : GrammarNode
+    {
+        public new readonly string Code = "Abstract 'marker' node";
+        public sealed override bool BuildOnMesh(DMesh3Builder meshBuilder)
+        {
+            return false;
+        }
+    }
+
+    public class LadderEndSegment : AbstractNode
+    {
+        public new readonly string Code = "Marks a segment as a ladder end";
     }
 
     public class RootNode : GrammarNode
@@ -23,22 +37,11 @@ namespace ProceduralBuildingsGeneration
         public new readonly string Code = "Initial node";
         public BuildingsGenerationParameters Parameters;
 
-        public override bool BuildOnMesh(DMesh3 mesh)
+        public override bool BuildOnMesh(DMesh3Builder meshBuilder)
         {
-            MeshUtility.FillPolygon(mesh, Parameters.BasementPoints
+            MeshUtility.FillPolygon(meshBuilder, Parameters.BasementPoints
                 .Select(p => new Vector3d(p.X, 0.0, p.Y)).ToList(),
-                -Vector3f.AxisY);
-            //for (int v = 0; v < Parameters.BasementPoints.Count; ++v)
-            //{
-            //    newVertices[v] = mesh.AppendVertex(new Vector3d(
-            //        Parameters.BasementPoints[v].X,
-            //        0.0,
-            //        Parameters.BasementPoints[v].Y
-            //    ));
-            //}
-
-            //var base2d = BaseShape.Select(p => p.xz).ToList();
-            
+                -Vector3f.AxisY);          
             return true;
         }
     }
@@ -58,25 +61,9 @@ namespace ProceduralBuildingsGeneration
         public IList<int> WindowsPerWall { get; set; }
         public IList<Vector3d> BaseShape { get; set; }
         public int FloorIdx { get; set; }
-        public override bool BuildOnMesh(DMesh3 mesh)
+        public override bool BuildOnMesh(DMesh3Builder meshBuilder)
         {
-            int[] newVertices = new int[BaseShape.Count];
-            for (int v = 0; v < BaseShape.Count; ++v)
-            {
-                newVertices[v] = mesh.AppendVertex(BaseShape[v]);
-            }
-            MeshUtility.AddTriangleStripBetweenPolygons(mesh, newVertices,
-                BaseShape.Select(v => v + Vector3d.AxisY * Height).ToList());
-
-            //AddTriangleStripBetweenPolygons(mesh, )
-            return true;
-            //var heightExtruder = new MeshExtrudeMesh(mesh);
-            //heightExtruder.ExtrudedPositionF = (pos, normal, idx) =>
-            //{
-            //    return pos + Vector3d.AxisY * buildingParams.BasementExtrudeHeight;
-            //};
-            //heightExtruder.Extrude();
-
+            return false;
         }
     }
 
@@ -99,9 +86,34 @@ namespace ProceduralBuildingsGeneration
         public Vector3d AlongWidthDirection { get; set; }
         public int FloorIdx { get; set; }
         public int WallIdx { get; set; }
-        public override bool BuildOnMesh(DMesh3 mesh)
+        public override bool BuildOnMesh(IMeshBuilder meshBuilder)
         {
-            return false;
+            Vector3d v00 = Origin, v01 = Origin, v10 = Origin;
+            v01.y += Height;
+            v10 += AlongWidthDirection * Width;
+            Vector3d v11 = v10;
+            v11.y += Height;
+
+            var vInfo = new NewVertexInfo
+            {
+                bHaveN = true,
+                n = new Vector3f(FrontNormal),
+            };
+
+            int i00 = AppentVertex(meshBuilder, vInfo, v00);
+            int i01 = AppentVertex(meshBuilder, vInfo, v01);
+            int i10 = AppentVertex(meshBuilder, vInfo, v10);
+            int i11 = AppentVertex(meshBuilder, vInfo, v11);
+
+            meshBuilder.AppendTriangle(i00, i11, i01);
+            meshBuilder.AppendTriangle(i00, i10, i11);
+            return true;
+        }
+
+        public int AppentVertex(DMesh3Builder meshBuilder, NewVertexInfo vInfo, Vector3d vertex)
+        {
+            vInfo.v = vertex;
+            return meshBuilder.AppendVertex(vInfo);
         }
     }
 
@@ -113,9 +125,9 @@ namespace ProceduralBuildingsGeneration
         public double RoofHeight { get; set; }
         public RoofStyle RoofStyle { get; set; }
 
-        public override bool BuildOnMesh(DMesh3 mesh)
+        public override bool BuildOnMesh(DMesh3Builder meshBuilder)
         {
-            MeshUtility.FillPolygon(mesh, BaseShape, Vector3f.AxisY); // todo: bad move
+            MeshUtility.FillPolygon(meshBuilder, BaseShape, Vector3f.AxisY); // todo: bad move
             return true;
         }
     }
@@ -133,7 +145,7 @@ namespace ProceduralBuildingsGeneration
         public bool IsDoorRequired { get; set; }
         public int WallIdx { get; set; }
         public int SegmentIdx { get; set; }
-        public override bool BuildOnMesh(DMesh3 mesh)
+        public override bool BuildOnMesh(DMesh3Builder meshBuilder)
         {
             return false;
         }
@@ -147,9 +159,19 @@ namespace ProceduralBuildingsGeneration
         public Vector3d Origin { get; set; }
         public Vector3d FrontNormal { get; set; }
         public Asset Asset { get; set; }
-        public override bool BuildOnMesh(DMesh3 mesh)
+        public override bool BuildOnMesh(DMesh3Builder meshBuilder)
         {
-            return false;
+            if (Asset == null || Asset.OpenedFile == null) return false;
+            var reader = new StandardMeshReader() { MeshBuilder = meshBuilder };
+            var isDoorLoaded = reader.Read(Asset.OpenedFile, "obj", null);
+            if (isDoorLoaded.code != IOCode.Ok)
+            {
+                return false;
+            }
+            MeshTransforms.Scale((meshBuilder as DMesh3Builder).Meshes[1], 1 / 10.0);
+            meshBuilder.SetActiveMesh(0);
+            //meshBuilder.AppendNewMesh(doorMesh);
+            return true;
         }
     }
 
@@ -161,7 +183,7 @@ namespace ProceduralBuildingsGeneration
         public Vector3d Origin { get; set; }
         public Vector3d FrontNormal { get; set; }
         public Asset Asset { get; set; }
-        public override bool BuildOnMesh(DMesh3 mesh)
+        public override bool BuildOnMesh(DMesh3Builder meshBuilder)
         {
             return false;
         }

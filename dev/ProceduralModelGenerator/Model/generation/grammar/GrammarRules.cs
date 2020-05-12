@@ -107,7 +107,7 @@ namespace ProceduralBuildingsGeneration
             return new RoofNode {
                 RoofHeight = buildingsParams.RoofHeight,
                 RoofStyle = buildingsParams.RoofStyle,
-                BaseShape = Geometry.OffsetPolygon(floor.BaseShape, floor.Height),
+                BaseShape = floor.BaseShape,
                 Normal = Vector3d.AxisY, // todo: universally
             };
         }
@@ -124,14 +124,16 @@ namespace ProceduralBuildingsGeneration
             for(int w = 0; w < floor.SegmentsPerWall.Count; ++w)
             {
                 var nextWallPoint = floor.BaseShape[(w + 1) % floor.BaseShape.Count];
-                var alongWallDirection = nextWallPoint - floor.BaseShape[w];
+                var wallHorizontalSide = nextWallPoint - floor.BaseShape[w];
+                var wallWidth = wallHorizontalSide.Length;
+                var alongWallDirection = wallHorizontalSide.Normalized;
                 node.Subnodes.Add(new WallStripNode {
                     WallType = WallMark.None,
                     FloorType = floor.FloorType,
                     SegmentsNumber = floor.SegmentsPerWall[w],
                     WindowsNumber = floor.WindowsPerWall[w],
                     Height = floor.Height,
-                    Width = floor.SegmentWidth,
+                    Width = wallWidth,
                     Origin = floor.BaseShape[w],
                     FrontNormal = alongWallDirection.UnitCross(Vector3d.AxisY),
                     AlongWidthDirection = alongWallDirection,

@@ -342,7 +342,7 @@ namespace WpfVisualizer
                     {
                         //(m as GeometryModel3D).BackMaterial = null;
                         (m as GeometryModel3D).Material = m_replacementMaterial;
-                        (m as GeometryModel3D).BackMaterial = m_replacementMaterial;
+                        (m as GeometryModel3D).BackMaterial = m_replacementMaterial;// m_replacementMaterial;
                     }
                 });
             }

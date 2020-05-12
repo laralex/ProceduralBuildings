@@ -1,5 +1,6 @@
 ﻿using g3;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ProceduralBuildingsGeneration
 {
@@ -8,14 +9,14 @@ namespace ProceduralBuildingsGeneration
         public bool ObjExport(Model3d model, ExportParameters parameters)
         {
             parameters.ModelFormat = ModelFormat.OBJ;
-            var exportData = new List<WriteMesh> { new WriteMesh(model.Mesh) };
+            var exportData = model.Mesh.Select(m => new WriteMesh(m)).ToList();
             return Export(exportData, parameters);
         }
 
         public bool StlExport(Model3d model, ExportParameters parameters)
         {
             parameters.ModelFormat = ModelFormat.STL;
-            var exportData = new List<WriteMesh> { new WriteMesh(model.Mesh) };
+            var exportData = model.Mesh.Select(m => new WriteMesh(m)).ToList();
             return Export(exportData, parameters);
         }
         private bool Export(List<WriteMesh> data, ExportParameters parameters)
