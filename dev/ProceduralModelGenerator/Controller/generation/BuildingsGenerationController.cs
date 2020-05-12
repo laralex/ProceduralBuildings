@@ -65,6 +65,7 @@ namespace GeneratorController
             var floors = rng.Next(vm.MinNumberOfFloors, vm.MaxNumberOfFloors + 1);
             var segmentsOnSelectedWall = rng.Next(vm.MinSelectedWallHorizontalSegments, vm.MaxSelectedWallHorizontalSegments);
             var windowsOnSelectedWall = rng.Next(vm.MinWindowsOnSelectedWall, vm.MaxWindowsOnSelectedWall);
+            windowsOnSelectedWall = (int)Math.Min(windowsOnSelectedWall, segmentsOnSelectedWall);
             var roofHeight = Lerp(vm.RoofMinHeight, vm.RoofMaxHeight, rng.NextDouble());
             var assetsViewModel = vm.AssetsViewModel as AssetsViewModel;
             IList<Asset> doorsAsset = new List<Asset> {

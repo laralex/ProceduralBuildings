@@ -17,11 +17,11 @@ namespace WindowsView
 
         private InputController m_inputController;
         private CancellationTokenSource m_tokenSource;
-        private static string rootDir => Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.FullName;
-        public string GenerateIconPath => System.IO.Path.Combine(rootDir, @"data/ui/generate-icon.png");
-        public string ExportIconPath => System.IO.Path.Combine(rootDir, @"data/ui/export-icon.png");
-        public string HelpIconPath => System.IO.Path.Combine(rootDir, @"data/ui/info-icon.png");
-        public string VisualizeIconPath => System.IO.Path.Combine(rootDir, @"data/ui/visualize-icon.png");
+        private static string m_rootDir => Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.FullName;
+        public string GenerateIconPath => System.IO.Path.Combine(m_rootDir, @"data/ui/generate-icon.png");
+        public string ExportIconPath => System.IO.Path.Combine(m_rootDir, @"data/ui/export-icon.png");
+        public string HelpIconPath => System.IO.Path.Combine(m_rootDir, @"data/ui/info-icon.png");
+        public string VisualizeIconPath => System.IO.Path.Combine(m_rootDir, @"data/ui/visualize-icon.png");
         public string Description => "WPF Windows generation parameters GUI";
         public IViewModel ViewModel { get; set; }
 

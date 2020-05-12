@@ -20,9 +20,11 @@ namespace WindowsGeneratorView
         {
             Polygon = new Polygon();
             Corners = new List<Ellipse>();
-            BaseSideHighlight = new Line();
-            BaseSideHighlight.Stroke = Brushes.Red;
-            BaseSideHighlight.StrokeThickness = 4;
+            BaseSideHighlight = new Line
+            {
+                Stroke = Brushes.Red,
+                StrokeThickness = 4
+            };
             canvas.Children.Add(Polygon);
             canvas.Children.Add(BaseSideHighlight);
         }
@@ -44,13 +46,15 @@ namespace WindowsGeneratorView
 
         public void AddPoint(Canvas canvas, Point location, int pointIdx = -1)
         {
-            Ellipse dot = new Ellipse();
-            dot.Stroke = new SolidColorBrush(Colors.Black);
-            dot.StrokeThickness = 1;
-            dot.Height = DotSize;
-            dot.Width = DotSize;
-            dot.Fill = new SolidColorBrush(Colors.Yellow);
-            dot.Margin = new Thickness(location.X - DotSize / 2, location.Y - DotSize / 2, 0, 0);
+            Ellipse dot = new Ellipse
+            {
+                Stroke = new SolidColorBrush(Colors.Black),
+                StrokeThickness = 1,
+                Height = DotSize,
+                Width = DotSize,
+                Fill = new SolidColorBrush(Colors.Yellow),
+                Margin = new Thickness(location.X - DotSize / 2, location.Y - DotSize / 2, 0, 0)
+            };
             if (pointIdx == -1)
             {
                 Corners.Add(dot);

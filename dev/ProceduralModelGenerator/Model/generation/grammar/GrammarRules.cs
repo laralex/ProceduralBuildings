@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace ProceduralBuildingsGeneration
 {
-
     abstract class GrammarRule
     {
         public bool IsTerminated { get; set; }
+        public bool ContinueRecursion { get; set; }
         public ISet<GrammarNode> ChangedNodes;
         public GrammarRule()
         {
@@ -21,9 +21,17 @@ namespace ProceduralBuildingsGeneration
         {
             if (IsTerminated || depthLimit == 0) return node;
             node = TransformGrammarTree(node, parameters);
-            for (int c = 0; c < node.Subnodes.Count; ++c)
+            if (IsTerminated) return node;
+            if (ContinueRecursion)
             {
-                node.Subnodes[c] = Apply(node.Subnodes[c], parameters, depthLimit - 1);
+                for (int c = 0; c < node.Subnodes.Count; ++c)
+                {
+                    node.Subnodes[c] = Apply(node.Subnodes[c], parameters, depthLimit - 1);
+                }
+            }
+            else
+            {
+                ContinueRecursion = true;
             }
             return node;
         }
@@ -45,15 +53,18 @@ namespace ProceduralBuildingsGeneration
             var segmentLength = doorWallLength / bp.SelectedWallSegments;
 
             var segmentsPerWall = new List<int>();
+            var windowsPerWall = new List<int>();
             for (int p = 0; p < bp.BasementPoints.Count - 1; ++p)
             {
                 var p1 = bp.BasementPoints[p];
                 var p2 = bp.BasementPoints[p + 1];
                 var d = p1.Distance(p2);
                 segmentsPerWall.Add((int)(d / segmentLength));
+                windowsPerWall.Add((int)(segmentsPerWall.Last() * bp.WindowsToSegmentsFraction)); 
             }
             var dlast = bp.BasementPoints.Last().Distance(bp.BasementPoints[0]);
             segmentsPerWall.Add((int)(dlast / segmentLength));
+            windowsPerWall.Add((int)(segmentsPerWall.Last() * bp.WindowsToSegmentsFraction)); 
 
             var regularFloorHeight = bp.BasementExtrudeHeight / bp.FloorsNumber;
             for (int f = 0; f < bp.FloorsNumber + 1; ++f)
@@ -67,6 +78,8 @@ namespace ProceduralBuildingsGeneration
                     BaseShape = basementPolygon,
                     SegmentWidth = segmentLength,
                     SegmentsPerWall = segmentsPerWall,
+                    WindowsPerWall = windowsPerWall,
+                    FloorIdx = f,
                 });
                 basementPolygon = Geometry.OffsetPolygon(basementPolygon, height);
             }
@@ -116,11 +129,14 @@ namespace ProceduralBuildingsGeneration
                     WallType = WallMark.None,
                     FloorType = floor.FloorType,
                     SegmentsNumber = floor.SegmentsPerWall[w],
+                    WindowsNumber = floor.WindowsPerWall[w],
                     Height = floor.Height,
                     Width = floor.SegmentWidth,
                     Origin = floor.BaseShape[w],
                     FrontNormal = alongWallDirection.UnitCross(Vector3d.AxisY),
                     AlongWidthDirection = alongWallDirection,
+                    FloorIdx = floor.FloorIdx,
+                    WallIdx = w,
                 });
             }
             var doorWallIdx = firstAddedIdx + buildingsParams.DoorWall.PointIdx1;
@@ -152,6 +168,8 @@ namespace ProceduralBuildingsGeneration
                     FloorType = wallStrip.FloorType,
                     WallType = wallStrip.WallType,
                     AlongWidthDirection = wallStrip.AlongWidthDirection,
+                    WallIdx = wallStrip.WallIdx,
+                    SegmentIdx = s,
                 });
                 segmentOrigin += wallStrip.AlongWidthDirection * segmentWidth;
             }
@@ -195,25 +213,72 @@ namespace ProceduralBuildingsGeneration
 
     class SegmentsToWindowsRule : GrammarRule
     {
+        private Dictionary<int, ISet<int>> m_verticalSymmetryRegistry = new Dictionary<int, ISet<int>>();
         public override GrammarNode TransformGrammarTree(GrammarNode node, GenerationParameters parameters)
         {
-            if (!(node is SegmentNode) || ChangedNodes.Contains(node)) return node;
-            var segment = node as SegmentNode;
+            if (!(node is WallStripNode) || ChangedNodes.Contains(node)) return node;
             var bparams = parameters as BuildingsGenerationParameters;
-            //bparams.IsVerticalWindowSymmetryPreserved
-            //bparams.WindowsToSegmentsFraction
-            var randomWindowAssetIdx = bparams.RandomGenerator.Next(bparams.WindowsAssets.Count);
+            var wall = node as WallStripNode;
+
+            // add wall in registry
+            if (!m_verticalSymmetryRegistry.ContainsKey(wall.WallIdx))
+            {
+                m_verticalSymmetryRegistry[wall.WallIdx] = new HashSet<int>();
+            }
+
+            IEnumerable<int> slotsIndices;
+            if (bparams.IsVerticalWindowSymmetryPreserved)
+            {
+                // if no columns selected, select them randomly
+                if (m_verticalSymmetryRegistry[wall.WallIdx].Count == 0)
+                {
+                    m_verticalSymmetryRegistry[wall.WallIdx] = new HashSet<int>(
+                        SelectRandomSegments(wall.SegmentsNumber, wall.WindowsNumber, bparams.RandomGenerator)    
+                    );
+                }
+                // take columns which have to be filled
+                slotsIndices = m_verticalSymmetryRegistry[wall.WallIdx];
+            }
+            else
+            {
+                // take columns randomly for this strip
+                slotsIndices = SelectRandomSegments(wall.SegmentsNumber, wall.WindowsNumber, bparams.RandomGenerator);
+            }
+
+            var segmentsInWall = wall.Subnodes.Where(n => n is SegmentNode).ToArray();
+            foreach (var slotIdx in slotsIndices)
+            {
+                if (slotIdx < segmentsInWall.Length)
+                {
+                    AddWindow(segmentsInWall[slotIdx] as SegmentNode, bparams);
+                }
+            }
+
+            ChangedNodes.Add(node);
+            ContinueRecursion = false;
+            return node;
+        }
+
+        public void AddWindow(SegmentNode segment, BuildingsGenerationParameters parameters)
+        {
+            var randomWindowAssetIdx = parameters.RandomGenerator.Next(parameters.WindowsAssets.Count);
             var segmentBottomCenter = segment.Origin + segment.AlongWidthDirection * segment.Width / 2.0;
             var segmentCenter = segmentBottomCenter + Vector3d.AxisY * segment.Height * 0.5; // todo: hardcode
             segment.Subnodes.Add(new WindowNode
             {
-                Asset = bparams.WindowsAssets[randomWindowAssetIdx],
+                Asset = parameters.WindowsAssets[randomWindowAssetIdx],
                 FrontNormal = segment.FrontNormal,
                 Origin = segmentCenter, // todo: hardcode
                 Height = segment.Height * 0.6,  // todo: hardcode 
             });
-            ChangedNodes.Add(node);
-            return node;
+            ChangedNodes.Add(segment);
+        }
+
+        public IEnumerable<int> SelectRandomSegments(int segmentsNumber, int sampleSize, Random rng)
+        {
+            return Enumerable.Range(0, segmentsNumber)
+                .OrderBy(e => rng.Next())
+                .Take(sampleSize);
         }
     }
 }

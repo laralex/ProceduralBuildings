@@ -7,8 +7,8 @@ namespace ProceduralBuildingsGeneration
 {
     public class AssetsLoader
     {
-        public static readonly string AssetsManifestPath = Path.Combine(rootDir, @"data/models/models_definitions.xml");
-        public static readonly string AssetsHomeFolder = Path.Combine(rootDir, @"data/models/");
+        public static readonly string AssetsManifestPath = Path.Combine(m_rootDir, @"data/models/models_definitions.xml");
+        public static readonly string AssetsHomeFolder = Path.Combine(m_rootDir, @"data/models/");
         public IDictionary<string, AssetsGroup> AssetGroups { get; private set; }
         public bool TryReloadManifest()
         {
@@ -64,6 +64,6 @@ namespace ProceduralBuildingsGeneration
             return missingAssets;
         }
 
-        private static string rootDir => Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.FullName;
+        private static string m_rootDir => Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.FullName;
     }
 }

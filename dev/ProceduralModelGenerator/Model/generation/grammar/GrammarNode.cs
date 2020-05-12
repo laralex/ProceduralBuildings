@@ -11,7 +11,7 @@ namespace ProceduralBuildingsGeneration
 
         public GrammarNode(IList<GrammarNode> subnodes = null)
         {
-            Subnodes = subnodes != null ? subnodes : new List<GrammarNode>();
+            Subnodes = subnodes ?? new List<GrammarNode>();
         }
 
         public abstract bool BuildOnMesh(DMesh3 mesh);
@@ -55,8 +55,9 @@ namespace ProceduralBuildingsGeneration
         public double Height { get; set; }
         public double SegmentWidth { get; set; }
         public IList<int> SegmentsPerWall { get; set; }
+        public IList<int> WindowsPerWall { get; set; }
         public IList<Vector3d> BaseShape { get; set; }
-
+        public int FloorIdx { get; set; }
         public override bool BuildOnMesh(DMesh3 mesh)
         {
             int[] newVertices = new int[BaseShape.Count];
@@ -90,11 +91,14 @@ namespace ProceduralBuildingsGeneration
         public WallMark WallType { get; set; }
         public FloorMark FloorType { get; set; }
         public int SegmentsNumber { get; set; }
+        public int WindowsNumber { get; set; }
         public double Height { get; set; }
         public double Width { get; set; }
         public Vector3d Origin { get; set; }
         public Vector3d FrontNormal { get; set; }
         public Vector3d AlongWidthDirection { get; set; }
+        public int FloorIdx { get; set; }
+        public int WallIdx { get; set; }
         public override bool BuildOnMesh(DMesh3 mesh)
         {
             return false;
@@ -127,6 +131,8 @@ namespace ProceduralBuildingsGeneration
         public WallMark WallType { get; set; }
         public FloorMark FloorType { get; set; }
         public bool IsDoorRequired { get; set; }
+        public int WallIdx { get; set; }
+        public int SegmentIdx { get; set; }
         public override bool BuildOnMesh(DMesh3 mesh)
         {
             return false;

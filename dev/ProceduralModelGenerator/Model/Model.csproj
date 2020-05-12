@@ -59,7 +59,7 @@
     <Compile Include="generation\grammar\IGrammarController.cs" />
     <Compile Include="generation\utility\Geometry.cs" />
     <Compile Include="generation\grammar\GrammarNode.cs" />
-    <Compile Include="generation\grammar\RulesRegistry.cs" />
+    <Compile Include="generation\grammar\GrammarRules.cs" />
     <Compile Include="generation\generator\IProceduralModelsGenerator.cs" />
     <Compile Include="generation\utility\MeshUtility.cs" />
     <Compile Include="generation\utility\Point2d.cs" />

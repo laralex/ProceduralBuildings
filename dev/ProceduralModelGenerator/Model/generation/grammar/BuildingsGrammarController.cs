@@ -4,12 +4,11 @@ using System.Linq;
 
 namespace ProceduralBuildingsGeneration
 {
-
     class BuildingsGrammarController : IGrammarController
     {
         public IList<GrammarRule> Rules { get; private set; }
         public GrammarNode CurrentWord { get; private set; }
-        private Random m_rng { get; set; }
+        private readonly Random m_rng;
         public BuildingsGrammarController(Random rng)
         {
             CurrentWord = new RootNode();
