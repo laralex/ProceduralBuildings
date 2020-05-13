@@ -1,4 +1,5 @@
 ﻿using g3;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -86,7 +87,7 @@ namespace ProceduralBuildingsGeneration
         public Vector3d AlongWidthDirection { get; set; }
         public int FloorIdx { get; set; }
         public int WallIdx { get; set; }
-        public override bool BuildOnMesh(IMeshBuilder meshBuilder)
+        public override bool BuildOnMesh(DMesh3Builder meshBuilder)
         {
             Vector3d v00 = Origin, v01 = Origin, v10 = Origin;
             v01.y += Height;
@@ -154,23 +155,27 @@ namespace ProceduralBuildingsGeneration
     public class DoorNode : GrammarNode
     {
         public new readonly string Code = "Door";
-        public double Height { get; set; }
+        public double HeightLimit { get; set; }
+        public double WidthLimit { get; set; }
         // width is defined from height to prevent distortion
         public Vector3d Origin { get; set; }
         public Vector3d FrontNormal { get; set; }
-        public Asset Asset { get; set; }
+        public DMesh3 Mesh { get; set; }
         public override bool BuildOnMesh(DMesh3Builder meshBuilder)
         {
-            if (Asset == null || Asset.OpenedFile == null) return false;
-            var reader = new StandardMeshReader() { MeshBuilder = meshBuilder };
-            var isDoorLoaded = reader.Read(Asset.OpenedFile, "obj", null);
-            if (isDoorLoaded.code != IOCode.Ok)
+            var doorCopy = new DMesh3(Mesh);
+            if (FrontNormal == -Vector3d.AxisZ)
             {
-                return false;
+                // trick to prevent 180 rotation
+                FrontNormal += new Vector3d(0.0000001, 0.0, 0.0);
             }
-            MeshTransforms.Scale((meshBuilder as DMesh3Builder).Meshes[1], 1 / 10.0);
+            Quaterniond orientingQuaternion = new Quaterniond(Vector3d.AxisZ, FrontNormal);
+            MeshTransforms.Rotate(doorCopy, Vector3d.Zero, orientingQuaternion);
+            MeshTransforms.Scale(doorCopy, Math.Min(HeightLimit, WidthLimit));
+            MeshTransforms.Translate(doorCopy, Origin);
+
+            meshBuilder.AppendNewMesh(doorCopy);
             meshBuilder.SetActiveMesh(0);
-            //meshBuilder.AppendNewMesh(doorMesh);
             return true;
         }
     }
@@ -178,14 +183,29 @@ namespace ProceduralBuildingsGeneration
     public class WindowNode : GrammarNode
     {
         public new readonly string Code = "Window";
-        public double Height { get; set; }
+        public double HeightLimit { get; set; }
+        public double WidthLimit { get; set; }
         // width is defined from height to prevent distortion
         public Vector3d Origin { get; set; }
         public Vector3d FrontNormal { get; set; }
-        public Asset Asset { get; set; }
+        public DMesh3 Mesh { get; set; }
         public override bool BuildOnMesh(DMesh3Builder meshBuilder)
         {
-            return false;
+            var windowCopy = new DMesh3(Mesh);
+            //var windowCopy = Mesh;
+            if (FrontNormal == -Vector3d.AxisZ)
+            {
+                // trick to prevent 180 rotation
+                FrontNormal += new Vector3d(0.0000001, 0.0, 0.0);
+            }
+            Quaterniond orientingQuaternion = new Quaterniond(Vector3d.AxisZ, FrontNormal);
+            MeshTransforms.Rotate(windowCopy, Vector3d.Zero, orientingQuaternion);
+            MeshTransforms.Scale(windowCopy, Math.Min(HeightLimit, WidthLimit));
+            MeshTransforms.Translate(windowCopy, Origin);
+
+            meshBuilder.AppendNewMesh(windowCopy);
+            meshBuilder.SetActiveMesh(0);
+            return true;
         }
     }
 }

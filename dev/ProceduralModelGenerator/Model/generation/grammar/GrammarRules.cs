@@ -17,16 +17,16 @@ namespace ProceduralBuildingsGeneration
             ChangedNodes = new HashSet<GrammarNode>(); 
         }
 
-        public GrammarNode Apply(GrammarNode node, GenerationParameters parameters, int depthLimit)
+        public GrammarNode Apply(GrammarNode node, GenerationParameters parameters, Dictionary<Asset, DMesh3> assetsMeshes, int depthLimit)
         {
             if (IsTerminated || depthLimit == 0) return node;
-            node = TransformGrammarTree(node, parameters);
+            node = TransformGrammarTree(node, parameters, assetsMeshes);
             if (IsTerminated) return node;
             if (ContinueRecursion)
             {
                 for (int c = 0; c < node.Subnodes.Count; ++c)
                 {
-                    node.Subnodes[c] = Apply(node.Subnodes[c], parameters, depthLimit - 1);
+                    node.Subnodes[c] = Apply(node.Subnodes[c], parameters, assetsMeshes, depthLimit - 1);
                 }
             }
             else
@@ -35,12 +35,12 @@ namespace ProceduralBuildingsGeneration
             }
             return node;
         }
-        public abstract GrammarNode TransformGrammarTree(GrammarNode node, GenerationParameters parameters);
+        public abstract GrammarNode TransformGrammarTree(GrammarNode node, GenerationParameters parameters, Dictionary<Asset, DMesh3> assetsMeshes);
     }
 
     class RootSplitRule : GrammarRule
     {
-        public override GrammarNode TransformGrammarTree(GrammarNode node, GenerationParameters parameters)
+        public override GrammarNode TransformGrammarTree(GrammarNode node, GenerationParameters parameters, Dictionary<Asset, DMesh3> assetsMeshes)
         {
             if (!(node is RootNode) || ChangedNodes.Contains(node)) return node;
             var bp = parameters as BuildingsGenerationParameters;
@@ -97,7 +97,7 @@ namespace ProceduralBuildingsGeneration
 
     class TopFloorToRoofRule : GrammarRule
     {
-        public override GrammarNode TransformGrammarTree(GrammarNode node, GenerationParameters parameters)
+        public override GrammarNode TransformGrammarTree(GrammarNode node, GenerationParameters parameters, Dictionary<Asset, DMesh3> assetsMeshes)
         {
             if (!(node is FloorNode) || ChangedNodes.Contains(node)) return node;
             var floor = (node as FloorNode);
@@ -115,7 +115,7 @@ namespace ProceduralBuildingsGeneration
 
     class FloorToWallStripRule : GrammarRule
     {
-        public override GrammarNode TransformGrammarTree(GrammarNode node, GenerationParameters parameters)
+        public override GrammarNode TransformGrammarTree(GrammarNode node, GenerationParameters parameters, Dictionary<Asset, DMesh3> assetsMeshes)
         {
             if (!(node is FloorNode) || ChangedNodes.Contains(node)) return node;
             var floor = (node as FloorNode);
@@ -135,7 +135,7 @@ namespace ProceduralBuildingsGeneration
                     Height = floor.Height,
                     Width = wallWidth,
                     Origin = floor.BaseShape[w],
-                    FrontNormal = alongWallDirection.UnitCross(Vector3d.AxisY),
+                    FrontNormal = Vector3d.AxisY.UnitCross(alongWallDirection),
                     AlongWidthDirection = alongWallDirection,
                     FloorIdx = floor.FloorIdx,
                     WallIdx = w,
@@ -151,7 +151,7 @@ namespace ProceduralBuildingsGeneration
 
     class WallStripToSegmentRule : GrammarRule
     {
-        public override GrammarNode TransformGrammarTree(GrammarNode node, GenerationParameters parameters)
+        public override GrammarNode TransformGrammarTree(GrammarNode node, GenerationParameters parameters, Dictionary<Asset, DMesh3> assetsMeshes)
         {
             if (!(node is WallStripNode) || ChangedNodes.Contains(node)) return node;
             var wallStrip = node as WallStripNode;
@@ -184,18 +184,30 @@ namespace ProceduralBuildingsGeneration
     class SegmentToDoorsRule : GrammarRule
     {
         private bool m_isGroundDoorPlaced = false;
-        public override GrammarNode TransformGrammarTree(GrammarNode node, GenerationParameters parameters)
+        public override GrammarNode TransformGrammarTree(GrammarNode node, GenerationParameters parameters, Dictionary<Asset, DMesh3> assetsMeshes)
         {
-            if (!(node is SegmentNode) || ChangedNodes.Contains(node)) return node;
-            var segment = node as SegmentNode;
-            var isGroundParadeSegment = segment.WallType == WallMark.Parade && segment.FloorType == FloorMark.Ground;
-            var isGroundParadeCandidate = isGroundParadeSegment && !m_isGroundDoorPlaced;
-            if (!isGroundParadeCandidate && !segment.IsDoorRequired) return node;
-
-            if (isGroundParadeSegment)
+            if (!(node is WallStripNode) || ChangedNodes.Contains(node)) return node;
+            var wallStrip = node as WallStripNode;
+            var isGroundParadeStrip = wallStrip.WallType == WallMark.Parade && wallStrip.FloorType == FloorMark.Ground;
+            var isGroundParadeCandidate = isGroundParadeStrip && !m_isGroundDoorPlaced;
+            if (!isGroundParadeCandidate) return node; // !segment.IsDoorRequired
+            if (isGroundParadeStrip)
             {
                 m_isGroundDoorPlaced = true;
             }
+
+            //if (!(node is SegmentNode) || ChangedNodes.Contains(node)) return node;
+            //var segment = node as SegmentNode;
+            //var isGroundParadeSegment = segment.WallType == WallMark.Parade && segment.FloorType == FloorMark.Ground;
+
+            //if (isGroundParadeStrip)
+            //{
+            //    m_isGroundDoorPlaced = true;
+            //}
+            var segmentIdx = parameters.RandomGenerator.Next(wallStrip.SegmentsNumber);
+            var segment = wallStrip.Subnodes
+                .Where(n => n is SegmentNode)
+                .ToArray()[segmentIdx] as SegmentNode; 
 
             var bparams = parameters as BuildingsGenerationParameters;
             var randomDoorAssetIdx = bparams.RandomGenerator.Next(bparams.DoorsAssets.Count);
@@ -203,12 +215,14 @@ namespace ProceduralBuildingsGeneration
             var segmentBottomCenter = segment.Origin + segment.AlongWidthDirection * segment.Width / 2.0;
             segment.Subnodes.Add(new DoorNode
             {
-                Asset = bparams.DoorsAssets[randomDoorAssetIdx],
+                Mesh = assetsMeshes?[bparams.DoorsAssets[randomDoorAssetIdx]],
                 FrontNormal = segment.FrontNormal,
                 Origin = segmentBottomCenter,
-                Height = segment.Height * 0.8, // todo: why hardcoded
+                HeightLimit = segment.Height * 0.8, // todo: why hardcoded
+                WidthLimit = segment.Width, // todo: why hardcoded
             });
             ChangedNodes.Add(node);
+            ChangedNodes.Add(segment);
             return node;
         }
     }
@@ -216,7 +230,7 @@ namespace ProceduralBuildingsGeneration
     class SegmentsToWindowsRule : GrammarRule
     {
         private Dictionary<int, ISet<int>> m_verticalSymmetryRegistry = new Dictionary<int, ISet<int>>();
-        public override GrammarNode TransformGrammarTree(GrammarNode node, GenerationParameters parameters)
+        public override GrammarNode TransformGrammarTree(GrammarNode node, GenerationParameters parameters, Dictionary<Asset, DMesh3> assetsMeshes)
         {
             if (!(node is WallStripNode) || ChangedNodes.Contains(node)) return node;
             var bparams = parameters as BuildingsGenerationParameters;
@@ -252,7 +266,7 @@ namespace ProceduralBuildingsGeneration
             {
                 if (slotIdx < segmentsInWall.Length)
                 {
-                    AddWindow(segmentsInWall[slotIdx] as SegmentNode, bparams);
+                    AddWindow(segmentsInWall[slotIdx] as SegmentNode, bparams, assetsMeshes);
                 }
             }
 
@@ -261,17 +275,18 @@ namespace ProceduralBuildingsGeneration
             return node;
         }
 
-        public void AddWindow(SegmentNode segment, BuildingsGenerationParameters parameters)
+        public void AddWindow(SegmentNode segment, BuildingsGenerationParameters parameters, Dictionary<Asset, DMesh3> assetsMeshes)
         {
             var randomWindowAssetIdx = parameters.RandomGenerator.Next(parameters.WindowsAssets.Count);
             var segmentBottomCenter = segment.Origin + segment.AlongWidthDirection * segment.Width / 2.0;
             var segmentCenter = segmentBottomCenter + Vector3d.AxisY * segment.Height * 0.5; // todo: hardcode
             segment.Subnodes.Add(new WindowNode
             {
-                Asset = parameters.WindowsAssets[randomWindowAssetIdx],
+                Mesh = assetsMeshes?[parameters.WindowsAssets[randomWindowAssetIdx]],
                 FrontNormal = segment.FrontNormal,
                 Origin = segmentCenter, // todo: hardcode
-                Height = segment.Height * 0.6,  // todo: hardcode 
+                HeightLimit = segment.Height * 0.75,  // todo: hardcode 
+                WidthLimit = segment.Width,
             });
             ChangedNodes.Add(segment);
         }

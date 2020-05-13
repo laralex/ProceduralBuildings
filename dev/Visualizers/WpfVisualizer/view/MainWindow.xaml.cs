@@ -130,7 +130,7 @@ namespace WpfVisualizer
         {
             m_viewModel.ShownVisual3d.Content = m_currentModel;
             m_viewModel.ContourVisual3D = null;
-            OnResetCameraClick(this, null);
+            //OnResetCameraClick(this, null);
         }
 
         #endregion
@@ -316,7 +316,7 @@ namespace WpfVisualizer
         {
             // ui
             m_viewModel.ApplicationStatus = "Loading model file";
-            c_contourToggle.IsChecked = false;
+            //c_contourToggle.IsChecked = false;
 
             // loading 
             Dispatcher modelDispatcher;

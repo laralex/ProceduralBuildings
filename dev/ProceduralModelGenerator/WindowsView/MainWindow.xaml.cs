@@ -54,19 +54,32 @@ namespace WindowsView
         private void OnGenerateClick(object sender, RoutedEventArgs e)
         {
             Keyboard.ClearFocus();
+            this.IsEnabled = false;
             RequestGeneration(m_tokenSource.Token);
+            this.IsEnabled = true;
+        }
+
+        private void OnGenerateNewSeedClick(object sender, RoutedEventArgs e)
+        {
+            OnNewSeedClick(sender, e);
+            Keyboard.ClearFocus();
+            OnGenerateClick(sender, e);
         }
 
         private void OnExportClick(object sender, RoutedEventArgs e)
         {
             Keyboard.ClearFocus();
+            this.IsEnabled = false;
             RequestExport(m_tokenSource.Token);
+            this.IsEnabled = true;
         }
 
         private void OnVisualizeClick(object sender, RoutedEventArgs e)
         {
             Keyboard.ClearFocus();
+            this.IsEnabled = false;
             RequestGenerationVisualization(m_tokenSource.Token);
+            this.IsEnabled = true;
         }
 
 

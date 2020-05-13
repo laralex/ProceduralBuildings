@@ -31,4 +31,18 @@ namespace ProceduralBuildingsGeneration
     {
         OBJ, STL, ThreeDS
     }
+
+    public static class ModelFormatToString    
+    {
+        public static string ToString(this ModelFormat format)
+        {
+            switch (format)
+            {
+                case ModelFormat.OBJ: return "obj";
+                case ModelFormat.STL: return "stl";
+                case ModelFormat.ThreeDS: return "3ds";
+                default: return null;
+            }
+        }
+    }
 }

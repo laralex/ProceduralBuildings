@@ -7,7 +7,7 @@
         xmlns:viewmodel="clr-namespace:GeneratorController;assembly=GeneratorController"
         xmlns:local="clr-namespace:WindowsGeneratorView"
         mc:Ignorable="d" Loaded="OnLoaded" Closing="OnClosing"
-        Height="600" Width="500" MinWidth="400" MinHeight="200"
+        Height="600" Width="600" MinWidth="400" MinHeight="200"
         Name="mainWindow"
         Title="Procedural Buildings 3D Models Generator">
     <Window.Resources>
@@ -21,6 +21,12 @@
     <DockPanel>
         <Menu DockPanel.Dock="Top" FontSize="15">
             <MenuItem Header="_Generate" Click="OnGenerateClick" GotFocus="OnGenerateButtonFocused">
+                <MenuItem.Icon>
+                    <Image Source="{Binding GenerateIconPath, ElementName=mainWindow}" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <Separator/>
+            <MenuItem Header="_New Seed + Generate" Click="OnGenerateNewSeedClick" GotFocus="OnGenerateButtonFocused">
                 <MenuItem.Icon>
                     <Image Source="{Binding GenerateIconPath, ElementName=mainWindow}" />
                 </MenuItem.Icon>
@@ -49,11 +55,11 @@
                     VerticalScrollBarVisibility="Auto">
             <StackPanel Name="c_panels">
                 <StackPanel Orientation="Horizontal">
+                    <Button Margin="10,10,0,0" Width="70" Height="25" 
+                            Content="New seed" Click="OnNewSeedClick"/>
                     <local:LabeledTextBox TextBoxValue="{Binding SeedString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                               LabelValue="Randomization seed" Margin="0, 10, 0, 0" 
                               FilterType="LatinLetters" TextBoxWidth="150"/>
-                    <Button Margin="10,10,0,0" Width="70" Height="25" 
-                            Content="New seed" Click="OnNewSeedClick"/>
                     <Button Margin="10,10,0,0" Width="90" Height="25" 
                             Content="Save changes"/>
                 </StackPanel>

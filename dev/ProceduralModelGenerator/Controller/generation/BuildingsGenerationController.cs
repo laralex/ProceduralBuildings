@@ -76,23 +76,29 @@ namespace GeneratorController
                 windowsAssets = new List<Asset> { assetsViewModel.WindowsAssets[vm.SelectedWindowStyleIdx] };
             else
                 windowsAssets = assetsViewModel.WindowsAssets;
-            
-            if (!vm.IsDoorOnSelectedWall)
-            { 
-                var rndPolygonPoint = rng.Next(vm.PolygonPoints.Count);
-                p1 = rndPolygonPoint;
-                p2 = (rndPolygonPoint + 1) % vm.PolygonPoints.Count; 
-            }
+           
 
             IList<Point2d> basementPoints = vm.PolygonPoints.Select(p => new Point2d { X = p.X, Y = p.Y }).ToList();
             // is given basement counter clockwise
             if (Geometry.CalcSignedPolygonArea(basementPoints) < 0.0)
+            {
                 basementPoints = basementPoints.Reverse().ToList();
-
+                var tmp = p1;
+                p1 = basementPoints.Count - 1 - p2;
+                p2 = basementPoints.Count - 1 - tmp;
+            }
+                
             basementPoints = ScaleCenteredPolygon(
                 CenterPolygon(basementPoints, out var basementCentroid),
                 basementLengthPerUnit
             );
+
+            if (!vm.IsDoorOnSelectedWall)
+            {
+                var rndPolygonPoint = rng.Next(vm.PolygonPoints.Count);
+                p1 = rndPolygonPoint;
+                p2 = (rndPolygonPoint + 1) % vm.PolygonPoints.Count;
+            }
 
             // is single style window    
             return new BuildingsGenerationParameters
