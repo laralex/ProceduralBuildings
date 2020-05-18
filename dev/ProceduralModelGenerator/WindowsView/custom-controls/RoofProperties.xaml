@@ -13,7 +13,7 @@
                    FontWeight="Bold" FontSize="16"/>
         <local:IntervalField MinValue="{Binding RoofMinHeight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                MaxValue="{Binding RoofMaxHeight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-               LabelValue="Roof height in meters" 
+               LabelValue="Roof height" 
                FilterType="Decimal" TextBoxWidth="70"/>
         <Label Content="Roof style:"/>
         <ListBox Margin="5,-3,0,5" Width="200" HorizontalAlignment="Left"

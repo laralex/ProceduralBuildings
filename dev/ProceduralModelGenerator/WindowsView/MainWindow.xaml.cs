@@ -121,7 +121,7 @@ namespace WindowsView
             vm.MinWindowsOnSelectedWall = 0;
             vm.MaxWindowsOnSelectedWall = 3;
             vm.AssetsViewModel = assetsViewModel;
-            vm.SelectedWindowStyleIdx = 3;
+            vm.SelectedWindowStyleIdx = 0;
 
             // doors
             AddPanel(new DoorsProperties(m_inputController));
@@ -178,8 +178,10 @@ namespace WindowsView
 
         public bool RequestGeneration(CancellationToken token)
         {
+            var beginTime = DateTime.Now; 
             m_inputController.RequestGenerate();
-            ApplicationStatus = "Model was generated!";
+            var deltaTime = DateTime.Now - beginTime;
+            ApplicationStatus = $"Model was generated! {deltaTime.Milliseconds} msec";
             return true;
         }
 

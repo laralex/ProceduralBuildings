@@ -1,6 +1,7 @@
 ﻿using g3;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace ProceduralBuildingsGeneration
@@ -42,13 +43,15 @@ namespace ProceduralBuildingsGeneration
         private static void LoadAssetsAsMeshes(IList<Asset> assets, double scale, Dictionary<Asset, DMesh3> destination)
         {
             if (destination == null) return;
-            var meshBuilder = new DMesh3Builder();
-            var reader = new StandardMeshReader() { MeshBuilder = meshBuilder };
+            var meshBuilder = new DMesh3Builder() { NonManifoldTriBehavior = DMesh3Builder.AddTriangleFailBehaviors.DiscardTriangle };
+            var objReader = new OBJFormatReader();
+            var reader = new StandardMeshReader() { MeshBuilder = meshBuilder, ReadInvariantCulture = true  };
+            //reader.AddFormatHandler(objReader);
             foreach (var asset in assets)
             {
-                asset.OpenAssetFile();
-                var isDoorLoaded = reader.Read(asset.OpenedFile, asset.FileFormat.ToString(), null);
-                if (isDoorLoaded.code == IOCode.Ok)
+                //var isMeshLoaded = objReader.ReadFile(asset.OpenAssetFile(), meshBuilder, null, new ParsingMessagesHandler((s, o) => {; }));
+                var isMeshLoaded = reader.Read(asset.OpenAssetFile(), asset.FileFormat.ToString(), ReadOptions.Defaults);
+                if (isMeshLoaded.code == IOCode.Ok)
                 {
                     var mesh = meshBuilder.Meshes.Last();
                     Reducer r = new Reducer(mesh);
@@ -64,6 +67,7 @@ namespace ProceduralBuildingsGeneration
             var builder = new DMesh3Builder() {
                 Meshes = { mesh },
                 DuplicateTriBehavior = DMesh3Builder.AddTriangleFailBehaviors.DiscardTriangle,
+                NonManifoldTriBehavior = DMesh3Builder.AddTriangleFailBehaviors.DiscardTriangle,
             };
             builder.SetActiveMesh(0);
             ApplyNodesRecursively(builder, buildingWord);

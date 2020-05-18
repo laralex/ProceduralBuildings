@@ -107,7 +107,7 @@ namespace ProceduralBuildingsGeneration
             return new RoofNode {
                 RoofHeight = buildingsParams.RoofHeight,
                 RoofStyle = buildingsParams.RoofStyle,
-                BaseShape = floor.BaseShape,
+                BaseShape = floor.BaseShape.Reverse().ToList(),
                 Normal = Vector3d.AxisY, // todo: universally
             };
         }
@@ -131,6 +131,7 @@ namespace ProceduralBuildingsGeneration
                     WallType = WallMark.None,
                     FloorType = floor.FloorType,
                     SegmentsNumber = floor.SegmentsPerWall[w],
+                    SegmentWidth = floor.SegmentWidth,
                     WindowsNumber = floor.WindowsPerWall[w],
                     Height = floor.Height,
                     Width = wallWidth,
@@ -157,13 +158,17 @@ namespace ProceduralBuildingsGeneration
             var wallStrip = node as WallStripNode;
             var bparams = parameters as BuildingsGenerationParameters;
 
-            var segmentOrigin = wallStrip.Origin;
-            var segmentWidth = wallStrip.Width / wallStrip.SegmentsNumber;
+            //var segmentWidth = wallStrip.Width / wallStrip.SegmentsNumber;
+            var unusedWidth = wallStrip.Width -
+                wallStrip.SegmentWidth * wallStrip.SegmentsNumber;
+            var paddingStep = unusedWidth / (wallStrip.SegmentsNumber + 1);
+            var segmentOrigin = wallStrip.Origin +
+                wallStrip.AlongWidthDirection * paddingStep;
             for (int s = 0; s < wallStrip.SegmentsNumber; ++s)
             {
                 wallStrip.Subnodes.Add(new SegmentNode
                 {
-                    Width = segmentWidth,
+                    Width = wallStrip.SegmentWidth,
                     Height = wallStrip.Height,
                     Origin = segmentOrigin,
                     FrontNormal = wallStrip.FrontNormal,
@@ -173,7 +178,8 @@ namespace ProceduralBuildingsGeneration
                     WallIdx = wallStrip.WallIdx,
                     SegmentIdx = s,
                 });
-                segmentOrigin += wallStrip.AlongWidthDirection * segmentWidth;
+                segmentOrigin += wallStrip.AlongWidthDirection * 
+                    (wallStrip.SegmentWidth + paddingStep);
             }
             ChangedNodes.Add(node);
             return node;
@@ -213,13 +219,15 @@ namespace ProceduralBuildingsGeneration
             var randomDoorAssetIdx = bparams.RandomGenerator.Next(bparams.DoorsAssets.Count);
 
             var segmentBottomCenter = segment.Origin + segment.AlongWidthDirection * segment.Width / 2.0;
+
+            segment.RemoveSubnodes(n => n is WindowNode);
             segment.Subnodes.Add(new DoorNode
             {
                 Mesh = assetsMeshes?[bparams.DoorsAssets[randomDoorAssetIdx]],
                 FrontNormal = segment.FrontNormal,
                 Origin = segmentBottomCenter,
                 HeightLimit = segment.Height * 0.8, // todo: why hardcoded
-                WidthLimit = segment.Width, // todo: why hardcoded
+                WidthLimit = segment.Width * 0.8, // todo: why hardcoded
             });
             ChangedNodes.Add(node);
             ChangedNodes.Add(segment);
@@ -277,16 +285,19 @@ namespace ProceduralBuildingsGeneration
 
         public void AddWindow(SegmentNode segment, BuildingsGenerationParameters parameters, Dictionary<Asset, DMesh3> assetsMeshes)
         {
+            if (segment.Subnodes.Any(n => n is DoorNode)) return;
             var randomWindowAssetIdx = parameters.RandomGenerator.Next(parameters.WindowsAssets.Count);
             var segmentBottomCenter = segment.Origin + segment.AlongWidthDirection * segment.Width / 2.0;
-            var segmentCenter = segmentBottomCenter + Vector3d.AxisY * segment.Height * 0.5; // todo: hardcode
+            var windowBottomCenter = segmentBottomCenter + Vector3d.AxisY * segment.Height * 0.3; // todo: hardcode
+            //var windowBottomCenter = segmentBottomCenter;
             segment.Subnodes.Add(new WindowNode
             {
                 Mesh = assetsMeshes?[parameters.WindowsAssets[randomWindowAssetIdx]],
                 FrontNormal = segment.FrontNormal,
-                Origin = segmentCenter, // todo: hardcode
-                HeightLimit = segment.Height * 0.75,  // todo: hardcode 
-                WidthLimit = segment.Width,
+                Origin = windowBottomCenter, // todo: hardcode
+                HeightLimit = segment.Height * 0.65,  // todo: hardcode 
+                //HeightLimit = segment.Height,  // todo: hardcode 
+                WidthLimit = segment.Width * 0.85,
             });
             ChangedNodes.Add(segment);
         }

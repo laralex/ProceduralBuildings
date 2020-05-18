@@ -17,11 +17,11 @@
         </ScrollViewer>
         <StackPanel>
             <local:LabeledTextBox TextBoxValue="{Binding SelectedSideMeters, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                      LabelValue="Length of selected (or longest) wall in meters" 
+                                      LabelValue="Length of selected (or longest) wall" 
                                       FilterType="Decimal" TextBoxWidth="70"/>
             <local:IntervalField MinValue="{Binding BuildingMinHeight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                      MaxValue="{Binding BuildingMaxHeight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                     LabelValue="Facade height in meters" 
+                                     LabelValue="Facade height" 
                                      FilterType="Decimal" TextBoxWidth="70"/>
         </StackPanel>
     </DockPanel>

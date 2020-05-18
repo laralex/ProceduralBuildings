@@ -15,6 +15,10 @@ namespace ProceduralBuildingsGeneration
             Subnodes = subnodes ?? new List<GrammarNode>();
         }
 
+        public void RemoveSubnodes(Func<GrammarNode, bool> predicate)
+        {
+            Subnodes = Subnodes.Where(n => !predicate(n)).ToList();
+        }
         public abstract bool BuildOnMesh(DMesh3Builder meshBuilder);
 
     }
@@ -42,7 +46,7 @@ namespace ProceduralBuildingsGeneration
         {
             MeshUtility.FillPolygon(meshBuilder, Parameters.BasementPoints
                 .Select(p => new Vector3d(p.X, 0.0, p.Y)).ToList(),
-                -Vector3f.AxisY);          
+                                    -Vector3f.AxisY);
             return true;
         }
     }
@@ -82,6 +86,7 @@ namespace ProceduralBuildingsGeneration
         public int WindowsNumber { get; set; }
         public double Height { get; set; }
         public double Width { get; set; }
+        public double SegmentWidth { get; set; }
         public Vector3d Origin { get; set; }
         public Vector3d FrontNormal { get; set; }
         public Vector3d AlongWidthDirection { get; set; }
@@ -169,9 +174,17 @@ namespace ProceduralBuildingsGeneration
                 // trick to prevent 180 rotation
                 FrontNormal += new Vector3d(0.0000001, 0.0, 0.0);
             }
+
+            var meshWidth = doorCopy.GetBounds().Width;
+            var meshHeight = doorCopy.GetBounds().Height;
+
+            var widthScale = WidthLimit / meshWidth;
+            var heightScale = HeightLimit / meshHeight;
+
             Quaterniond orientingQuaternion = new Quaterniond(Vector3d.AxisZ, FrontNormal);
+
             MeshTransforms.Rotate(doorCopy, Vector3d.Zero, orientingQuaternion);
-            MeshTransforms.Scale(doorCopy, Math.Min(HeightLimit, WidthLimit));
+            MeshTransforms.Scale(doorCopy, Math.Min(widthScale, heightScale));
             MeshTransforms.Translate(doorCopy, Origin);
 
             meshBuilder.AppendNewMesh(doorCopy);
@@ -198,10 +211,21 @@ namespace ProceduralBuildingsGeneration
                 // trick to prevent 180 rotation
                 FrontNormal += new Vector3d(0.0000001, 0.0, 0.0);
             }
+
+            var meshWidth = windowCopy.GetBounds().Width;
+            var meshHeight = windowCopy.GetBounds().Height;
+
+            var widthScale = WidthLimit / meshWidth;
+            var heightScale = HeightLimit / meshHeight;
+            var selectedScale = Math.Min(widthScale, heightScale);
+
             Quaterniond orientingQuaternion = new Quaterniond(Vector3d.AxisZ, FrontNormal);
             MeshTransforms.Rotate(windowCopy, Vector3d.Zero, orientingQuaternion);
-            MeshTransforms.Scale(windowCopy, Math.Min(HeightLimit, WidthLimit));
+
+            MeshTransforms.Scale(windowCopy, selectedScale);
+
             MeshTransforms.Translate(windowCopy, Origin);
+            //MeshTransforms.Translate(windowCopy, Origin + Vector3d.AxisY * meshHeight * selectedScale * 0.6);
 
             meshBuilder.AppendNewMesh(windowCopy);
             meshBuilder.SetActiveMesh(0);
