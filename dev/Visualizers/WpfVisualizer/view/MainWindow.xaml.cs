@@ -11,6 +11,7 @@ using System.ServiceModel;
 using VisualizerLibrary;
 using WcfVisualizerLibrary;
 using System.Threading;
+using System.Text;
 
 namespace WpfVisualizer
 {
@@ -50,11 +51,12 @@ namespace WpfVisualizer
             try
             {
                 m_visualizerService = new ServiceHost(this);
-                const int MAX_DATA_BYTES_NUMBER = 104857600; // 100 Mb
+                const int MAX_DATA_BYTES_NUMBER = 500 * 1024 * 1024; // 500 Mb
                 var httpBinding = new BasicHttpBinding
                 {
                     TransferMode = TransferMode.Streamed,
                     MaxReceivedMessageSize = MAX_DATA_BYTES_NUMBER,
+                    //TextEncoding = Encoding.ASCII,
                 };
 
                 m_visualizerService.AddServiceEndpoint(typeof(IVisualizerService), httpBinding, VISUALIZATOR_SERVICE_URI);

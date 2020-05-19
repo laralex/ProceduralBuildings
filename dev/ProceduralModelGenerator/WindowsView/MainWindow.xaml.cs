@@ -185,9 +185,10 @@ namespace WindowsView
         public async void RequestGeneration(CancellationToken token)
         {
             var beginTime = DateTime.Now;
-            await m_inputController.RequestGenerateAsync(this.Dispatcher);
-            var deltaTime = DateTime.Now - beginTime;
-            ApplicationStatus = $"Model was generated! {deltaTime.Milliseconds} msec";
+            var generationEndTime = await m_inputController.RequestGenerateAsync(this.Dispatcher);
+            var generationDeltaTime = generationEndTime - beginTime;
+            var visualizationDeltaTime = DateTime.Now - generationEndTime;
+            ApplicationStatus = $"Finished generating in {(int)generationDeltaTime.TotalMilliseconds} ms, sent to clients in {(int)visualizationDeltaTime.TotalMilliseconds} ms";
         }
 
         public bool RequestExport(CancellationToken token)
