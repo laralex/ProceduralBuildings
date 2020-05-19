@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -54,9 +55,9 @@ namespace WindowsView
         private void OnGenerateClick(object sender, RoutedEventArgs e)
         {
             Keyboard.ClearFocus();
-            this.IsEnabled = false;
+            //this.IsEnabled = false;
             RequestGeneration(m_tokenSource.Token);
-            this.IsEnabled = true;
+            //this.IsEnabled = true;
         }
 
         private void OnGenerateNewSeedClick(object sender, RoutedEventArgs e)
@@ -92,9 +93,10 @@ namespace WindowsView
 
             // assets 
             var assetsViewModel = new AssetsViewModel();
-            m_inputController.ViewModel.AssetsViewModel = assetsViewModel;
+            vm.AssetsViewModel = assetsViewModel;
             assetsViewModel.DoorsAssetsGroupName = "Doors";
             assetsViewModel.WindowsAssetsGroupName = "Windows";
+            assetsViewModel.AssetTrianglesLimit = 500;
 
             // basement settings
             AddPanel(new BasementProperties(vm));
@@ -127,6 +129,10 @@ namespace WindowsView
             AddPanel(new DoorsProperties(m_inputController));
             vm.SelectedDoorStyleIdx = 1;
             vm.IsDoorOnSelectedWall = true;
+
+            // performance
+            AddPanel(new PerformanceProperties(assetsViewModel));
+
 
             StartupRegistrationService();
             ApplicationStatus = "Loaded and ready";
@@ -176,13 +182,12 @@ namespace WindowsView
             return false;
         }
 
-        public bool RequestGeneration(CancellationToken token)
+        public async void RequestGeneration(CancellationToken token)
         {
-            var beginTime = DateTime.Now; 
-            m_inputController.RequestGenerate();
+            var beginTime = DateTime.Now;
+            await m_inputController.RequestGenerateAsync(this.Dispatcher);
             var deltaTime = DateTime.Now - beginTime;
             ApplicationStatus = $"Model was generated! {deltaTime.Milliseconds} msec";
-            return true;
         }
 
         public bool RequestExport(CancellationToken token)

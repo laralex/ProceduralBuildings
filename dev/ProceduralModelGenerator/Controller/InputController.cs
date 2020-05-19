@@ -1,6 +1,8 @@
 ﻿using ProceduralBuildingsGeneration;
 using System;
 using System.IO;
+using System.Threading.Tasks;
+using System.Windows.Threading;
 
 namespace GeneratorController
 {
@@ -36,6 +38,19 @@ namespace GeneratorController
                 new ExportParameters { ModelFormat = LatestModelTemporaryFileFormat }, 
                 out m_latestModelTemporaryfile);
             RequestVisualize();
+        }
+
+        public async Task<bool> RequestGenerateAsync(Dispatcher uiDispatcher)
+        {
+            VisualizationController.OpenVisualizers();
+            m_latestModel = await GenerationControler.GenerateAsync(ViewModel, uiDispatcher);
+            LatestModelTemporaryFileFormat = ModelFormat.OBJ;
+            m_latestModelTemporaryfile?.Dispose();
+            ExportController.ExportInStream(m_latestModel,
+                new ExportParameters { ModelFormat = LatestModelTemporaryFileFormat },
+                out m_latestModelTemporaryfile);
+            RequestVisualize();
+            return true;
         }
 
         public bool RequestExport(string filepath)

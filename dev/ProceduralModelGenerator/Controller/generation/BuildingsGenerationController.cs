@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Threading;
 using ProceduralBuildingsGeneration;
 
 namespace GeneratorController
@@ -18,6 +20,19 @@ namespace GeneratorController
         {
             var generatorParameters = MakeGenerationParameters(viewModelParameters);
             LatestModel = Generator.GenerateModel(generatorParameters);
+            return LatestModel;
+        }
+
+        public async Task<Model3d> GenerateAsync(IViewModel viewModelParameters, Dispatcher uiDispatcher)
+        {
+            BuildingsGenerationParameters generatorParameters = null;
+            await Task.Run(() =>
+            {
+                uiDispatcher.Invoke(() =>
+                    generatorParameters = MakeGenerationParameters(viewModelParameters)
+                );
+                LatestModel = Generator.GenerateModel(generatorParameters);
+            });
             return LatestModel;
         }
 
@@ -67,7 +82,9 @@ namespace GeneratorController
             var windowsOnSelectedWall = rng.Next(vm.MinWindowsOnSelectedWall, vm.MaxWindowsOnSelectedWall);
             windowsOnSelectedWall = (int)Math.Min(windowsOnSelectedWall, segmentsOnSelectedWall);
             var roofHeight = Lerp(vm.RoofMinHeight, vm.RoofMaxHeight, rng.NextDouble());
+
             var assetsViewModel = vm.AssetsViewModel as AssetsViewModel;
+
             IList<Asset> doorsAsset = new List<Asset> {
                 assetsViewModel.DoorsAssets[vm.SelectedDoorStyleIdx]
             };
@@ -76,7 +93,12 @@ namespace GeneratorController
                 windowsAssets = new List<Asset> { assetsViewModel.WindowsAssets[vm.SelectedWindowStyleIdx] };
             else
                 windowsAssets = assetsViewModel.WindowsAssets;
-           
+
+            var assetTriangleLimit = assetsViewModel.AssetTrianglesLimit;
+            if (assetTriangleLimit <= 0)
+            {
+                assetTriangleLimit = int.MaxValue;
+            }
 
             IList<Point2d> basementPoints = vm.PolygonPoints.Select(p => new Point2d { X = p.X, Y = p.Y }).ToList();
             // is given basement counter clockwise
@@ -117,6 +139,7 @@ namespace GeneratorController
                 WindowsToSegmentsFraction = (float)windowsOnSelectedWall / segmentsOnSelectedWall,
                 WindowsAssets = windowsAssets,
                 DoorsAssets = doorsAsset,
+                AssetTrianglesLimit = assetTriangleLimit,
                 DoorWall = new WallIndices(p1, p2),
                 RandomGenerator = rng,
             };

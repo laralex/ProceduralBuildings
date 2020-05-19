@@ -15,8 +15,10 @@ namespace ProceduralBuildingsGeneration
             var assetsMeshes = new Dictionary<Asset, DMesh3>();
 
             LoadAssetsAsMeshes(buildingParams.DoorsAssets, 
+                buildingParams.AssetTrianglesLimit,
                 1.0 / buildingParams.AssetsScaleModifier, assetsMeshes);
-            LoadAssetsAsMeshes(buildingParams.WindowsAssets, 
+            LoadAssetsAsMeshes(buildingParams.WindowsAssets,
+                buildingParams.AssetTrianglesLimit,
                 1.0 / buildingParams.AssetsScaleModifier, assetsMeshes);
             
             // make grammar
@@ -40,7 +42,7 @@ namespace ProceduralBuildingsGeneration
             return new Model3d { Mesh = buildingMeshes };
         }
 
-        private static void LoadAssetsAsMeshes(IList<Asset> assets, double scale, Dictionary<Asset, DMesh3> destination)
+        private static void LoadAssetsAsMeshes(IList<Asset> assets, int trianglesLimit, double scale, Dictionary<Asset, DMesh3> destination)
         {
             if (destination == null) return;
             var meshBuilder = new DMesh3Builder() { NonManifoldTriBehavior = DMesh3Builder.AddTriangleFailBehaviors.DiscardTriangle };
@@ -55,7 +57,7 @@ namespace ProceduralBuildingsGeneration
                 {
                     var mesh = meshBuilder.Meshes.Last();
                     Reducer r = new Reducer(mesh);
-                    r.ReduceToTriangleCount(500);
+                    r.ReduceToTriangleCount(trianglesLimit);
                     MeshTransforms.Scale(mesh, scale);
                     destination[asset] = mesh;
                 }

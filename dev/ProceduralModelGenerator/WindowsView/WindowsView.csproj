@@ -78,6 +78,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="custom-controls\PerformanceProperties.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="custom-controls\RoofProperties.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -110,6 +114,9 @@
     </Compile>
     <Compile Include="custom-controls\LabeledTextBox.xaml.cs">
       <DependentUpon>LabeledTextBox.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="custom-controls\PerformanceProperties.xaml.cs">
+      <DependentUpon>PerformanceProperties.xaml</DependentUpon>
     </Compile>
     <Compile Include="custom-controls\RoofProperties.xaml.cs">
       <DependentUpon>RoofProperties.xaml</DependentUpon>

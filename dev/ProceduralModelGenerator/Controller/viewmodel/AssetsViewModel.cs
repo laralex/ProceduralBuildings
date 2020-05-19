@@ -101,6 +101,13 @@ namespace GeneratorController
             }
         }
 
+        private int m_assetTrianglesLimit;
+        public int AssetTrianglesLimit
+        {
+            get => m_assetTrianglesLimit;
+            set { m_assetTrianglesLimit = value; NotifyChange("AssetTrianglesLimit"); }
+        }
+
         private void NotifyChange(string property)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
