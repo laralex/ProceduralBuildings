@@ -29,10 +29,10 @@ namespace WcfVisualizerLibrary
         void PrepareForMaterialFile(string materialFileId);
         [OperationContract]
         void AcceptMaterialFile(Stream materialFile);
-        [OperationContract]
-        void AcceptModel(Stream model);
-        [OperationContract]
-        void Visualize();
+        [OperationContract(IsOneWay = true)]
+        void VisualizeModel(Stream model);
+        //[OperationContract(IsOneWay = true)]
+        //void Visualize();
         [OperationContract]
         void Shutdown();
     }

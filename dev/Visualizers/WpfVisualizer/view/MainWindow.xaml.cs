@@ -18,7 +18,7 @@ namespace WpfVisualizer
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
     public partial class MainWindow : Window, IVisualizerService, IVisualizer
     {
-        public event EventHandler ShutdownRequested;
+        //public event EventHandler ModelVisualizationRequested;
         public MainWindow()
         {
             InitializeComponent();
@@ -37,13 +37,6 @@ namespace WpfVisualizer
             }
             
             OnResetCameraClick(this, null);
-
-            ShutdownRequested += (s, e) =>
-            {
-                Thread.Sleep(200);
-                OnWindowClosing(s, null);
-                this.Close();
-            };
         }
 
         private bool TryOpenVisualizerService()
@@ -52,10 +45,12 @@ namespace WpfVisualizer
             {
                 m_visualizerService = new ServiceHost(this);
                 const int MAX_DATA_BYTES_NUMBER = 500 * 1024 * 1024; // 500 Mb
-                var httpBinding = new BasicHttpBinding
+                var httpBinding = new NetTcpBinding
                 {
-                    TransferMode = TransferMode.Streamed,
+                    TransferMode = TransferMode.StreamedRequest,
                     MaxReceivedMessageSize = MAX_DATA_BYTES_NUMBER,
+                    //MessageEncoding = WSMessageEncoding.Mtom,
+                    MaxBufferSize = 65536,
                     //TextEncoding = Encoding.ASCII,
                 };
 
@@ -80,7 +75,7 @@ namespace WpfVisualizer
                 PrepareForMaterialFile(modelMeta.MaterialFileIds[i]);
                 AcceptMaterialFile(materialFiles[i]);
             }
-            AcceptModel(model);
+            VisualizeModel(model);
         }
 
         public void Shutdown()
@@ -114,12 +109,25 @@ namespace WpfVisualizer
             // no material
         }
 
-        public void AcceptModel(Stream model)
+        //public void AcceptModel(Stream model)
+        public void VisualizeModel(Stream model)
         {
             try
             {
-                PrepareModel(model, m_currentModelMeta.ModelType);
-                m_viewModel.ApplicationStatus = "Model from generator loaded successfully";
+                m_lastModelDrain = new MemoryStream(1024 * 1024 * 500);
+                //var streamReader = new StreamReader(model);
+                //streamReader.ReadToEnd();
+                model.CopyTo(m_lastModelDrain);
+                m_lastModelDrain.Position = 0;
+                Task.Delay(100).ContinueWith(t =>
+                {
+                    PrepareModel(m_lastModelDrain, m_currentModelMeta.ModelType);
+                    m_viewModel.ApplicationStatus = "Model from generator loaded successfully";
+                    m_viewModel.ShownVisual3d.Content = m_currentModel;
+                    m_viewModel.ContourVisual3D = null;
+                    m_lastModelDrain.Close();
+                    m_lastModelDrain = null;
+                }, TaskScheduler.FromCurrentSynchronizationContext());
             }
             catch (Exception e)
             {
@@ -314,7 +322,7 @@ namespace WpfVisualizer
         #endregion
 
         private async void PrepareModel(Stream model, ModelDataType type,
-            string texturePath = null, bool async = false, bool freezeModel = false)
+            string texturePath = null, bool async = false)//, bool freezeModel = false)
         {
             // ui
             m_viewModel.ApplicationStatus = "Loading model file";
@@ -325,29 +333,27 @@ namespace WpfVisualizer
             Model3DGroup modelContent;
             if (async)
             {
-                var modelAndDispatcher = await LoadModelAsync(model, type, texturePath, freezeModel);
+                var modelAndDispatcher = await LoadModelAsync(model, type, texturePath, false);
                 modelContent = modelAndDispatcher.Item1;
                 modelDispatcher = modelAndDispatcher.Item2;
             }
             else
             {
-                modelContent = LoadModel(model, type, texturePath, freezeModel);
+                modelContent = LoadModel(model, type, texturePath, false);
                 modelDispatcher = this.Dispatcher;
             }
 
             // setting materials
-            if (!freezeModel)
+            modelDispatcher.Invoke(() =>
             {
-                modelDispatcher.Invoke(() =>
+                foreach (var m in modelContent.Children)
                 {
-                    foreach (var m in modelContent.Children)
-                    {
-                        //(m as GeometryModel3D).BackMaterial = null;
-                        (m as GeometryModel3D).Material = m_replacementMaterial;
-                        (m as GeometryModel3D).BackMaterial = m_replacementMaterial;// m_replacementMaterial;
-                    }
-                });
-            }
+                    //(m as GeometryModel3D).BackMaterial = null;
+                    (m as GeometryModel3D).Material = m_replacementMaterial;
+                    (m as GeometryModel3D).BackMaterial = m_replacementMaterial;// m_replacementMaterial;
+                    m.Freeze();
+                }
+            });
             m_currentModel = modelContent;
         }
 
@@ -357,10 +363,12 @@ namespace WpfVisualizer
         private Material m_replacementMaterial;
         private Material m_backReplacementMaterial;
         private ServiceHost m_visualizerService;
+        private MemoryStream m_lastModelDrain;
         private IVisualizationControllerService m_visualizationContorllerClient;
         private ServicePreparationStage m_visualizerPreparationStage;
-        private const string VISUALIZATOR_SERVICE_URI = "http://localhost:64046/wpfVisualizerService";
-        private const string VISUALIZATION_CONTROLLER_SERVICE_URI = "http://localhost:64046/visualizationControllerService";
+        private const string VISUALIZATOR_SERVICE_URI = "net.tcp://localhost:64046/wpfVisualizerService";
+        //private const string VISUALIZATOR_SERVICE_URI = "http://localhost:64046/wpfVisualizerService";
+        private const string VISUALIZATION_CONTROLLER_SERVICE_URI = "http://localhost:64047/visualizationControllerService";
     }
 
     enum ServicePreparationStage

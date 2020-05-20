@@ -21,7 +21,7 @@ namespace GeneratorController
             try
             {
                 m_visualizationControllerHost = new ServiceHost(m_registractionHost);
-                var visualizationControllerServiceUri = "http://localhost:64046/visualizationControllerService";
+                var visualizationControllerServiceUri = "http://localhost:64047/visualizationControllerService";
                 m_visualizationControllerHost.AddServiceEndpoint(typeof(IVisualizationControllerService), httpBinding, visualizationControllerServiceUri);
                 m_visualizationControllerHost.Open();
             }
@@ -78,13 +78,21 @@ namespace GeneratorController
                     modelMeta.ModelType = ModelDataType.ThreeDS;
                     break;
             };
-            foreach (var visualizer in m_registractionHost.Visualizers)
+            var modelCopy = new MemoryStream(500 * 1024 * 1024);
+            model.CopyTo(modelCopy);
+            model.Position = 0;
+            Parallel.ForEach(m_registractionHost.Visualizers, visualizer =>
             {
-                model.Position = 0;
+                modelCopy.Position = 0;
                 visualizer.PrepareForModel(modelMeta);
-                visualizer.AcceptModel(model);
-                visualizer.Visualize();
-            }
+                visualizer.VisualizeModel(modelCopy);
+            });
+            //foreach(var visualizer in m_registractionHost.Visualizers)
+            //{
+            //    model.Position = 0;
+            //    visualizer.PrepareForModel(modelMeta);
+            //    visualizer.VisualizeModel(model);
+            //}
         }
 
         public void Dispose()

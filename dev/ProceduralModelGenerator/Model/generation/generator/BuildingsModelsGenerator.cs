@@ -56,7 +56,10 @@ namespace ProceduralBuildingsGeneration
                 if (isMeshLoaded.code == IOCode.Ok)
                 {
                     var mesh = meshBuilder.Meshes.Last();
-                    Reducer r = new Reducer(mesh);
+                    Reducer r = new Reducer(mesh)
+                    {
+                        PreserveBoundaryShape = true,
+                    };
                     r.ReduceToTriangleCount(trianglesLimit);
                     MeshTransforms.Scale(mesh, scale);
                     destination[asset] = mesh;

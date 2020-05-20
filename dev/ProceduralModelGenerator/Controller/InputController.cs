@@ -42,15 +42,17 @@ namespace GeneratorController
 
         public async Task<DateTime> RequestGenerateAsync(Dispatcher uiDispatcher)
         {
-            VisualizationController.OpenVisualizers();
             m_latestModel = await GenerationControler.GenerateAsync(ViewModel, uiDispatcher);
             var generationEndTimestamp = DateTime.Now;
+            VisualizationController.OpenVisualizers();
             LatestModelTemporaryFileFormat = ModelFormat.OBJ;
-            m_latestModelTemporaryfile?.Dispose();
-            ExportController.ExportInStream(m_latestModel,
-                new ExportParameters { ModelFormat = LatestModelTemporaryFileFormat },
-                out m_latestModelTemporaryfile);
-            RequestVisualize();
+            Task.Run(() => m_latestModelTemporaryfile?.Dispose());
+            await Task.Run(() => {
+                ExportController.ExportInStream(m_latestModel,
+                    new ExportParameters { ModelFormat = LatestModelTemporaryFileFormat },
+                    out m_latestModelTemporaryfile);
+                RequestVisualize();
+            });
             return generationEndTimestamp;
         }
 

@@ -168,7 +168,7 @@ namespace ProceduralBuildingsGeneration
         public DMesh3 Mesh { get; set; }
         public override bool BuildOnMesh(DMesh3Builder meshBuilder)
         {
-            var doorCopy = new DMesh3(Mesh);
+            var doorCopy = new DMesh3(Mesh, bCompact:true);
             if (FrontNormal == -Vector3d.AxisZ)
             {
                 // trick to prevent 180 rotation
@@ -204,7 +204,7 @@ namespace ProceduralBuildingsGeneration
         public DMesh3 Mesh { get; set; }
         public override bool BuildOnMesh(DMesh3Builder meshBuilder)
         {
-            var windowCopy = new DMesh3(Mesh);
+            var windowCopy = new DMesh3(Mesh, bCompact: true);
             //var windowCopy = Mesh;
             if (FrontNormal == -Vector3d.AxisZ)
             {

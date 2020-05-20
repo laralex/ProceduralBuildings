@@ -18,7 +18,7 @@ namespace HttpDummySender
         public bool RegisterVisualizer(string visualizerUri)
         {
             if (!openClients.ContainsKey(visualizerUri) && !registeredClients.ContainsKey(visualizerUri)) {
-                var client = WcfServiceUtility.SpawnClient<IVisualizerService>(visualizerUri.ToString());
+                var client = WcfServiceUtility.SpawnClient<IVisualizerService>(visualizerUri.ToString(), true);
                 registeredClients[visualizerUri] = client;
                 return true;
             }
@@ -91,10 +91,10 @@ namespace HttpDummySender
                 {
                     try
                     {
-                        client.PrepareForModel(new ModelMetaBase { ModelType = ModelDataType.OBJ });
-                        client.AcceptModel(File.OpenRead(randomModel));
-                        Console.WriteLine($"{i}> sent file {randomModel}");
-                        client.Visualize();
+                        //client.PrepareForModel(new ModelMetaBase { ModelType = ModelDataType.OBJ });
+                        //client.AcceptModel(File.OpenRead(randomModel));
+                        //Console.WriteLine($"{i}> sent file {randomModel}");
+                        //client.Visualize();
                     }
                     catch (Exception e)
                     {

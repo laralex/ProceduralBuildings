@@ -25,13 +25,12 @@ namespace GeneratorController
             {
                 case ModelFormat.OBJ:
                     if (!exporter.ObjExport(model, parameters)) return false;
-                    exportedModel = exporter.LatestExportedModel;
                     break;
                 case ModelFormat.STL:
                     if (!exporter.StlExport(model, parameters)) return false;
-                    exportedModel = exporter.LatestExportedModel;
                     break;
             }
+            exportedModel = exporter.LatestExportedModel;
             return false;    
         }
     }
