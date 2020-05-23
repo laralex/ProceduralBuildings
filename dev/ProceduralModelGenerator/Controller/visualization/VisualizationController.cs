@@ -21,7 +21,7 @@ namespace GeneratorController
             try
             {
                 m_visualizationControllerHost = new ServiceHost(m_registractionHost);
-                var visualizationControllerServiceUri = "http://localhost:64047/visualizationControllerService";
+                var visualizationControllerServiceUri = "http://localhost:64046/visualizationControllerService";
                 m_visualizationControllerHost.AddServiceEndpoint(typeof(IVisualizationControllerService), httpBinding, visualizationControllerServiceUri);
                 m_visualizationControllerHost.Open();
             }

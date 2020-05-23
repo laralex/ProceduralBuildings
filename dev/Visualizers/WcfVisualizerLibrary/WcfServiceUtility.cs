@@ -10,7 +10,8 @@ namespace WcfVisualizerLibrary
             Binding binding = null;
             if (streaming)
             {
-                var tbinding = new NetTcpBinding();
+                //var tbinding = new NetTcpBinding();
+                var tbinding = new BasicHttpBinding();
                 tbinding.TransferMode = TransferMode.Streamed;
                 tbinding.MaxReceivedMessageSize = 1024 * 1024 * 500;
                 binding = tbinding;
