@@ -7,7 +7,7 @@ namespace ProceduralBuildingsGeneration
 {
     class BuildingsGrammarController : IGrammarController
     {
-        public IList<GrammarRule> Rules { get; private set; }
+        public ISet<GrammarRule> Rules { get; private set; }
         public GrammarNode CurrentWord { get; private set; }
         private readonly Random m_rng;
         private readonly Dictionary<Asset, DMesh3> m_assetsMeshes;
@@ -20,7 +20,7 @@ namespace ProceduralBuildingsGeneration
 
         public GrammarNode TransformWordRepeatedly(GenerationParameters buildingParameters, int epochs, int depthLimit = 50)
         {
-            Rules = new List<GrammarRule>
+            Rules = new HashSet<GrammarRule>
             {
                 new RootSplitRule(),
                 new TopFloorToRoofRule(),

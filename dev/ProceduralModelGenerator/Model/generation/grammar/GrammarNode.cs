@@ -123,19 +123,88 @@ namespace ProceduralBuildingsGeneration
         }
     }
 
-    public class RoofNode : GrammarNode
+    public abstract class RoofNode : GrammarNode
     {
         public new readonly string Code = "Roof";
         public IList<Vector3d> BaseShape { get; set; }
         public Vector3d Normal { get; set; }
         public double RoofHeight { get; set; }
-        public RoofStyle RoofStyle { get; set; }
+        public IList<Vector3d> ScaleAndOffsetPolygon(IList<Vector3d> polygon, double scale, Vector3d offset)
+        {
+            var shapeProjection = polygon.Select(p => new Point2d { X = p.x, Y = p.z }).ToList();
+            var smallerPolygon = Geometry2d.ScaleCenteredPolygon(Geometry2d.CenterPolygon(shapeProjection, out var centroid), scale);
+            offset.y += polygon[0].y;
+            return smallerPolygon.Select(p => new Vector3d(p.X, 0, p.Y) + offset).ToList();
+        }
+    }
 
+    public class FlatRoofNode : RoofNode
+    {
         public override bool BuildOnMesh(DMesh3Builder meshBuilder)
         {
             MeshUtility.FillPolygon(meshBuilder, BaseShape, Vector3f.AxisY); // todo: bad move
             return true;
         }
+    }
+
+    public class SlopeRoofNode : RoofNode
+    {
+        public override bool BuildOnMesh(DMesh3Builder meshBuilder)
+        {
+            
+            return true;
+        }
+    }
+
+    public class FlatSlopeRoofNode : RoofNode
+    {
+        public override bool BuildOnMesh(DMesh3Builder meshBuilder)
+        {
+            var newBasePolygon = ScaleAndOffsetPolygon(BaseShape, 1.15, Vector3d.Zero);
+            var topPolygon = ScaleAndOffsetPolygon(BaseShape, 0.6, Vector3d.AxisY * RoofHeight);
+
+            for (int p = 0; p < newBasePolygon.Count - 1; ++p)
+            {
+                var sideBase = BaseShape[p + 1] - BaseShape[p];
+                var sideTop = newBasePolygon[p + 1] - newBasePolygon[p];
+                var normal = new Vector3f(sideTop.Cross(sideBase));
+                MeshUtility.FillBetweenEdges(meshBuilder,
+                    new MeshUtility.Edge(BaseShape[p], BaseShape[p + 1]),
+                    new MeshUtility.Edge(newBasePolygon[p], newBasePolygon[p + 1]),
+                    normal);
+            }
+            var underSideBase = BaseShape.Last() - BaseShape[0];
+            var underSideTop = newBasePolygon.Last() - newBasePolygon[0];
+            var underNormal = new Vector3f(underSideTop.Cross(underSideBase));
+            MeshUtility.FillBetweenEdges(meshBuilder,
+                new MeshUtility.Edge(BaseShape[0], BaseShape.Last()),
+                new MeshUtility.Edge(newBasePolygon[0], newBasePolygon.Last()),
+                underNormal);
+
+
+            for (int p = 0; p < newBasePolygon.Count - 1; ++p)
+            {
+                var sideBase = newBasePolygon[p + 1] - newBasePolygon[p];
+                var sideTop = topPolygon[p + 1] - topPolygon[p];
+                var normal = new Vector3f(sideTop.Cross(sideBase));
+                MeshUtility.FillBetweenEdges(meshBuilder,
+                    new MeshUtility.Edge(newBasePolygon[p], newBasePolygon[p + 1]),
+                    new MeshUtility.Edge(topPolygon[p], topPolygon[p + 1]),
+                    normal);
+            }
+            var lastSideBase = newBasePolygon.Last() - newBasePolygon[0];
+            var lastSideTop = topPolygon.Last() - topPolygon[0];
+            var lastNormal = new Vector3f(lastSideTop.Cross(lastSideBase));
+            MeshUtility.FillBetweenEdges(meshBuilder,
+                new MeshUtility.Edge(newBasePolygon[0], newBasePolygon.Last()),
+                new MeshUtility.Edge(topPolygon[0], topPolygon.Last()),
+                lastNormal);
+
+            MeshUtility.FillPolygon(meshBuilder, topPolygon, Vector3f.AxisY);
+
+            return true;
+        }
+
     }
 
     public class SegmentNode : GrammarNode

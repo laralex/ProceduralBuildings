@@ -7,8 +7,8 @@
         xmlns:viewmodel="clr-namespace:GeneratorController;assembly=GeneratorController"
         xmlns:local="clr-namespace:WindowsGeneratorView"
         mc:Ignorable="d" Loaded="OnLoaded" Closing="OnClosing"
-        Height="600" Width="600" MinWidth="400" MinHeight="200"
-        Name="mainWindow"
+        Height="900" Width="600" MinWidth="400" MinHeight="200"
+        Name="mainWindow" Left="50" Top="100"
         Title="Procedural Buildings 3D Models Generator">
     <Window.Resources>
         <Style x:Key="CommonButtonStyle" TargetType="Control">

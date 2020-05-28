@@ -102,7 +102,7 @@ namespace GeneratorController
 
             IList<Point2d> basementPoints = vm.PolygonPoints.Select(p => new Point2d { X = p.X, Y = p.Y }).ToList();
             // is given basement counter clockwise
-            if (Geometry.CalcSignedPolygonArea(basementPoints) < 0.0)
+            if (Geometry2d.CalcSignedPolygonArea(basementPoints) < 0.0)
             {
                 basementPoints = basementPoints.Reverse().ToList();
                 var tmp = p1;
@@ -110,8 +110,8 @@ namespace GeneratorController
                 p2 = basementPoints.Count - 1 - tmp;
             }
                 
-            basementPoints = ScaleCenteredPolygon(
-                CenterPolygon(basementPoints, out var basementCentroid),
+            basementPoints = Geometry2d.ScaleCenteredPolygon(
+                Geometry2d.CenterPolygon(basementPoints, out var basementCentroid),
                 basementLengthPerUnit
             );
 
@@ -150,24 +150,7 @@ namespace GeneratorController
             return a + (b - a) * theta;
         }
 
-        public static IEnumerable<Point2d> CenterPolygon(IList<Point2d> polygon, out Point2d centroid)
-        {
-            var centroidCopy = centroid = Geometry.FindCentroid(polygon);
-            return polygon.Select(point => new Point2d
-            {
-                X = point.X - centroidCopy.X,
-                Y = point.Y - centroidCopy.Y,
-            });
-        }
 
-        public static IList<Point2d> ScaleCenteredPolygon(IEnumerable<Point2d> polygon, double scaleFactor)
-        {
-            return polygon.Select(p => new Point2d
-            {
-                X = p.X * scaleFactor,
-                Y = p.Y * scaleFactor,
-            }).ToList();
-        }
     }
 
     

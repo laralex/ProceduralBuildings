@@ -62,18 +62,7 @@ namespace ProceduralBuildingsGeneration
             return Math.Abs(angleSum) > 1.0;
         }
 
-        public static double CalcSignedPolygonArea(IList<Point2d> polygon)
-        {
-            double area = 0.0f;
-            for (int i = 0; i < polygon.Count - 1; ++i)
-            {
-                area += (polygon[i + 1].X - polygon[i].X) *
-                        (polygon[i + 1].Y + polygon[i].Y) / 2.0;
-            }
-            area += (polygon[0].X - polygon.Last().X) *
-                    (polygon[0].Y + polygon.Last().Y) / 2.0;
-            return area;
-        }
+
 
         public static double CalcAngleInTriangleRad(Vector3d samplePoint, Vector3d otherPoint1, Vector3d otherPoint2, Vector3d normal)
         {
@@ -84,50 +73,9 @@ namespace ProceduralBuildingsGeneration
             var normalsOrientationSign = Math.Sign(cross.Dot(normal));
             var angle = normalsOrientationSign * Math.Acos(dot / (sampleEdge1.Length * sampleEdge2.Length));
             return angle;
-            //Matrix3d signedCrossMatrix = new Matrix3d(Vector3d.One, sampleEdge1, sampleEdge2, true);
-            //var signedCross = signedCrossMatrix.Determinant;
-            //return Math.Acos(dot / (sampleEdge1.Length * sampleEdge2.Length));
-            //return sampleEdge1.AngleR(sampleEdge2);
-            //var crossL2 = sampleEdge1.Cross(sampleEdge2).;
-            //var crossSign = Math.Sign(crossL2);
-            //double cross = crossSign * crossL2;
-            //return (double)Math.Atan2(signedCross, dot);
         }
 
-        // Find the polygon's centroid.
-        public static Point2d FindCentroid(IList<Point2d> polygon)
-        {
-            double X = 0;
-            double Y = 0;
-            for (int i = 0; i < polygon.Count - 1; i++)
-            {
-                double commonFactor =
-                    polygon[i].X * polygon[i + 1].Y -
-                    polygon[i + 1].X * polygon[i].Y;
-                X += (polygon[i].X + polygon[i + 1].X) * commonFactor;
-                Y += (polygon[i].Y + polygon[i + 1].Y) * commonFactor;
-            }
 
-            double commonFactor2 =
-                    polygon.Last().X * polygon[0].Y -
-                    polygon[0].X * polygon.Last().Y;
-            X += (polygon.Last().X + polygon[0].X) * commonFactor2;
-            Y += (polygon.Last().Y + polygon[0].Y) * commonFactor2;
-
-            // wikipedia formula
-            double polygon_area = Math.Abs(CalcSignedPolygonArea(polygon));
-            X /= (6 * polygon_area);
-            Y /= (6 * polygon_area);
-
-            // if the polygon is oriented counterclockwise
-            if (X < 0)
-            {
-                X = -X;
-                Y = -Y;
-            }
-
-            return new Point2d { X = X, Y = Y };
-        }
 
         public static IList<Vector3d> OffsetPolygon(IList<Vector3d> polygon, double upOffset)
         {
@@ -139,6 +87,19 @@ namespace ProceduralBuildingsGeneration
                 polygonCopy[i] = newPoint;
             }
             return polygonCopy;
+        }
+
+        public static IEnumerable<Vector3d> CenterPolygon(IList<Vector3d> polygon, out Vector3d centroid)
+        {
+            var centroid2d = Geometry2d.FindCentroid(
+                polygon.Select(p => new Point2d { X = p.x, Y = p.z }).ToList());
+            var centroidCopy = centroid = new Vector3d { x = centroid2d.X, y = polygon[0].y, z = centroid2d.Y };
+            return polygon.Select(point => point - centroidCopy);
+        }
+
+        public static IList<Vector3d> ScaleCenteredPolygon(IEnumerable<Vector3d> polygon, double scaleFactor)
+        {
+            return polygon.Select(point => point * scaleFactor).ToList();
         }
 
 

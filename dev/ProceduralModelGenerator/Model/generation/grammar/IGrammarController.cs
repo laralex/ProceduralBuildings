@@ -4,7 +4,7 @@ namespace ProceduralBuildingsGeneration
 {
     interface IGrammarController
     {
-        IList<GrammarRule> Rules { get; }
+        ISet<GrammarRule> Rules { get; }
         GrammarNode CurrentWord { get; }
         GrammarNode TransformWordRepeatedly(GenerationParameters buildingParameters, int epochs, int depthLimit = 50);
     }

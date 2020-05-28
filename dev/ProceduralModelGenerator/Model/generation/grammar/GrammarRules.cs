@@ -104,12 +104,31 @@ namespace ProceduralBuildingsGeneration
             var buildingsParams = parameters as BuildingsGenerationParameters;
             if (floor.FloorType != FloorMark.Top) return node;
             ChangedNodes.Add(node);
-            return new RoofNode {
-                RoofHeight = buildingsParams.RoofHeight,
-                RoofStyle = buildingsParams.RoofStyle,
-                BaseShape = floor.BaseShape.Reverse().ToList(),
-                Normal = Vector3d.AxisY, // todo: universally
-            };
+           
+            var baseShape = floor.BaseShape.Reverse().ToList();
+            var roofNormal = Vector3d.AxisY;
+            switch (buildingsParams.RoofStyle)
+            {
+                case RoofStyle.Flat: return new FlatRoofNode
+                {
+                    RoofHeight = buildingsParams.RoofHeight,
+                    BaseShape = baseShape,
+                    Normal = roofNormal
+                };
+                case RoofStyle.Slope: return new SlopeRoofNode
+                {
+                    RoofHeight = buildingsParams.RoofHeight,
+                    BaseShape = baseShape,
+                    Normal = roofNormal
+                };
+                case RoofStyle.SlopeFlat: return new FlatSlopeRoofNode
+                {
+                    RoofHeight = buildingsParams.RoofHeight,
+                    BaseShape = baseShape,
+                    Normal = roofNormal
+                };
+                default: return node;
+            }
         }
     }
 

@@ -46,7 +46,7 @@ namespace ProceduralBuildingsGeneration
             return Tuple.Create(newVertices, newTriangles);
         }
 
-        public static Tuple<int[], int[]> FillPolygon(IMeshBuilder meshBuilder, IList<Vector3d> newPolygon, Vector3f normal)
+        public static (int[], int[]) FillPolygon(IMeshBuilder meshBuilder, IList<Vector3d> newPolygon, Vector3f normal)
         {
             var triangulation = Geometry.Triangulate(newPolygon, normal);
 
@@ -65,7 +65,31 @@ namespace ProceduralBuildingsGeneration
                 addedTriangleIdx++;
             }
             int[] newVertices = vertexToIndex.Values.ToArray();
-            return Tuple.Create(newVertices, addedTriangles);
+            return (newVertices, addedTriangles);
+        }
+
+        public struct Edge
+        {
+            public Vector3d BeginVertex { get; set; }
+            public Vector3d EndVertex { get; set; } 
+            public Edge(Vector3d beginVertex, Vector3d endVertex)
+            {
+                BeginVertex = beginVertex;
+                EndVertex = endVertex;
+            }
+        }
+        public static (int, int) FillBetweenEdges(DMesh3Builder meshBuilder, Edge a, Edge b, Vector3f normal)
+        {
+            //var sideA = a.EndVertex - a.BeginVertex;
+            //var sideB = b.EndVertex - b.BeginVertex;
+            //var normal = 
+            var a0 = meshBuilder.AppendVertex(new NewVertexInfo(a.BeginVertex, normal));
+            var a1 = meshBuilder.AppendVertex(new NewVertexInfo(a.EndVertex, normal));
+            var b0 = meshBuilder.AppendVertex(new NewVertexInfo(b.BeginVertex, normal));
+            var b1 = meshBuilder.AppendVertex(new NewVertexInfo(b.EndVertex, normal));
+
+            return (meshBuilder.AppendTriangle(a0, b1, b0),
+                meshBuilder.AppendTriangle(a0, a1, b1));
         }
     }
 }
