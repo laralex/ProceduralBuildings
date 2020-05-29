@@ -102,6 +102,36 @@ namespace ProceduralBuildingsGeneration
             return polygon.Select(point => point * scaleFactor).ToList();
         }
 
+        public static IList<Vector3d> IntrudePolygon(IList<Vector3d> polygon, double intrude)
+        {
+            var result = new List<Vector3d>();
+            for(int p = 0; p < polygon.Count; ++p)
+            {
+                var prevP = ((p - 1) + polygon.Count) % polygon.Count;
+                var nextP = ((p + 1) + polygon.Count) % polygon.Count;
+                var sideDir1 = polygon[nextP] - polygon[p];
+                var sideDir2 = polygon[prevP] - polygon[p];
+                sideDir1.Normalize();
+                sideDir2.Normalize();
+                var dirProjection = sideDir1.Dot(sideDir2);
+                var innerPoint1 = polygon[p] + sideDir1.UnitCross(Vector3d.AxisY) * intrude;
+                var innerPoint2 = polygon[p] + Vector3d.AxisY.UnitCross(sideDir2) * intrude;
+                if (Math.Abs(Math.Abs(dirProjection) - 1.0) < 0.00001)
+                {
+                    result.Add(innerPoint1);
+                    continue; // parallel sides
+                }
+                var sepProjection1 = (innerPoint2 - innerPoint1).Dot(sideDir1);
+                var sepProjection2 = (innerPoint2 - innerPoint1).Dot(sideDir2);
+                var d1 = (sepProjection1 - dirProjection * sepProjection2) / (1 - dirProjection * dirProjection);
+                var d2 = (dirProjection * sepProjection1 - sepProjection2) / (1 - dirProjection * dirProjection);
+                var closestPoint1 = innerPoint1 + d1 * sideDir1;
+                var closestPoint2 = innerPoint2 + d2 * sideDir2;
+                if (!closestPoint1.EpsilonEqual(closestPoint2, 0.00001)) throw new Exception("Non planar polygon");
+                result.Add(closestPoint1);
+            }
+            return result;
+        }
 
     }
 }

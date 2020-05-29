@@ -129,12 +129,29 @@ namespace ProceduralBuildingsGeneration
         public IList<Vector3d> BaseShape { get; set; }
         public Vector3d Normal { get; set; }
         public double RoofHeight { get; set; }
-        public IList<Vector3d> ScaleAndOffsetPolygon(IList<Vector3d> polygon, double scale, Vector3d offset)
+        public static IList<Vector3d> IntrudeAndOffsetPolygon(IList<Vector3d> polygon, double intrude, Vector3d offset)
         {
-            var shapeProjection = polygon.Select(p => new Point2d { X = p.x, Y = p.z }).ToList();
-            var smallerPolygon = Geometry2d.ScaleCenteredPolygon(Geometry2d.CenterPolygon(shapeProjection, out var centroid), scale);
-            offset.y += polygon[0].y;
-            return smallerPolygon.Select(p => new Vector3d(p.X, 0, p.Y) + offset).ToList();
+            var intrudedolygon = Geometry.IntrudePolygon(polygon, intrude);
+            return intrudedolygon.Select(p => p + offset).ToList();
+            //var shapeProjection = polygon.Select(p => new Point2d { X = p.x, Y = p.z }).ToList();
+            //var smallerPolygon = Geometry2d.ScaleCenteredPolygon(Geometry2d.CenterPolygon(shapeProjection, out var centroid), scale);
+            //offset.y += polygon[0].y;
+            //return smallerPolygon.Select(p => new Vector3d(p.X, 0, p.Y) + offset).ToList();
+        }
+
+        public static void FillBetweenPolygons(DMesh3Builder meshBuilder, IList<Vector3d> polygon1, IList<Vector3d> polygon2)
+        {
+            for (int p = 0; p < polygon1.Count; ++p)
+            {
+                var nextP = ((p + 1) + polygon1.Count) % polygon1.Count;
+                var sideBase = polygon1[nextP] - polygon1[p];
+                var sideTop = polygon2[nextP] - polygon2[p];
+                var normal = new Vector3f(sideTop.UnitCross(sideBase));
+                MeshUtility.FillBetweenEdges(meshBuilder,
+                    new MeshUtility.Edge(polygon1[p], polygon1[nextP]),
+                    new MeshUtility.Edge(polygon2[p], polygon2[nextP]),
+                    normal);
+            }
         }
     }
 
@@ -142,7 +159,35 @@ namespace ProceduralBuildingsGeneration
     {
         public override bool BuildOnMesh(DMesh3Builder meshBuilder)
         {
-            MeshUtility.FillPolygon(meshBuilder, BaseShape, Vector3f.AxisY); // todo: bad move
+            var elevation = Vector3d.AxisY * RoofHeight;
+            var topOuterPolygon = BaseShape.Select(p => p + elevation).ToList();
+            for (int p = 0; p < BaseShape.Count; ++p)
+            {
+                var nextP = ((p + 1) + BaseShape.Count) % BaseShape.Count;
+                var side = BaseShape[nextP] - BaseShape[p];
+                var normal = new Vector3f(side.UnitCross(Vector3d.AxisY));
+                MeshUtility.FillBetweenEdges(meshBuilder,
+                    new MeshUtility.Edge(BaseShape[p], BaseShape[nextP]),
+                    new MeshUtility.Edge(topOuterPolygon[p], topOuterPolygon[nextP]),
+                    normal);
+            }
+
+            var topInnerPolygon = IntrudeAndOffsetPolygon(topOuterPolygon, 0.92, Vector3d.Zero);
+            FillBetweenPolygons(meshBuilder, topOuterPolygon, topInnerPolygon);
+
+            var innerPolygon = IntrudeAndOffsetPolygon(BaseShape, 0.92, elevation * 0.4);
+
+            for (int p = 0; p < topInnerPolygon.Count; ++p)
+            {
+                var nextP = ((p + 1) + BaseShape.Count) % BaseShape.Count;
+                var side = topInnerPolygon[nextP] - topInnerPolygon[p];
+                var normal = new Vector3f(Vector3d.AxisY.UnitCross(side));
+                MeshUtility.FillBetweenEdges(meshBuilder,
+                    new MeshUtility.Edge(topInnerPolygon[p], topInnerPolygon[nextP]),
+                    new MeshUtility.Edge(innerPolygon[p], innerPolygon[nextP]),
+                    normal);
+            }
+            MeshUtility.FillPolygon(meshBuilder, innerPolygon, Vector3f.AxisY); // todo: bad move
             return true;
         }
     }
@@ -160,45 +205,20 @@ namespace ProceduralBuildingsGeneration
     {
         public override bool BuildOnMesh(DMesh3Builder meshBuilder)
         {
-            var newBasePolygon = ScaleAndOffsetPolygon(BaseShape, 1.15, Vector3d.Zero);
-            var topPolygon = ScaleAndOffsetPolygon(BaseShape, 0.6, Vector3d.AxisY * RoofHeight);
-
-            for (int p = 0; p < newBasePolygon.Count - 1; ++p)
+            var intrude = double.MaxValue;
+            for(int p = 0; p < BaseShape.Count; ++p)
             {
-                var sideBase = BaseShape[p + 1] - BaseShape[p];
-                var sideTop = newBasePolygon[p + 1] - newBasePolygon[p];
-                var normal = new Vector3f(sideTop.Cross(sideBase));
-                MeshUtility.FillBetweenEdges(meshBuilder,
-                    new MeshUtility.Edge(BaseShape[p], BaseShape[p + 1]),
-                    new MeshUtility.Edge(newBasePolygon[p], newBasePolygon[p + 1]),
-                    normal);
+                var nextP = ((p + 1) + BaseShape.Count) % BaseShape.Count;
+                //intrude += (BaseShape[nextP] - BaseShape[p]).Length;
+                intrude = Math.Min(intrude, (BaseShape[nextP] - BaseShape[p]).Length);
             }
-            var underSideBase = BaseShape.Last() - BaseShape[0];
-            var underSideTop = newBasePolygon.Last() - newBasePolygon[0];
-            var underNormal = new Vector3f(underSideTop.Cross(underSideBase));
-            MeshUtility.FillBetweenEdges(meshBuilder,
-                new MeshUtility.Edge(BaseShape[0], BaseShape.Last()),
-                new MeshUtility.Edge(newBasePolygon[0], newBasePolygon.Last()),
-                underNormal);
+            //intrude /= BaseShape.Count;
+            intrude /= 4;
+            var newBasePolygon = BaseShape; // IntrudeAndOffsetPolygon(BaseShape, -intrude, Vector3d.Zero);
+            var topPolygon = IntrudeAndOffsetPolygon(BaseShape, intrude, Vector3d.AxisY * RoofHeight);
 
-
-            for (int p = 0; p < newBasePolygon.Count - 1; ++p)
-            {
-                var sideBase = newBasePolygon[p + 1] - newBasePolygon[p];
-                var sideTop = topPolygon[p + 1] - topPolygon[p];
-                var normal = new Vector3f(sideTop.Cross(sideBase));
-                MeshUtility.FillBetweenEdges(meshBuilder,
-                    new MeshUtility.Edge(newBasePolygon[p], newBasePolygon[p + 1]),
-                    new MeshUtility.Edge(topPolygon[p], topPolygon[p + 1]),
-                    normal);
-            }
-            var lastSideBase = newBasePolygon.Last() - newBasePolygon[0];
-            var lastSideTop = topPolygon.Last() - topPolygon[0];
-            var lastNormal = new Vector3f(lastSideTop.Cross(lastSideBase));
-            MeshUtility.FillBetweenEdges(meshBuilder,
-                new MeshUtility.Edge(newBasePolygon[0], newBasePolygon.Last()),
-                new MeshUtility.Edge(topPolygon[0], topPolygon.Last()),
-                lastNormal);
+            FillBetweenPolygons(meshBuilder, BaseShape, newBasePolygon);
+            FillBetweenPolygons(meshBuilder, newBasePolygon, topPolygon);
 
             MeshUtility.FillPolygon(meshBuilder, topPolygon, Vector3f.AxisY);
 
