@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ProceduralBuildingsGeneration
 {
@@ -75,17 +76,21 @@ namespace ProceduralBuildingsGeneration
                 NonManifoldTriBehavior = DMesh3Builder.AddTriangleFailBehaviors.DiscardTriangle,
             };
             builder.SetActiveMesh(0);
-            ApplyNodesRecursively(builder, buildingWord);
+
+            var tasksToWait = new List<Task>();
+            ApplyNodesRecursively(builder, buildingWord, tasksToWait);
+            Task.WaitAll(tasksToWait.ToArray());
             return builder.Meshes;
         }
 
-        private static void ApplyNodesRecursively(DMesh3Builder meshBuilder, GrammarNode currentNode)
+        private static void ApplyNodesRecursively(DMesh3Builder meshBuilder, GrammarNode currentNode, List<Task> tasksToWait)
         {
             if (currentNode == null) return;
             currentNode.BuildOnMesh(meshBuilder);
+            if (currentNode is WindowNode) tasksToWait.Add((currentNode as WindowNode).BuildingTask);
             foreach (var child in currentNode.Subnodes)
             {
-                ApplyNodesRecursively(meshBuilder, child);
+                ApplyNodesRecursively(meshBuilder, child, tasksToWait);
             }
         }
     }

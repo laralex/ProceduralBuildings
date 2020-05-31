@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ProceduralBuildingsGeneration
 {
@@ -214,7 +215,7 @@ namespace ProceduralBuildingsGeneration
             }
             //intrude /= BaseShape.Count;
             intrude /= 4;
-            var newBasePolygon = BaseShape; // IntrudeAndOffsetPolygon(BaseShape, -intrude, Vector3d.Zero);
+            var newBasePolygon = IntrudeAndOffsetPolygon(BaseShape, -intrude, Vector3d.Zero);
             var topPolygon = IntrudeAndOffsetPolygon(BaseShape, intrude, Vector3d.AxisY * RoofHeight);
 
             FillBetweenPolygons(meshBuilder, BaseShape, newBasePolygon);
@@ -291,33 +292,43 @@ namespace ProceduralBuildingsGeneration
         public Vector3d Origin { get; set; }
         public Vector3d FrontNormal { get; set; }
         public DMesh3 Mesh { get; set; }
+        public Task BuildingTask { get; private set; }
         public override bool BuildOnMesh(DMesh3Builder meshBuilder)
         {
-            var windowCopy = new DMesh3(Mesh, bCompact: true);
-            //var windowCopy = Mesh;
-            if (FrontNormal == -Vector3d.AxisZ)
+            DMesh3 windowCopy = null;
+            BuildingTask = Task.Run(() =>
             {
-                // trick to prevent 180 rotation
-                FrontNormal += new Vector3d(0.0000001, 0.0, 0.0);
-            }
+                windowCopy = new DMesh3(Mesh, bCompact: true);
+                //var windowCopy = Mesh;
+                if (FrontNormal == -Vector3d.AxisZ)
+                {
+                    // trick to prevent 180 rotation
+                    FrontNormal += new Vector3d(0.0000001, 0.0, 0.0);
+                }
 
-            var meshWidth = windowCopy.GetBounds().Width;
-            var meshHeight = windowCopy.GetBounds().Height;
+                var meshWidth = windowCopy.GetBounds().Width;
+                var meshHeight = windowCopy.GetBounds().Height;
 
-            var widthScale = WidthLimit / meshWidth;
-            var heightScale = HeightLimit / meshHeight;
-            var selectedScale = Math.Min(widthScale, heightScale);
+                var widthScale = WidthLimit / meshWidth;
+                var heightScale = HeightLimit / meshHeight;
+                var selectedScale = Math.Min(widthScale, heightScale);
 
-            Quaterniond orientingQuaternion = new Quaterniond(Vector3d.AxisZ, FrontNormal);
-            MeshTransforms.Rotate(windowCopy, Vector3d.Zero, orientingQuaternion);
+                Quaterniond orientingQuaternion = new Quaterniond(Vector3d.AxisZ, FrontNormal);
+                MeshTransforms.Rotate(windowCopy, Vector3d.Zero, orientingQuaternion);
 
-            MeshTransforms.Scale(windowCopy, selectedScale);
+                MeshTransforms.Scale(windowCopy, selectedScale);
 
-            MeshTransforms.Translate(windowCopy, Origin);
-            //MeshTransforms.Translate(windowCopy, Origin + Vector3d.AxisY * meshHeight * selectedScale * 0.6);
-
-            meshBuilder.AppendNewMesh(windowCopy);
-            meshBuilder.SetActiveMesh(0);
+                MeshTransforms.Translate(windowCopy, Origin);
+                //MeshTransforms.Translate(windowCopy, Origin + Vector3d.AxisY * meshHeight * selectedScale * 0.6);
+            }).ContinueWith(t =>
+            {
+                lock (meshBuilder)
+                {
+                    meshBuilder.AppendNewMesh(windowCopy);
+                    meshBuilder.SetActiveMesh(0);
+                }
+            });
+            
             return true;
         }
     }
