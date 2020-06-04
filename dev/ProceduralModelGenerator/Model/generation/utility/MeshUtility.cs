@@ -48,8 +48,9 @@ namespace ProceduralBuildingsGeneration
 
         public static (int[], int[]) FillPolygon(IMeshBuilder meshBuilder, IList<Vector3d> newPolygon, Vector3f normal)
         {
+            if (meshBuilder == null || newPolygon == null) return (null, null);
             var triangulation = Geometry.Triangulate(newPolygon, normal);
-
+            if (triangulation == null) return (null, null);
             //add vertices and triangles of basement to mesh
             var vertexToIndex = new Dictionary<Vector3d, int>();
             var addedTriangles = new int[triangulation.Count];

@@ -87,6 +87,7 @@ namespace WindowsView
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
             var vm = m_inputController.ViewModel;
+            vm.SelectedSideMeters = 15.0f;
 
             // application settings
             vm.SeedString = "FOOBAR";
@@ -100,28 +101,30 @@ namespace WindowsView
 
             // basement settings
             AddPanel(new BasementProperties(vm));
-            vm.BuildingMinHeight = 4.0f;
-            vm.BuildingMaxHeight = 15.0f;
+            vm.BuildingMinHeight = 25.0f;
+            vm.BuildingMaxHeight = 30.0f;
 
             // roof settings
             AddPanel(new RoofProperties(vm));
-            vm.RoofMinHeight = 0.5f;
-            vm.RoofMaxHeight = 1.0f;
+            vm.RoofMinHeight = 1.0f;
+            vm.RoofMaxHeight = 2.0f;
             vm.RoofStyle = RoofStyle.Flat;
+            vm.RoofEdgeMinOffsetPct = 5;
+            vm.RoofEdgeMaxOffsetPct = 25;
 
             // segmenting splits
             AddPanel(new SegmentingProperties(vm));
-            vm.MinNumberOfFloors = 1;
-            vm.MaxNumberOfFloors = 3;
-            vm.MinSelectedWallHorizontalSegments = 1;
-            vm.MaxSelectedWallHorizontalSegments = 3;
+            vm.MinNumberOfFloors = 6;
+            vm.MaxNumberOfFloors = 8;
+            vm.MinSelectedWallHorizontalSegments = 4;
+            vm.MaxSelectedWallHorizontalSegments = 7;
 
             // windows
             AddPanel(new WindowsProperties(m_inputController));
             vm.IsVerticalSymmetryPreserved = true;
             vm.IsSingleStyleWindow = true;
-            vm.MinWindowsOnSelectedWall = 0;
-            vm.MaxWindowsOnSelectedWall = 3;
+            vm.MinWindowsOnSelectedWall = 3;
+            vm.MaxWindowsOnSelectedWall = 6;
             vm.AssetsViewModel = assetsViewModel;
             vm.SelectedWindowStyleIdx = 0;
 

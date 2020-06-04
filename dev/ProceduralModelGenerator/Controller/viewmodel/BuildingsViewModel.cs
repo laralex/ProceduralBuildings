@@ -8,8 +8,6 @@ namespace GeneratorController
     {
         public BuildingsViewModel()
         {
-            SelectedSideMeters = 5.0f;
-            BuildingMinHeight = 6.0f;
             PolygonPoints = new List<Point>();
             SelectedSideEndpoint1 = -1;
             SelectedSideEndpoint2 = -1;
@@ -97,6 +95,20 @@ namespace GeneratorController
         {
             get => m_roofMaxHeight;
             set{ m_roofMaxHeight = value;NotifyChange("RoofMaxHeight"); }
+        }
+
+        private int m_roofEdgeMinOffsetPct;
+        public int RoofEdgeMinOffsetPct
+        {
+            get => m_roofEdgeMinOffsetPct;
+            set { m_roofEdgeMinOffsetPct = value; NotifyChange("RoofEdgeMinOffsetPct"); }
+        }
+
+        private int m_roofEdgeMaxOffsetPct;
+        public int RoofEdgeMaxOffsetPct
+        {
+            get => m_roofEdgeMaxOffsetPct;
+            set { m_roofEdgeMaxOffsetPct = value; NotifyChange("RoofEdgeMaxOffsetPct"); }
         }
 
         private RoofStyle m_roofStyle;

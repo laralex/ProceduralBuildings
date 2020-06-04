@@ -9,6 +9,7 @@ namespace ProceduralBuildingsGeneration
         public IList<Point2d> BasementPoints { get; set; }
         public RoofStyle RoofStyle { get; set; }
         public double RoofHeight { get; set; } 
+        //public int RoofEdgeOffsetPct { get; set; }
         public int FloorsNumber { get; set; }
         public int SelectedWallSegments { get; set; }
         public float WindowsToSegmentsFraction { get; set; }

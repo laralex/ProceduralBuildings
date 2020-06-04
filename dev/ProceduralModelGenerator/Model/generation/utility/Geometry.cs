@@ -9,12 +9,16 @@ namespace ProceduralBuildingsGeneration
     {
         public static IList<Triangle3d> Triangulate(IList<Vector3d> polygon, Vector3d normal)
         {
+            if (polygon.Count <= 2) return null;
             var triangles = new List<Triangle3d>(polygon.Count - 2);
             var polygonCopy = new List<Vector3d>(polygon);
             while(polygonCopy.Count > 3)
             {
                 var ear = GetPolygonEar(polygonCopy, normal);
-                if (ear == null) throw new ArgumentException("Polygon is not simple");
+                if (ear == null)
+                {
+                    return null; throw new ArgumentException("Polygon is not simple");
+                }
                 triangles.Add(new Triangle3d(
                     polygonCopy[ear.Item1],
                     polygonCopy[ear.Item2],
@@ -102,7 +106,7 @@ namespace ProceduralBuildingsGeneration
             return polygon.Select(point => point * scaleFactor).ToList();
         }
 
-        public static IList<Vector3d> IntrudePolygon(IList<Vector3d> polygon, double intrude)
+        public static IList<Vector3d> CompressPolygon(IList<Vector3d> polygon, double compressionCoef)
         {
             var result = new List<Vector3d>();
             for(int p = 0; p < polygon.Count; ++p)
@@ -113,24 +117,114 @@ namespace ProceduralBuildingsGeneration
                 var sideDir2 = polygon[prevP] - polygon[p];
                 sideDir1.Normalize();
                 sideDir2.Normalize();
-                var dirProjection = sideDir1.Dot(sideDir2);
-                var innerPoint1 = polygon[p] + sideDir1.UnitCross(Vector3d.AxisY) * intrude;
-                var innerPoint2 = polygon[p] + Vector3d.AxisY.UnitCross(sideDir2) * intrude;
-                if (Math.Abs(Math.Abs(dirProjection) - 1.0) < 0.00001)
+                var innerPoint1 = polygon[p] + sideDir1.UnitCross(Vector3d.AxisY) * compressionCoef;
+                var innerPoint2 = polygon[p] + Vector3d.AxisY.UnitCross(sideDir2) * compressionCoef;
+                
+                if (!LinesIntersection3d(
+                    new LineDefinition(innerPoint1, sideDir1), 
+                    new LineDefinition(innerPoint2, sideDir2), 
+                    out var closestPoint1, out var closestPoint2))
                 {
                     result.Add(innerPoint1);
                     continue; // parallel sides
                 }
-                var sepProjection1 = (innerPoint2 - innerPoint1).Dot(sideDir1);
-                var sepProjection2 = (innerPoint2 - innerPoint1).Dot(sideDir2);
-                var d1 = (sepProjection1 - dirProjection * sepProjection2) / (1 - dirProjection * dirProjection);
-                var d2 = (dirProjection * sepProjection1 - sepProjection2) / (1 - dirProjection * dirProjection);
-                var closestPoint1 = innerPoint1 + d1 * sideDir1;
-                var closestPoint2 = innerPoint2 + d2 * sideDir2;
                 if (!closestPoint1.EpsilonEqual(closestPoint2, 0.00001)) throw new Exception("Non planar polygon");
                 result.Add(closestPoint1);
             }
             return result;
+        }
+
+        public class LineDefinition
+        {
+            public Vector3d Point { get; set; }
+            public Vector3d UnitDirection { get; set; }
+            public LineDefinition(Vector3d point, Vector3d unitDirection)
+            {
+                Point = point;
+                UnitDirection = unitDirection;
+            }
+        }
+        public static bool LinesIntersection3d(LineDefinition lineA, LineDefinition lineB, out Vector3d closestPointA, out Vector3d closestPointB)
+        {
+            closestPointA = Vector3d.Zero;
+            closestPointB = Vector3d.Zero;
+            var dirProjection = lineA.UnitDirection.Dot(lineB.UnitDirection);
+            if (Math.Abs(Math.Abs(dirProjection) - 1.0) < 0.00001)
+            {
+                return false; // parallel sides
+            }
+            var sepProjection1 = (lineB.Point - lineA.Point).Dot(lineA.UnitDirection);
+            var sepProjection2 = (lineB.Point - lineA.Point).Dot(lineB.UnitDirection);
+            var d1 = (sepProjection1 - dirProjection * sepProjection2) / (1 - dirProjection * dirProjection);
+            var d2 = (dirProjection * sepProjection1 - sepProjection2) / (1 - dirProjection * dirProjection);
+            closestPointA = lineA.Point + d1 * lineA.UnitDirection;
+            closestPointB = lineB.Point + d2 * lineB.UnitDirection;
+            return true;
+        }
+        public static IList<IList<Vector3d>> BreakPolygonSelfIntersection(IList<Vector3d> polygon)
+        {
+            var splitPolygon = new List<IList<Vector3d>>();
+            var lines = new List<LineDefinition>(polygon.Count);
+            for(int p = 0; p < polygon.Count; ++p)
+            {
+                var pNext = (p + 1) % polygon.Count;
+                var dirP = polygon[pNext] - polygon[p];
+                dirP.Normalize();
+                lines.Add(new LineDefinition(polygon[p], dirP));
+                splitPolygon.Add(new List<Vector3d>());
+            }
+            for(int line = 0; line < lines.Count; ++line)
+            {
+                var prevLine = (line - 1 + lines.Count) % lines.Count;
+                var foundSplit = false;
+                for (int otherLine = 0; otherLine < lines.Count; ++otherLine)
+                {
+                    if (otherLine == line || otherLine == prevLine) continue;
+                    bool lineNotParallel = LinesIntersection3d(lines[line], lines[otherLine], out var closestLineP, out var closestOtherLineP1);
+                    bool prevLineNotParallel = LinesIntersection3d(lines[prevLine], lines[otherLine], out var closestPrevLineP, out var closestOtherLineP2);
+                    if (lineNotParallel && closestLineP.EpsilonEqual(closestOtherLineP1, 0.0001) && prevLineNotParallel && closestPrevLineP.EpsilonEqual(closestOtherLineP2, 0.0001))
+                    {
+                        var otherBegin = lines[otherLine].Point;
+                        var otherEnd = lines[(otherLine + 1) % lines.Count].Point;
+                        if (otherBegin.EpsilonEqual(closestOtherLineP1, 0.0001) ||
+                            otherBegin.EpsilonEqual(closestOtherLineP2, 0.0001) ||
+                            otherEnd.EpsilonEqual(closestOtherLineP1, 0.0001) ||
+                            otherEnd.EpsilonEqual(closestOtherLineP2, 0.0001)) continue;
+                        var firstToOtherBegin = (otherBegin - closestOtherLineP1).Normalized;
+                        var firstToOtherEnd = (otherEnd - closestOtherLineP1).Normalized;
+                        var secondToOtherBegin = (otherBegin - closestOtherLineP2).Normalized;
+                        var secondToOtherEnd = (otherEnd - closestOtherLineP2).Normalized;
+
+                        bool intersectsLineSegment = firstToOtherBegin.EpsilonEqual(-firstToOtherEnd, 0.0001);
+                        bool intersectsPrevLineSegment = secondToOtherEnd.EpsilonEqual(-secondToOtherBegin, 0.0001);
+                        if (intersectsLineSegment && intersectsPrevLineSegment)
+                        {
+                            foundSplit = true;
+                            splitPolygon[line].Add(closestOtherLineP2);
+                            splitPolygon[line].Add(closestOtherLineP1);
+                            break;
+                        }
+                        else if (!intersectsLineSegment && !intersectsPrevLineSegment) {
+                            var curSide = (lines[line].Point - otherBegin).UnitCross(lines[otherLine].UnitDirection);
+                            var nextSide = (lines[(line + 1) % lines.Count].Point - otherBegin).UnitCross(lines[otherLine].UnitDirection);
+                            var prevSide = (lines[prevLine].Point - otherBegin).UnitCross(lines[otherLine].UnitDirection);
+                            if (nextSide.EpsilonEqual(prevSide, 0.0001) && !nextSide.EpsilonEqual(curSide, 0.0001))
+                            {
+                                foundSplit = true;
+                                splitPolygon[line].Add(otherBegin);
+                                splitPolygon[line].Add(otherEnd);
+                                break;
+                            }
+                        }
+                        
+                    }
+                }
+                if (!foundSplit)
+                {
+                    splitPolygon[line].Add(polygon[line]);
+                }
+            }
+            return splitPolygon;
         }
 
     }

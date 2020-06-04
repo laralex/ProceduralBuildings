@@ -109,21 +109,26 @@ namespace ProceduralBuildingsGeneration
             var roofNormal = Vector3d.AxisY;
             switch (buildingsParams.RoofStyle)
             {
-                case RoofStyle.Flat: return new FlatRoofNode
+                case RoofStyle.Flat:
+                var edgeOffset = 0.1f; 
+                return new FlatRoofNode
                 {
                     RoofHeight = buildingsParams.RoofHeight,
+                    RoofEdgeOffset = edgeOffset,
                     BaseShape = baseShape,
                     Normal = roofNormal
                 };
                 case RoofStyle.Slope: return new SlopeRoofNode
                 {
                     RoofHeight = buildingsParams.RoofHeight,
+                    RoofEdgeOffset = 0.5f,
                     BaseShape = baseShape,
                     Normal = roofNormal
                 };
                 case RoofStyle.SlopeFlat: return new FlatSlopeRoofNode
                 {
                     RoofHeight = buildingsParams.RoofHeight,
+                    RoofEdgeOffset = 0.5f,
                     BaseShape = baseShape,
                     Normal = roofNormal
                 };

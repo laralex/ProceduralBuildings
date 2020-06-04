@@ -130,10 +130,11 @@ namespace ProceduralBuildingsGeneration
         public IList<Vector3d> BaseShape { get; set; }
         public Vector3d Normal { get; set; }
         public double RoofHeight { get; set; }
-        public static IList<Vector3d> IntrudeAndOffsetPolygon(IList<Vector3d> polygon, double intrude, Vector3d offset)
+        public float RoofEdgeOffset { get; set; }
+        public static IList<Vector3d> CompressAndOffsetPolygon(IList<Vector3d> polygon, double compressionCoef, Vector3d offset)
         {
-            var intrudedolygon = Geometry.IntrudePolygon(polygon, intrude);
-            return intrudedolygon.Select(p => p + offset).ToList();
+            var compressedPolygon = Geometry.CompressPolygon(polygon, compressionCoef);
+            return compressedPolygon.Select(p => p + offset).ToList();
             //var shapeProjection = polygon.Select(p => new Point2d { X = p.x, Y = p.z }).ToList();
             //var smallerPolygon = Geometry2d.ScaleCenteredPolygon(Geometry2d.CenterPolygon(shapeProjection, out var centroid), scale);
             //offset.y += polygon[0].y;
@@ -173,10 +174,11 @@ namespace ProceduralBuildingsGeneration
                     normal);
             }
 
-            var topInnerPolygon = IntrudeAndOffsetPolygon(topOuterPolygon, 0.92, Vector3d.Zero);
+            var topInnerPolygon = CompressAndOffsetPolygon(topOuterPolygon, RoofEdgeOffset, Vector3d.Zero);
+            //var splitPolygon = Geometry.BreakPolygonSelfIntersection(topInnerPolygon);
             FillBetweenPolygons(meshBuilder, topOuterPolygon, topInnerPolygon);
 
-            var innerPolygon = IntrudeAndOffsetPolygon(BaseShape, 0.92, elevation * 0.4);
+            var innerPolygon = CompressAndOffsetPolygon(BaseShape, RoofEdgeOffset, elevation * 0.4);
 
             for (int p = 0; p < topInnerPolygon.Count; ++p)
             {
@@ -214,14 +216,84 @@ namespace ProceduralBuildingsGeneration
                 intrude = Math.Min(intrude, (BaseShape[nextP] - BaseShape[p]).Length);
             }
             //intrude /= BaseShape.Count;
-            intrude /= 4;
-            var newBasePolygon = IntrudeAndOffsetPolygon(BaseShape, -intrude, Vector3d.Zero);
-            var topPolygon = IntrudeAndOffsetPolygon(BaseShape, intrude, Vector3d.AxisY * RoofHeight);
+            intrude /= 5;
 
+            // scale up base shape and connect to base
+            var newBasePolygon = CompressAndOffsetPolygon(BaseShape, -intrude/2, Vector3d.Zero);
             FillBetweenPolygons(meshBuilder, BaseShape, newBasePolygon);
-            FillBetweenPolygons(meshBuilder, newBasePolygon, topPolygon);
+            
+            // elevale big shape a bit up and connect to big shape
+            var elevation = Vector3d.AxisY * RoofHeight * 0.15;
+            var topOuterPolygon = newBasePolygon.Select(p => p + elevation).ToList();
+            for (int p = 0; p < newBasePolygon.Count; ++p)
+            {
+                var nextP = ((p + 1) + newBasePolygon.Count) % newBasePolygon.Count;
+                var side = newBasePolygon[nextP] - newBasePolygon[p];
+                var normal = new Vector3f(side.UnitCross(Vector3d.AxisY));
+                MeshUtility.FillBetweenEdges(meshBuilder,
+                    new MeshUtility.Edge(newBasePolygon[p], newBasePolygon[nextP]),
+                    new MeshUtility.Edge(topOuterPolygon[p], topOuterPolygon[nextP]),
+                    normal);
+            }
 
-            MeshUtility.FillPolygon(meshBuilder, topPolygon, Vector3f.AxisY);
+            // find small polygons on top
+            var topPolygon = CompressAndOffsetPolygon(BaseShape, intrude, Vector3d.AxisY * RoofHeight * 0.85);
+            var brokenSelfIntersections = Geometry.BreakPolygonSelfIntersection(topPolygon);
+            //brokenSelfIntersections = Geometry.BreakPolygonSelfIntersection(brokenSelfIntersections);
+            //brokenSelfIntersections = Geometry.BreakPolygonSelfIntersection(brokenSelfIntersections);
+
+            // fill some edges of base and top
+            for (int p = 0; p < brokenSelfIntersections.Count; ++p)
+            {
+                var nextP = ((p + 1) + topOuterPolygon.Count) % topOuterPolygon.Count;
+                var sideBase = topPolygon[nextP] - topPolygon[p];
+                var sideTop = brokenSelfIntersections[nextP].First() - brokenSelfIntersections[p].Last();
+                var normal = new Vector3f(sideTop.UnitCross(sideBase));
+                MeshUtility.FillBetweenEdges(meshBuilder,
+                    new MeshUtility.Edge(topOuterPolygon[p], topOuterPolygon[nextP]),
+                    new MeshUtility.Edge(brokenSelfIntersections[p].Last(), brokenSelfIntersections[nextP].First()),
+                    normal);
+            }
+
+            // fill triangle fan for multi-point
+            var subTopPolygon = new List<Vector3d>();
+            for(int p = 0; p < brokenSelfIntersections.Count; ++p)
+            {
+                subTopPolygon.Add(brokenSelfIntersections[p].First());
+                if (brokenSelfIntersections[p].Count > 1)
+                {
+                    MeshUtility.FillPolygon(meshBuilder, subTopPolygon, Vector3f.AxisY);
+                    subTopPolygon.Clear();
+                    var firstP = topOuterPolygon[p];
+                   
+                    var limit = brokenSelfIntersections[p].Count;
+                    for (int i = 0; i < limit - 1; ++i)
+                    {
+                        var curP = brokenSelfIntersections[p][i];
+                        var nextP = brokenSelfIntersections[p][(i + 1) % limit];
+                        var normal = (Vector3f)(firstP - curP).UnitCross(nextP - curP);
+                        var firstV = meshBuilder.AppendVertex(new NewVertexInfo
+                        {
+                            v = firstP,
+                            n = normal,
+                        });
+                        var curV = meshBuilder.AppendVertex(new NewVertexInfo
+                        {
+                            v = curP,
+                            n = normal,
+                        });
+                        var nextV = meshBuilder.AppendVertex(new NewVertexInfo
+                        {
+                            v = nextP,
+                            n = normal,
+                        });
+                        meshBuilder.AppendTriangle(firstV, nextV, curV);
+                    }
+                    subTopPolygon.Add(brokenSelfIntersections[p].Last());
+                }
+            }
+            subTopPolygon.Add(brokenSelfIntersections[0].First());
+            MeshUtility.FillPolygon(meshBuilder, subTopPolygon, Vector3f.AxisY);
 
             return true;
         }

@@ -82,6 +82,8 @@ namespace GeneratorController
             var windowsOnSelectedWall = rng.Next(vm.MinWindowsOnSelectedWall, vm.MaxWindowsOnSelectedWall);
             windowsOnSelectedWall = (int)Math.Min(windowsOnSelectedWall, segmentsOnSelectedWall);
             var roofHeight = Lerp(vm.RoofMinHeight, vm.RoofMaxHeight, rng.NextDouble());
+            //var roofEdgeOffsetPct = rng.Next(vm.RoofEdgeMinOffsetPct, vm.RoofEdgeMaxOffsetPct);
+            //for
 
             var assetsViewModel = vm.AssetsViewModel as AssetsViewModel;
 
@@ -132,6 +134,7 @@ namespace GeneratorController
                 Seed = seed,
                 RoofStyle = (ProceduralBuildingsGeneration.RoofStyle)vm.RoofStyle,
                 RoofHeight = roofHeight,
+                //RoofEdgeOffsetPct = roofEdgeOffsetPct,
                 FloorsNumber = floors,
                 IsVerticalWindowSymmetryPreserved = vm.IsVerticalSymmetryPreserved,
                 AssetsScaleModifier = 10.0,
