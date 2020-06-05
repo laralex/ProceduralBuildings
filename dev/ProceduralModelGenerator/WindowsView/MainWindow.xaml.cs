@@ -97,15 +97,15 @@ namespace WindowsView
             vm.AssetsViewModel = assetsViewModel;
             assetsViewModel.DoorsAssetsGroupName = "Doors";
             assetsViewModel.WindowsAssetsGroupName = "Windows";
-            assetsViewModel.AssetTrianglesLimit = 500;
+
 
             // basement settings
-            AddPanel(new BasementProperties(vm));
+            AddPanel(c_panels, new BasementProperties(vm), false);
             vm.BuildingMinHeight = 25.0f;
             vm.BuildingMaxHeight = 30.0f;
 
             // roof settings
-            AddPanel(new RoofProperties(vm));
+            AddPanel(c_panels, new RoofProperties(vm), false);
             vm.RoofMinHeight = 1.0f;
             vm.RoofMaxHeight = 2.0f;
             vm.RoofStyle = RoofStyle.Flat;
@@ -113,14 +113,14 @@ namespace WindowsView
             vm.RoofEdgeMaxOffsetPct = 25;
 
             // segmenting splits
-            AddPanel(new SegmentingProperties(vm));
+            AddPanel(c_panels, new SegmentingProperties(vm), false);
             vm.MinNumberOfFloors = 6;
             vm.MaxNumberOfFloors = 8;
             vm.MinSelectedWallHorizontalSegments = 4;
             vm.MaxSelectedWallHorizontalSegments = 7;
 
             // windows
-            AddPanel(new WindowsProperties(m_inputController));
+            AddPanel(c_panels, new WindowsProperties(m_inputController), false);
             vm.IsVerticalSymmetryPreserved = true;
             vm.IsSingleStyleWindow = true;
             vm.MinWindowsOnSelectedWall = 3;
@@ -129,12 +129,14 @@ namespace WindowsView
             vm.SelectedWindowStyleIdx = 0;
 
             // doors
-            AddPanel(new DoorsProperties(m_inputController));
+            AddPanel(c_panels, new DoorsProperties(m_inputController), true);
             vm.SelectedDoorStyleIdx = 1;
             vm.IsDoorOnSelectedWall = true;
 
             // performance
-            AddPanel(new PerformanceProperties(assetsViewModel));
+            AddPanel(c_fixedPanels, new PerformanceProperties(assetsViewModel), false);
+            assetsViewModel.WindowAssetTrianglesLimit = 700;
+            assetsViewModel.DoorAssetTrianglesLimit = 0;
 
 
             StartupRegistrationService();
@@ -174,10 +176,10 @@ namespace WindowsView
             }
         }
 
-        private void AddPanel(UserControl panel)
+        private void AddPanel(Panel container, UserControl panel, bool isLast)
         {
-            c_panels.Children.Add(new Separator { Margin = new Thickness(0, 10, 0, 10) });
-            c_panels.Children.Add(panel);
+            container.Children.Add(panel);
+            if (!isLast) container.Children.Add(new Separator { Margin = new Thickness(0, 10, 0, 10) });
         }
 
         public bool RequestAssetVisualization(CancellationToken token)

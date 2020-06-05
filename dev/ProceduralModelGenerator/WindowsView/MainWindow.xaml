@@ -51,20 +51,22 @@
                 </MenuItem.Header>
             </MenuItem>
         </Menu>
-    <ScrollViewer HorizontalScrollBarVisibility="Auto"
-                    VerticalScrollBarVisibility="Auto">
-            <StackPanel Name="c_panels">
-                <StackPanel Orientation="Horizontal">
-                    <Button Margin="10,10,0,0" Width="70" Height="25" 
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
+            <Button Margin="10,10,0,0" Width="120" Height="25" 
+                    Content="Save changes" VerticalAlignment="Center"
+                    FontWeight="Bold"/>
+            <Button Margin="30,10,0,0" Width="70" Height="25" 
                             Content="New seed" Click="OnNewSeedClick"/>
-                    <local:LabeledTextBox TextBoxValue="{Binding SeedString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                              LabelValue="Randomization seed" Margin="0, 10, 0, 0" 
-                              FilterType="LatinLetters" TextBoxWidth="150"/>
-                    <Button Margin="10,10,0,0" Width="90" Height="25" 
-                            Content="Save changes"/>
-                </StackPanel>
-            </StackPanel>
-    </ScrollViewer>
+            <local:LabeledTextBox TextBoxValue="{Binding SeedString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                LabelValue="Randomization seed" Margin="0, 10, 0, 0" 
+                                FilterType="LatinLetters" TextBoxWidth="150"/>
+        </StackPanel>
+        
+        <StackPanel Name="c_fixedPanels" DockPanel.Dock="Top"/>
+        <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                    VerticalScrollBarVisibility="Auto">
+            <StackPanel Name="c_panels"/>
+        </ScrollViewer>
 
     </DockPanel>
 </Window>

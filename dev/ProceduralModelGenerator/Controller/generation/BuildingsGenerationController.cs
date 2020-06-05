@@ -96,11 +96,17 @@ namespace GeneratorController
             else
                 windowsAssets = assetsViewModel.WindowsAssets;
 
-            var assetTriangleLimit = assetsViewModel.AssetTrianglesLimit;
-            if (assetTriangleLimit <= 0)
+            var windowAssetTriangleLimit = assetsViewModel.WindowAssetTrianglesLimit;
+            if (windowAssetTriangleLimit <= 0)
             {
-                assetTriangleLimit = int.MaxValue;
+                windowAssetTriangleLimit = int.MaxValue;
             }
+            var doorAssetTriangleLimit = assetsViewModel.DoorAssetTrianglesLimit;
+            if (doorAssetTriangleLimit <= 0)
+            {
+                doorAssetTriangleLimit = int.MaxValue;
+            }
+
 
             IList<Point2d> basementPoints = vm.PolygonPoints.Select(p => new Point2d { X = p.X, Y = p.Y }).ToList();
             // is given basement counter clockwise
@@ -142,7 +148,8 @@ namespace GeneratorController
                 WindowsToSegmentsFraction = (float)windowsOnSelectedWall / segmentsOnSelectedWall,
                 WindowsAssets = windowsAssets,
                 DoorsAssets = doorsAsset,
-                AssetTrianglesLimit = assetTriangleLimit,
+                WindowAssetTrianglesLimit = windowAssetTriangleLimit,
+                DoorAssetTrianglesLimit = doorAssetTriangleLimit,
                 DoorWall = new WallIndices(p1, p2),
                 RandomGenerator = rng,
             };

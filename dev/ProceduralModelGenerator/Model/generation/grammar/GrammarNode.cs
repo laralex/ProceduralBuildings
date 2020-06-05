@@ -211,12 +211,18 @@ namespace ProceduralBuildingsGeneration
             var intrude = double.MaxValue;
             for(int p = 0; p < BaseShape.Count; ++p)
             {
-                var nextP = ((p + 1) + BaseShape.Count) % BaseShape.Count;
-                //intrude += (BaseShape[nextP] - BaseShape[p]).Length;
-                intrude = Math.Min(intrude, (BaseShape[nextP] - BaseShape[p]).Length);
+                var nextP = (p + 1) % BaseShape.Count;
+                for(int otherP = 0; otherP < BaseShape.Count; ++otherP)
+                {
+                    if (otherP == p || otherP == nextP) continue;
+                    intrude = Math.Min(intrude, Geometry.PointSqrDistanceToSegment(
+                        Tuple.Create(BaseShape[p], BaseShape[nextP]), BaseShape[otherP]));
+                }
+                intrude = Math.Min(intrude, (BaseShape[nextP] - BaseShape[p]).LengthSquared);
             }
+            if (intrude < 0.0) throw new Exception("Invalid intrude");
             //intrude /= BaseShape.Count;
-            intrude /= 5;
+            intrude = Math.Sqrt(intrude) / 5;
 
             // scale up base shape and connect to base
             var newBasePolygon = CompressAndOffsetPolygon(BaseShape, -intrude/2, Vector3d.Zero);
@@ -255,10 +261,14 @@ namespace ProceduralBuildingsGeneration
                     normal);
             }
 
-            // fill triangle fan for multi-point
+            //return true;
+            // fill triangle fan for multi-point and top
             var subTopPolygon = new List<Vector3d>();
-            for(int p = 0; p < brokenSelfIntersections.Count; ++p)
+            int firstMultiPoint = Enumerable.Range(0, brokenSelfIntersections.Count)
+                .FirstOrDefault(p => brokenSelfIntersections[p].Count >= 2);
+            for (int pU = firstMultiPoint; pU < brokenSelfIntersections.Count + firstMultiPoint + 1; ++pU)
             {
+                int p = pU % brokenSelfIntersections.Count;
                 subTopPolygon.Add(brokenSelfIntersections[p].First());
                 if (brokenSelfIntersections[p].Count > 1)
                 {

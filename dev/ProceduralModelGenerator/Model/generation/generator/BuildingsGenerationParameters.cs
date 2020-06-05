@@ -15,7 +15,8 @@ namespace ProceduralBuildingsGeneration
         public float WindowsToSegmentsFraction { get; set; }
         public IList<Asset> WindowsAssets { get; set; }
         public IList<Asset> DoorsAssets { get; set; }
-        public int AssetTrianglesLimit { get; set; }
+        public int WindowAssetTrianglesLimit { get; set; }
+        public int DoorAssetTrianglesLimit { get; set; }
         public double AssetsScaleModifier { get; set; }
         public bool IsVerticalWindowSymmetryPreserved { get; set; }
         public WallIndices DoorWall { get; set; }

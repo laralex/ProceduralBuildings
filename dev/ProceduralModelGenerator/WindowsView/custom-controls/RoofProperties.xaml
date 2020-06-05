@@ -24,7 +24,7 @@
                  SelectedIndex="{Binding RoofStyle, Converter={StaticResource RoofStyleToIdxConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
             <ListBoxItem Content="Flat roof"/>
             <ListBoxItem Content="Slope-flat roof"/>
-            <ListBoxItem Content="Slope roof"/>
+            <!--<ListBoxItem Content="Slope roof"/>-->
         </ListBox>
     </StackPanel>
 </UserControl>

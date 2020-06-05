@@ -101,11 +101,18 @@ namespace GeneratorController
             }
         }
 
-        private int m_assetTrianglesLimit;
-        public int AssetTrianglesLimit
+        private int m_windowAssetTrianglesLimit;
+        public int WindowAssetTrianglesLimit
         {
-            get => m_assetTrianglesLimit;
-            set { m_assetTrianglesLimit = value; NotifyChange("AssetTrianglesLimit"); }
+            get => m_windowAssetTrianglesLimit;
+            set { m_windowAssetTrianglesLimit = value; NotifyChange("WindowAssetTrianglesLimit"); }
+        }
+
+        private int m_doorAssetTrianglesLimit;
+        public int DoorAssetTrianglesLimit
+        {
+            get => m_doorAssetTrianglesLimit;
+            set { m_doorAssetTrianglesLimit = value; NotifyChange("DoorAssetTrianglesLimit"); }
         }
 
         private void NotifyChange(string property)

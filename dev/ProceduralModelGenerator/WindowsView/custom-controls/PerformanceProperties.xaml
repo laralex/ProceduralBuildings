@@ -9,8 +9,11 @@
     <StackPanel>
         <Label Content="Performance settings" DockPanel.Dock="Top" 
                    FontWeight="Bold" FontSize="16"/>
-        <local:LabeledTextBox TextBoxValue="{Binding AssetTrianglesLimit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                      LabelValue="Maximum triangles per asset" 
-                                      FilterType="Integer" TextBoxWidth="70"/>    
+        <local:LabeledTextBox TextBoxValue="{Binding WindowAssetTrianglesLimit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      LabelValue="Maximum triangles per window asset" 
+                                      FilterType="Integer" TextBoxWidth="70"/>
+        <local:LabeledTextBox TextBoxValue="{Binding DoorAssetTrianglesLimit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      LabelValue="Maximum triangles per door asset" 
+                                      FilterType="Integer" TextBoxWidth="70"/>
     </StackPanel>
 </UserControl>

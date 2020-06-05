@@ -182,33 +182,37 @@ namespace ProceduralBuildingsGeneration
                     if (otherLine == line || otherLine == prevLine) continue;
                     bool lineNotParallel = LinesIntersection3d(lines[line], lines[otherLine], out var closestLineP, out var closestOtherLineP1);
                     bool prevLineNotParallel = LinesIntersection3d(lines[prevLine], lines[otherLine], out var closestPrevLineP, out var closestOtherLineP2);
-                    if (lineNotParallel && closestLineP.EpsilonEqual(closestOtherLineP1, 0.0001) && prevLineNotParallel && closestPrevLineP.EpsilonEqual(closestOtherLineP2, 0.0001))
+                    if (lineNotParallel && closestLineP.EpsilonEqual(closestOtherLineP1, 0.000001) && prevLineNotParallel && closestPrevLineP.EpsilonEqual(closestOtherLineP2, 0.000001))
                     {
                         var otherBegin = lines[otherLine].Point;
                         var otherEnd = lines[(otherLine + 1) % lines.Count].Point;
-                        if (otherBegin.EpsilonEqual(closestOtherLineP1, 0.0001) ||
-                            otherBegin.EpsilonEqual(closestOtherLineP2, 0.0001) ||
-                            otherEnd.EpsilonEqual(closestOtherLineP1, 0.0001) ||
-                            otherEnd.EpsilonEqual(closestOtherLineP2, 0.0001)) continue;
+                        if (otherBegin.EpsilonEqual(closestOtherLineP1, 0.000001) ||
+                            otherBegin.EpsilonEqual(closestOtherLineP2, 0.000001) ||
+                            otherEnd.EpsilonEqual(closestOtherLineP1, 0.000001) ||
+                            otherEnd.EpsilonEqual(closestOtherLineP2, 0.000001)) continue;
                         var firstToOtherBegin = (otherBegin - closestOtherLineP1).Normalized;
                         var firstToOtherEnd = (otherEnd - closestOtherLineP1).Normalized;
                         var secondToOtherBegin = (otherBegin - closestOtherLineP2).Normalized;
                         var secondToOtherEnd = (otherEnd - closestOtherLineP2).Normalized;
 
-                        bool intersectsLineSegment = firstToOtherBegin.EpsilonEqual(-firstToOtherEnd, 0.0001);
-                        bool intersectsPrevLineSegment = secondToOtherEnd.EpsilonEqual(-secondToOtherBegin, 0.0001);
+                        bool intersectsLineSegment = firstToOtherBegin.EpsilonEqual(-firstToOtherEnd, 0.000001);
+                        bool intersectsPrevLineSegment = secondToOtherEnd.EpsilonEqual(-secondToOtherBegin, 0.000001);
                         if (intersectsLineSegment && intersectsPrevLineSegment)
                         {
                             foundSplit = true;
                             splitPolygon[line].Add(closestOtherLineP2);
                             splitPolygon[line].Add(closestOtherLineP1);
+                            //lines.RemoveAt(other)
                             break;
                         }
                         else if (!intersectsLineSegment && !intersectsPrevLineSegment) {
                             var curSide = (lines[line].Point - otherBegin).UnitCross(lines[otherLine].UnitDirection);
                             var nextSide = (lines[(line + 1) % lines.Count].Point - otherBegin).UnitCross(lines[otherLine].UnitDirection);
                             var prevSide = (lines[prevLine].Point - otherBegin).UnitCross(lines[otherLine].UnitDirection);
-                            if (nextSide.EpsilonEqual(prevSide, 0.0001) && !nextSide.EpsilonEqual(curSide, 0.0001))
+                            var nextAndPrevSameSide = nextSide.EpsilonEqual(prevSide, 0.000001);
+                            var curAndNextDiffSide = !nextSide.EpsilonEqual(curSide, 0.000001);
+                            var intersectionPointsSameNoHit = firstToOtherBegin.EpsilonEqual(secondToOtherBegin, 0.000001) || firstToOtherEnd.EpsilonEqual(secondToOtherEnd, 0.000001);// || 
+                            if (nextAndPrevSameSide && curAndNextDiffSide && !intersectionPointsSameNoHit)
                             {
                                 foundSplit = true;
                                 splitPolygon[line].Add(otherBegin);
@@ -225,6 +229,22 @@ namespace ProceduralBuildingsGeneration
                 }
             }
             return splitPolygon;
+        }
+
+        public static double PointSqrDistanceToSegment(Tuple<Vector3d, Vector3d> line, Vector3d point)
+        {
+            var lineDir = (line.Item1 - line.Item2).Normalized;
+            var pointToEnd1 = line.Item1 - point;
+            var pointToEnd2 = line.Item2 - point;
+            var shortestPointToLine = (pointToEnd1 - lineDir * lineDir.Dot(pointToEnd1));
+            var shortestToEnd1 = (point + shortestPointToLine - line.Item1).Normalized;
+            var shortestToEnd2 = (point + shortestPointToLine - line.Item2).Normalized;
+            if (shortestToEnd1.EpsilonEqual(-shortestToEnd2, 0.000001))
+            {
+                return shortestPointToLine.LengthSquared;
+            }
+            return Math.Min(pointToEnd1.LengthSquared, pointToEnd2.LengthSquared);
+            //var sqrDistanceToLine = .LengthSquared;
         }
 
     }

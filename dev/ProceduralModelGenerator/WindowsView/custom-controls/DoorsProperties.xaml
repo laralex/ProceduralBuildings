@@ -7,7 +7,7 @@
     <StackPanel>
         <Label Content="Doors settings" 
                FontWeight="Bold" FontSize="16"/>
-        <CheckBox Content="Door on the selected wall" 
+        <CheckBox Content="Door on the selected wall" HorizontalAlignment ="Left" 
                   Margin="3,5" IsChecked="{Binding IsDoorOnSelectedWall, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
         <StackPanel Orientation="Horizontal" Margin="0,5">
             <Label Content="Door style:"/>

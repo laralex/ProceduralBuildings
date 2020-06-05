@@ -8,12 +8,14 @@
     <DockPanel>
         <Label Content="Basement settings" DockPanel.Dock="Top" 
                    FontWeight="Bold" FontSize="16"/>
-        <ScrollViewer Height="300" DockPanel.Dock="Top"
+        <ScrollViewer Name="c_canvasScroll" Height="300" DockPanel.Dock="Top"
                           VerticalScrollBarVisibility="Auto"
-                          HorizontalAlignment="Stretch">
-            <Canvas Name="c_canvas" Height="400" Background="GhostWhite"
-                MouseDown="OnCanvasMouseDown" MouseUp="OnCanvasMouseUp" DockPanel.Dock="Top"
-                Margin="15" ClipToBounds="True" VerticalAlignment="Stretch"/>
+                          HorizontalScrollBarVisibility="Auto"
+                          HorizontalAlignment="Stretch"
+                          Margin="10,0,40,0">
+            <Canvas Name="c_canvas" Height="500" Background="DimGray"
+                MouseDown="OnCanvasMouseDown" MouseUp="OnCanvasMouseUp" DockPanel.Dock="Top"/>
+            <!--ClipToBounds="True" VerticalAlignment="Stretch"-->
         </ScrollViewer>
         <StackPanel>
             <local:LabeledTextBox TextBoxValue="{Binding SelectedSideMeters, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"

@@ -31,6 +31,8 @@ namespace WindowsGeneratorView
             c_canvas.Children.Add(m_polygon);
             c_canvas.MouseMove += OnCanvasMouseMove_DraggingPoint;
 
+            c_canvasScroll.ScrollToVerticalOffset(c_canvasScroll.ScrollableHeight / 2);
+
             OnCanvasLostFocus(sender, e);
         }
 

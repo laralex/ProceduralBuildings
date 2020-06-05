@@ -15,9 +15,9 @@
                MaxValue="{Binding MaxWindowsOnSelectedWall, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                LabelValue="Windows on selected (or longest) wall" 
                FilterType="Integer" TextBoxWidth="70"/>
-        <CheckBox Content="Keep vertical symmetry" 
+        <CheckBox Content="Keep vertical symmetry" HorizontalAlignment ="Left" 
                   Margin="3,5" IsChecked="{Binding IsVerticalSymmetryPreserved, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-        <CheckBox Content="Single window style" Name="c_SingleStyle"
+        <CheckBox Content="Single window style" Name="c_SingleStyle" HorizontalAlignment ="Left"
                   Margin="3,5" IsChecked="{Binding IsSingleStyleWindow, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
         <StackPanel Visibility="{Binding IsChecked, ElementName=c_SingleStyle, 
             Converter={StaticResource BoolToVis}}">

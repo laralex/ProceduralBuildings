@@ -16,10 +16,10 @@ namespace ProceduralBuildingsGeneration
             var assetsMeshes = new Dictionary<Asset, DMesh3>();
 
             LoadAssetsAsMeshes(buildingParams.DoorsAssets, 
-                buildingParams.AssetTrianglesLimit,
+                buildingParams.DoorAssetTrianglesLimit,
                 1.0 / buildingParams.AssetsScaleModifier, assetsMeshes);
             LoadAssetsAsMeshes(buildingParams.WindowsAssets,
-                buildingParams.AssetTrianglesLimit,
+                buildingParams.WindowAssetTrianglesLimit,
                 1.0 / buildingParams.AssetsScaleModifier, assetsMeshes);
             
             // make grammar
